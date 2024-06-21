@@ -1,0 +1,13 @@
+---
+title: Data exploration
+subtitle: Plot the data and find patterns
+comments: false
+---
+
+## Load the data
+
+
+
+## 2019
+
+[Green Edge legacy meeting (Nice, France)]{.section-header}

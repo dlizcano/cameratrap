@@ -1,0 +1,60 @@
+project:
+  type: website
+
+website:
+  comments:
+    utterances:
+      repo: dlizcano/dlizcano.github.io
+  page-navigation: true
+  title: "Camera Trap Cesar"
+  site-url: "https://dlizcano.github.io/cametrapcesar"
+  description: "Cameratrap | Data visualization | R enthousiast"
+  cookie-consent: false
+  twitter-card: true
+  open-graph:
+    site-name: "Camera Trap Cesar Project"
+  navbar:
+    right:
+      - dataexploration.qmd
+      - diversity.qmd
+      - about.qmd
+      - icon: github
+        href: https://github.com/dlizcano
+      - icon: twitter
+        href: https://twitter.com/dlizcano
+      - icon: rss
+        href: index.xml
+format:
+  html:
+    toc: true
+    theme:
+      light: flatly
+      dark: darkly
+    css: styles.css
+    code-link: true
+    code-block-bg: "gray70" 
+    code-fold: true
+    highlight-style: arrow
+    mainfont: Fira Sans
+    fig-dpi: 600
+    fig-align: center
+    fig-width: 8
+    fig-asp: 0.618 # 1 / pi
+    fig-format: png
+
+citation: true
+google-scholar: true
+
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+
+execute:
+  freeze: auto
+  message: false
+  warning: false
+  echo: true
+
+filters:
+  - include-code-files

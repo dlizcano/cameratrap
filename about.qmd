@@ -1,0 +1,42 @@
+---
+title: 'About'
+image: img/me_field.jpg
+comments: false
+about:
+  template: jolla
+  image-shape: round
+  image-width: 10em
+
+  links:
+    - icon: twitter
+      text: Twitter
+      href: https://twitter.com/dlizcano
+    - icon: github
+      text: Github
+      href: https://github.com/dlizcano
+---
+
+Hi, my name is Diego Lizcano. As a _wildlife ecologist_, the [R statistical computing language](https://www.r-project.org/) is an important part of my daily workflow. I mainly use R for data analysis, modelling, and data manipulation.
+
+<img src="/img/me2024.jpg" alt="drawing" width="400"/>
+
+## Current research
+
+I am currently working as a data analist for [WCS Andes-Amazon-Orinoco Region](http://www.wcs.org)
+
+**Some researches I am currently working on:**
+
+- Jaguar detection and occupancy analysis
+
+- WCS Strongholds 
+
+**I am always looking for collaborations.** Do not hesitate to contact me!
+
+## Scientific interests (no specific order)
+
+- Cameratrap data analysis  
+
+- Acoustics
+
+- Ecological modeling 
+

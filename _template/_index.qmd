@@ -1,0 +1,65 @@
+---
+title: 'title'
+author: 'Diego Lizcano'
+date: '2024-06-20'
+categories: [R, ...]
+# The preview file needs to be named preview.png
+# mogrify -format png preview.jpg
+# https://quarto.org/docs/websites/website-tools.html#preview-images
+image: 'img/preview.png'
+editor_options:
+  chunk_output_type: console
+citation: true
+---
+
+```{r}
+#| label: renv
+#| include: false
+# https://www.joelnitta.com/posts/2024-01-11_using_renv_with_blog/
+
+renv::use(lockfile = "renv.lock")
+
+library(quarto)
+library(styler)
+```
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggpmthemes)
+library(sf)
+
+theme_set(theme_exo())
+```
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+library(ggpmthemes)
+
+theme_set(theme_minimal(base_family = "Montserrat"))
+```
+
+![Let's crop something! Photo by <a href="https://unsplash.com/@rozetsky?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Ant Rozetsky</a> on <a href="https://unsplash.com/s/photos/crop?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>](img/preview.png){fig-alt="Close up on a grain field" fig-align="center"}
+
+<details>
+  
+<summary>Session info</summary>
+
+```{r sessioninfo, echo = FALSE}
+#| label: sessioninfo
+options(width = 120)
+devtools::session_info()
+```
+
+</details>
+
+<details>
+
+<summary>renv.lock file</summary>
+
+```{.json include="renv.lock"}
+
+```
+
+</details>

@@ -1,0 +1,182 @@
+---
+title: 'Visualizing the data'
+author: 'Diego J. Lizcano'
+date: '2024-06-15'
+categories: [R]
+image: 'img/preview.jpg'
+---
+As a simple map and calendar
+
+```{r}
+#| label: renv
+#| include: false
+# https://www.joelnitta.com/posts/2024-01-11_using_renv_with_blog/
+# library(renv)
+# renv::use(lockfile = "renv.lock")
+
+library(quarto)
+library(styler)
+```
+
+## Load packages
+
+```{r setup, include=TRUE}
+
+# library(ggpmthemes)
+library(glue)
+library(ggforce)
+library(curl)
+library(patchwork)
+library(readxl)
+library(sf)
+library(mapview)
+library(ggTimeSeries) # calendar
+
+library(knitr)
+# options(kableExtra.auto_format = FALSE)
+library(kableExtra)
+library(tidyverse)
+
+source("C:/CodigoR/CameraTrapCesar/R/organiza_datos.R")
+# theme_set(theme_exo())
+# theme_update(
+#   rect = element_rect(fill = "#173f50"),
+#   text = element_text(colour = "white"),
+#   axis.text = element_text(colour = "white"),
+#   axis.ticks = element_line(colour = "white")
+# )
+```
+
+## Load data
+
+```{r warning=FALSE}
+
+datos <- read_excel("C:/CodigoR/CameraTrapCesar/data/CT_Cesar.xlsx")
+
+```
+
+
+## Convert to sf
+
+```{r}
+
+datos_distinct <- datos |> distinct(Longitude, Latitude, CT, Proyecto)
+
+projlatlon <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+datos_sf <-  st_as_sf(x = datos_distinct,
+                         coords = c("Longitude", 
+                                    "Latitude"),
+                         crs = projlatlon)
+
+
+
+```
+
+
+## Plot all
+
+```{r}
+mapview(datos_sf, zcol="Proyecto")
+
+
+calendario <- function(data=datos, Proyect=Proyecto){
+  dtData<- datos |> filter(Proyecto==Proyect) |> #|> filter(Year=="2022")
+  # becerril$Date_Time <- as_date(as.character(data$eventDate))
+      mutate(Date_Time=as.Date(eventDate, "%d/%m/%Y")) |> 
+      count(Date_Time) |> na.omit()
+  
+  # base plot
+  p1 = ggplot_calendar_heatmap(
+     dtData,
+     'Date_Time',
+     'n',
+     dayBorderSize = 0.1,
+     monthBorderSize = 0.7
+  )
+  
+  # adding some formatting
+  p1 +
+     xlab(NULL) +
+     ylab(NULL) +
+     scale_fill_continuous(low = 'cyan', high = 'red') +
+     facet_wrap(~Year, ncol = 1) # number of columns
+} # end function
+
+```
+
+
+## See camera calendar per Proyecto
+
+### Becerril
+
+```{r}
+
+calendario(data=datos, Proyect = "Becerril")
+
+# species <- f.det_history.creator(data=becerril_2022)
+# 
+# 
+# min(dmy(becerril_2022$Start))
+# max(dmy(becerril_2022$Start))
+# 
+# min(dmy(becerril_2022$eventDate))
+
+```
+Las camaras en Becerril estuvieron activas año y medio.
+
+
+### LaPaz_Manaure
+
+```{r}
+
+calendario(data=datos, Proyect = "LaPaz_Manaure")
+
+
+```
+### PCF
+```{r}
+calendario(data=datos, Proyect = "PCF")
+```
+
+### CL
+```{r}
+calendario(data=datos, Proyect = "CL")
+```
+
+
+### EDN
+```{r}
+calendario(data=datos, Proyect = "EDN")
+```
+
+
+### PB
+```{r}
+calendario(data=datos, Proyect = "PB" )
+```
+
+
+### EDS
+```{r}
+calendario(data=datos, Proyect = "EDS" )
+```
+
+### CCI
+```{r}
+calendario(data=datos, Proyect = "CCI" )
+```
+
+### MLJ
+```{r}
+calendario(data=datos, Proyect = "MLJ" )
+```
+
+### MCAL
+```{r}
+calendario(data=datos, Proyect = "MCAL" )
+```
+
+
+
+
