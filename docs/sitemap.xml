@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index.html</loc>
-    <lastmod>2024-06-20T23:40:57.030Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/diversity.html</loc>
-    <lastmod>2024-06-20T20:47:53.286Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/about.html</loc>
-    <lastmod>2024-06-20T21:00:17.236Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/dataexploration.html</loc>
-    <lastmod>2024-06-20T20:29:29.044Z</lastmod>
-  </url>
-  <url>
     <loc>https://dlizcano.github.io/cametrapcesar/index.html</loc>
     <lastmod>2024-06-20T19:27:14.148Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index.html</loc>
+    <lastmod>2024-06-21T20:41:14.816Z</lastmod>
   </url>
 </urlset>

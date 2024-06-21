@@ -1,93 +1,65 @@
 [
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Camera Trap Blog",
+    "section": "",
+    "text": "Visualizing Cesar Cameratrap Data\n\n\n\nR\n\n\n\na lot of camera trap data from Galictis Biodiversidad\n\n\n\nDiego J. Lizcano\n\n\nJun 15, 2024\n\n\n\n\n\n\n\n\nNo matching items"
+  },
+  {
     "objectID": "posts/2024-06-15-visualizing-the-data/index.html",
     "href": "posts/2024-06-15-visualizing-the-data/index.html",
-    "title": "Visualizing the data",
+    "title": "Visualizing Cesar Cameratrap Data",
     "section": "",
     "text": "As a simple map and calendar"
   },
   {
     "objectID": "posts/2024-06-15-visualizing-the-data/index.html#load-packages",
     "href": "posts/2024-06-15-visualizing-the-data/index.html#load-packages",
-    "title": "Visualizing the data",
+    "title": "Visualizing Cesar Cameratrap Data",
     "section": "Load packages",
-    "text": "Load packages\n\nCode\n# library(ggpmthemes)\nlibrary(glue)\nlibrary(ggforce)\nlibrary(curl)\nlibrary(patchwork)\nlibrary(readxl)\nlibrary(sf)\nlibrary(mapview)\nlibrary(ggTimeSeries) # calendar\n\nlibrary(knitr)\n# options(kableExtra.auto_format = FALSE)\nlibrary(kableExtra)\nlibrary(tidyverse)\n\nsource(\"C:/CodigoR/CameraTrapCesar/R/organiza_datos.R\")\n# theme_set(theme_exo())\n# theme_update(\n#   rect = element_rect(fill = \"#173f50\"),\n#   text = element_text(colour = \"white\"),\n#   axis.text = element_text(colour = \"white\"),\n#   axis.ticks = element_line(colour = \"white\")\n# )"
+    "text": "Load packages\n\nCode\n# library(ggpmthemes)\nlibrary(glue) # Interpreted String Literals\nlibrary(curl) # A Modern and Flexible Web Client for R\nlibrary(patchwork) # The Composer of Plots\nlibrary(readxl) # Read Excel Files\nlibrary(sf) # Simple Features for R\nlibrary(mapview) # Interactive Viewing of Spatial Data in R\nlibrary(ggTimeSeries) # calendar\nlibrary(grateful) # Facilitate Citation of R Packages\n\nlibrary(knitr) # A General-Purpose Package for Dynamic Report Generation in R\n# options(kableExtra.auto_format = FALSE)\nlibrary(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax\nlibrary(tidyverse) # Easily Install and Load the 'Tidyverse'\nlibrary(ggforce) # Accelerating 'ggplot2'\n\nsource(\"C:/CodigoR/CameraTrapCesar/R/organiza_datos.R\")\n# theme_set(theme_exo())\n# theme_update(\n#   rect = element_rect(fill = \"#173f50\"),\n#   text = element_text(colour = \"white\"),\n#   axis.text = element_text(colour = \"white\"),\n#   axis.ticks = element_line(colour = \"white\")\n# )"
   },
   {
     "objectID": "posts/2024-06-15-visualizing-the-data/index.html#load-data",
     "href": "posts/2024-06-15-visualizing-the-data/index.html#load-data",
-    "title": "Visualizing the data",
+    "title": "Visualizing Cesar Cameratrap Data",
     "section": "Load data",
     "text": "Load data\n\nCode\ndatos &lt;- read_excel(\"C:/CodigoR/CameraTrapCesar/data/CT_Cesar.xlsx\")"
   },
   {
     "objectID": "posts/2024-06-15-visualizing-the-data/index.html#convert-to-sf",
     "href": "posts/2024-06-15-visualizing-the-data/index.html#convert-to-sf",
-    "title": "Visualizing the data",
+    "title": "Visualizing Cesar Cameratrap Data",
     "section": "Convert to sf",
     "text": "Convert to sf\n\nCode\ndatos_distinct &lt;- datos |&gt; distinct(Longitude, Latitude, CT, Proyecto)\n\nprojlatlon &lt;- \"+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0\"\n\ndatos_sf &lt;-  st_as_sf(x = datos_distinct,\n                         coords = c(\"Longitude\", \n                                    \"Latitude\"),\n                         crs = projlatlon)"
   },
   {
     "objectID": "posts/2024-06-15-visualizing-the-data/index.html#plot-all",
     "href": "posts/2024-06-15-visualizing-the-data/index.html#plot-all",
-    "title": "Visualizing the data",
+    "title": "Visualizing Cesar Cameratrap Data",
     "section": "Plot all",
     "text": "Plot all\n\nCodemapview(datos_sf, zcol=\"Proyecto\")\n\n\n\n\nCode\n\ncalendario &lt;- function(data=datos, Proyect=Proyecto){\n  dtData&lt;- datos |&gt; filter(Proyecto==Proyect) |&gt; #|&gt; filter(Year==\"2022\")\n  # becerril$Date_Time &lt;- as_date(as.character(data$eventDate))\n      mutate(Date_Time=as.Date(eventDate, \"%d/%m/%Y\")) |&gt; \n      count(Date_Time) |&gt; na.omit()\n  \n  # base plot\n  p1 = ggplot_calendar_heatmap(\n     dtData,\n     'Date_Time',\n     'n',\n     dayBorderSize = 0.1,\n     monthBorderSize = 0.7\n  )\n  \n  # adding some formatting\n  p1 +\n     xlab(NULL) +\n     ylab(NULL) +\n     scale_fill_continuous(low = 'cyan', high = 'red') +\n     facet_wrap(~Year, ncol = 1) # number of columns\n} # end function"
   },
   {
     "objectID": "posts/2024-06-15-visualizing-the-data/index.html#see-camera-calendar-per-proyecto",
     "href": "posts/2024-06-15-visualizing-the-data/index.html#see-camera-calendar-per-proyecto",
-    "title": "Visualizing the data",
+    "title": "Visualizing Cesar Cameratrap Data",
     "section": "See camera calendar per Proyecto",
     "text": "See camera calendar per Proyecto\nBecerril\n\nCode\ncalendario(data=datos, Proyect = \"Becerril\")\n\n\n\n\n\n\nCode\n# species &lt;- f.det_history.creator(data=becerril_2022)\n# \n# \n# min(dmy(becerril_2022$Start))\n# max(dmy(becerril_2022$Start))\n# \n# min(dmy(becerril_2022$eventDate))\n\n\nLas camaras en Becerril estuvieron activas año y medio.\nLaPaz_Manaure\n\nCode\ncalendario(data=datos, Proyect = \"LaPaz_Manaure\")\n\n\n\n\n\n\n\nPCF\n\nCodecalendario(data=datos, Proyect = \"PCF\")\n\n\n\n\n\n\n\nCL\n\nCodecalendario(data=datos, Proyect = \"CL\")\n\n\n\n\n\n\n\nEDN\n\nCodecalendario(data=datos, Proyect = \"EDN\")\n\n\n\n\n\n\n\nPB\n\nCodecalendario(data=datos, Proyect = \"PB\" )\n\n\n\n\n\n\n\nEDS\n\nCodecalendario(data=datos, Proyect = \"EDS\" )\n\n\n\n\n\n\n\nCCI\n\nCodecalendario(data=datos, Proyect = \"CCI\" )\n\n\n\n\n\n\n\nMLJ\n\nCodecalendario(data=datos, Proyect = \"MLJ\" )\n\n\n\n\n\n\n\nMCAL\n\nCodecalendario(data=datos, Proyect = \"MCAL\" )"
   },
   {
-    "objectID": "diversity.html",
-    "href": "diversity.html",
-    "title": "Diversity",
-    "section": "",
-    "text": "Mammalian diversity"
+    "objectID": "posts/2024-06-15-visualizing-the-data/index.html#package-citation",
+    "href": "posts/2024-06-15-visualizing-the-data/index.html#package-citation",
+    "title": "Visualizing Cesar Cameratrap Data",
+    "section": "Package Citation",
+    "text": "Package Citation\n\nCodepkgs &lt;- cite_packages(output = \"paragraph\", out.dir = \".\")\nknitr::kable(pkgs)\n\n\n\n\nx\n\n\nWe used R version 4.3.2 (R Core Team 2023) and the following R packages: curl v. 5.2.0 (Ooms 2023), ggforce v. 0.4.2 (Pedersen 2024a), ggTimeSeries v. 1.0.2 (Kothari 2022), glue v. 1.7.0 (Hester and Bryan 2024), kableExtra v. 1.4.0 (Zhu 2024), knitr v. 1.46 (Xie 2014, 2015, 2024), mapview v. 2.11.2 (Appelhans et al. 2023), patchwork v. 1.2.0 (Pedersen 2024b), quarto v. 1.4 (Allaire and Dervieux 2024), rmarkdown v. 2.27 (Xie, Allaire, and Grolemund 2018; Xie, Dervieux, and Riederer 2020; Allaire et al. 2024), sf v. 1.0.15 (Pebesma 2018; Pebesma and Bivand 2023), styler v. 1.10.3 (Müller and Walthert 2024), tidyverse v. 2.0.0 (Wickham et al. 2019).\n\n\n\nCode# pkgs"
   },
   {
-    "objectID": "diversity.html#diversity",
-    "href": "diversity.html#diversity",
-    "title": "Diversity",
-    "section": "",
-    "text": "Mammalian diversity"
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "Hi, my name is Diego Lizcano. As a wildlife ecologist, the R statistical computing language is an important part of my daily workflow. I mainly use R for data analysis, modelling, and data manipulation."
-  },
-  {
-    "objectID": "about.html#current-research",
-    "href": "about.html#current-research",
-    "title": "About",
-    "section": "Current research",
-    "text": "Current research\nI am currently working as a data analist for WCS Andes-Amazon-Orinoco Region\nSome researches I am currently working on:\n\nJaguar detection and occupancy analysis\nWCS Strongholds\n\nI am always looking for collaborations. Do not hesitate to contact me!"
-  },
-  {
-    "objectID": "about.html#scientific-interests-no-specific-order",
-    "href": "about.html#scientific-interests-no-specific-order",
-    "title": "About",
-    "section": "Scientific interests (no specific order)",
-    "text": "Scientific interests (no specific order)\n\nCameratrap data analysis\nAcoustics\nEcological modeling"
-  },
-  {
-    "objectID": "dataexploration.html#section",
-    "href": "dataexploration.html#section",
-    "title": "Data exploration",
-    "section": "2019",
-    "text": "2019\nGreen Edge legacy meeting (Nice, France)"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Camera Trap Cesar",
-    "section": "",
-    "text": "Visualizing the data\n\n\n\nR\n\n\n\n\n\n\n\nDiego J. Lizcano\n\n\nJun 15, 2024\n\n\n\n\n\n\n\n\nNo matching items\n\nCitationBibTeX citation:@online{untitled,\n  author = {},\n  url = {https://dlizcano.github.io/cametrapcesar/},\n  langid = {en}\n}\nFor attribution, please cite this work as:\nn.d. https://dlizcano.github.io/cametrapcesar/."
+    "objectID": "posts/2024-06-15-visualizing-the-data/index.html#sesion-info",
+    "href": "posts/2024-06-15-visualizing-the-data/index.html#sesion-info",
+    "title": "Visualizing Cesar Cameratrap Data",
+    "section": "Sesion info",
+    "text": "Sesion info\n\nCodeprint(sessionInfo(), locale = FALSE)\n#&gt; R version 4.3.2 (2023-10-31 ucrt)\n#&gt; Platform: x86_64-w64-mingw32/x64 (64-bit)\n#&gt; Running under: Windows 10 x64 (build 19042)\n#&gt; \n#&gt; Matrix products: default\n#&gt; \n#&gt; \n#&gt; attached base packages:\n#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     \n#&gt; \n#&gt; other attached packages:\n#&gt;  [1] ggforce_0.4.2      lubridate_1.9.3    forcats_1.0.0      stringr_1.5.1     \n#&gt;  [5] dplyr_1.1.4        purrr_1.0.2        readr_2.1.5        tidyr_1.3.1       \n#&gt;  [9] tibble_3.2.1       tidyverse_2.0.0    kableExtra_1.4.0   knitr_1.46        \n#&gt; [13] grateful_0.2.4     ggTimeSeries_1.0.2 ggplot2_3.5.1      mapview_2.11.2    \n#&gt; [17] sf_1.0-15          readxl_1.4.3       patchwork_1.2.0    curl_5.2.0        \n#&gt; [21] glue_1.7.0         styler_1.10.3      quarto_1.4        \n#&gt; \n#&gt; loaded via a namespace (and not attached):\n#&gt;  [1] DBI_1.2.2               leafpop_0.1.0           rlang_1.1.3            \n#&gt;  [4] magrittr_2.0.3          e1071_1.7-14            compiler_4.3.2         \n#&gt;  [7] png_0.1-8               systemfonts_1.0.5       vctrs_0.6.5            \n#&gt; [10] pkgconfig_2.0.3         fastmap_1.1.1           ellipsis_0.3.2         \n#&gt; [13] leafem_0.2.3            labeling_0.4.3          utf8_1.2.4             \n#&gt; [16] rmarkdown_2.27          tzdb_0.4.0              ps_1.7.6               \n#&gt; [19] xfun_0.44               satellite_1.0.5         jsonlite_1.8.8         \n#&gt; [22] later_1.3.2             uuid_1.2-0              tweenr_2.0.3           \n#&gt; [25] terra_1.7-71            R6_2.5.1                stringi_1.8.3          \n#&gt; [28] jquerylib_0.1.4         cellranger_1.1.0        Rcpp_1.0.12            \n#&gt; [31] base64enc_0.1-3         R.utils_2.12.3          leaflet.providers_2.0.0\n#&gt; [34] R.cache_0.16.0          timechange_0.3.0        tidyselect_1.2.1       \n#&gt; [37] rstudioapi_0.16.0       yaml_2.3.8              codetools_0.2-19       \n#&gt; [40] processx_3.8.3          lattice_0.22-5          withr_3.0.0            \n#&gt; [43] evaluate_0.23           units_0.8-5             proxy_0.4-27           \n#&gt; [46] polyclip_1.10-6         xml2_1.3.6              pillar_1.9.0           \n#&gt; [49] KernSmooth_2.23-22      renv_1.0.3              stats4_4.3.2           \n#&gt; [52] generics_0.1.3          sp_2.1-3                hms_1.1.3              \n#&gt; [55] munsell_0.5.0           scales_1.3.0            class_7.3-22           \n#&gt; [58] tools_4.3.2             data.table_1.15.0       grid_4.3.2             \n#&gt; [61] crosstalk_1.2.1         colorspace_2.1-0        raster_3.6-26          \n#&gt; [64] cli_3.6.2               brew_1.0-10             fansi_1.0.6            \n#&gt; [67] viridisLite_0.4.2       svglite_2.1.3           gtable_0.3.4           \n#&gt; [70] R.methodsS3_1.8.2       digest_0.6.34           classInt_0.4-10        \n#&gt; [73] htmlwidgets_1.6.4       farver_2.1.1            htmltools_0.5.7        \n#&gt; [76] R.oo_1.26.0             lifecycle_1.0.4         leaflet_2.2.1          \n#&gt; [79] MASS_7.3-60"
   }
 ]
