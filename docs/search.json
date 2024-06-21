@@ -1,0 +1,93 @@
+[
+  {
+    "objectID": "posts/2024-06-15-visualizing-the-data/index.html",
+    "href": "posts/2024-06-15-visualizing-the-data/index.html",
+    "title": "Visualizing the data",
+    "section": "",
+    "text": "As a simple map and calendar"
+  },
+  {
+    "objectID": "posts/2024-06-15-visualizing-the-data/index.html#load-packages",
+    "href": "posts/2024-06-15-visualizing-the-data/index.html#load-packages",
+    "title": "Visualizing the data",
+    "section": "Load packages",
+    "text": "Load packages\n\nCode\n# library(ggpmthemes)\nlibrary(glue)\nlibrary(ggforce)\nlibrary(curl)\nlibrary(patchwork)\nlibrary(readxl)\nlibrary(sf)\nlibrary(mapview)\nlibrary(ggTimeSeries) # calendar\n\nlibrary(knitr)\n# options(kableExtra.auto_format = FALSE)\nlibrary(kableExtra)\nlibrary(tidyverse)\n\nsource(\"C:/CodigoR/CameraTrapCesar/R/organiza_datos.R\")\n# theme_set(theme_exo())\n# theme_update(\n#   rect = element_rect(fill = \"#173f50\"),\n#   text = element_text(colour = \"white\"),\n#   axis.text = element_text(colour = \"white\"),\n#   axis.ticks = element_line(colour = \"white\")\n# )"
+  },
+  {
+    "objectID": "posts/2024-06-15-visualizing-the-data/index.html#load-data",
+    "href": "posts/2024-06-15-visualizing-the-data/index.html#load-data",
+    "title": "Visualizing the data",
+    "section": "Load data",
+    "text": "Load data\n\nCode\ndatos &lt;- read_excel(\"C:/CodigoR/CameraTrapCesar/data/CT_Cesar.xlsx\")"
+  },
+  {
+    "objectID": "posts/2024-06-15-visualizing-the-data/index.html#convert-to-sf",
+    "href": "posts/2024-06-15-visualizing-the-data/index.html#convert-to-sf",
+    "title": "Visualizing the data",
+    "section": "Convert to sf",
+    "text": "Convert to sf\n\nCode\ndatos_distinct &lt;- datos |&gt; distinct(Longitude, Latitude, CT, Proyecto)\n\nprojlatlon &lt;- \"+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0\"\n\ndatos_sf &lt;-  st_as_sf(x = datos_distinct,\n                         coords = c(\"Longitude\", \n                                    \"Latitude\"),\n                         crs = projlatlon)"
+  },
+  {
+    "objectID": "posts/2024-06-15-visualizing-the-data/index.html#plot-all",
+    "href": "posts/2024-06-15-visualizing-the-data/index.html#plot-all",
+    "title": "Visualizing the data",
+    "section": "Plot all",
+    "text": "Plot all\n\nCodemapview(datos_sf, zcol=\"Proyecto\")\n\n\n\n\nCode\n\ncalendario &lt;- function(data=datos, Proyect=Proyecto){\n  dtData&lt;- datos |&gt; filter(Proyecto==Proyect) |&gt; #|&gt; filter(Year==\"2022\")\n  # becerril$Date_Time &lt;- as_date(as.character(data$eventDate))\n      mutate(Date_Time=as.Date(eventDate, \"%d/%m/%Y\")) |&gt; \n      count(Date_Time) |&gt; na.omit()\n  \n  # base plot\n  p1 = ggplot_calendar_heatmap(\n     dtData,\n     'Date_Time',\n     'n',\n     dayBorderSize = 0.1,\n     monthBorderSize = 0.7\n  )\n  \n  # adding some formatting\n  p1 +\n     xlab(NULL) +\n     ylab(NULL) +\n     scale_fill_continuous(low = 'cyan', high = 'red') +\n     facet_wrap(~Year, ncol = 1) # number of columns\n} # end function"
+  },
+  {
+    "objectID": "posts/2024-06-15-visualizing-the-data/index.html#see-camera-calendar-per-proyecto",
+    "href": "posts/2024-06-15-visualizing-the-data/index.html#see-camera-calendar-per-proyecto",
+    "title": "Visualizing the data",
+    "section": "See camera calendar per Proyecto",
+    "text": "See camera calendar per Proyecto\nBecerril\n\nCode\ncalendario(data=datos, Proyect = \"Becerril\")\n\n\n\n\n\n\nCode\n# species &lt;- f.det_history.creator(data=becerril_2022)\n# \n# \n# min(dmy(becerril_2022$Start))\n# max(dmy(becerril_2022$Start))\n# \n# min(dmy(becerril_2022$eventDate))\n\n\nLas camaras en Becerril estuvieron activas año y medio.\nLaPaz_Manaure\n\nCode\ncalendario(data=datos, Proyect = \"LaPaz_Manaure\")\n\n\n\n\n\n\n\nPCF\n\nCodecalendario(data=datos, Proyect = \"PCF\")\n\n\n\n\n\n\n\nCL\n\nCodecalendario(data=datos, Proyect = \"CL\")\n\n\n\n\n\n\n\nEDN\n\nCodecalendario(data=datos, Proyect = \"EDN\")\n\n\n\n\n\n\n\nPB\n\nCodecalendario(data=datos, Proyect = \"PB\" )\n\n\n\n\n\n\n\nEDS\n\nCodecalendario(data=datos, Proyect = \"EDS\" )\n\n\n\n\n\n\n\nCCI\n\nCodecalendario(data=datos, Proyect = \"CCI\" )\n\n\n\n\n\n\n\nMLJ\n\nCodecalendario(data=datos, Proyect = \"MLJ\" )\n\n\n\n\n\n\n\nMCAL\n\nCodecalendario(data=datos, Proyect = \"MCAL\" )"
+  },
+  {
+    "objectID": "diversity.html",
+    "href": "diversity.html",
+    "title": "Diversity",
+    "section": "",
+    "text": "Mammalian diversity"
+  },
+  {
+    "objectID": "diversity.html#diversity",
+    "href": "diversity.html#diversity",
+    "title": "Diversity",
+    "section": "",
+    "text": "Mammalian diversity"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Hi, my name is Diego Lizcano. As a wildlife ecologist, the R statistical computing language is an important part of my daily workflow. I mainly use R for data analysis, modelling, and data manipulation."
+  },
+  {
+    "objectID": "about.html#current-research",
+    "href": "about.html#current-research",
+    "title": "About",
+    "section": "Current research",
+    "text": "Current research\nI am currently working as a data analist for WCS Andes-Amazon-Orinoco Region\nSome researches I am currently working on:\n\nJaguar detection and occupancy analysis\nWCS Strongholds\n\nI am always looking for collaborations. Do not hesitate to contact me!"
+  },
+  {
+    "objectID": "about.html#scientific-interests-no-specific-order",
+    "href": "about.html#scientific-interests-no-specific-order",
+    "title": "About",
+    "section": "Scientific interests (no specific order)",
+    "text": "Scientific interests (no specific order)\n\nCameratrap data analysis\nAcoustics\nEcological modeling"
+  },
+  {
+    "objectID": "dataexploration.html#section",
+    "href": "dataexploration.html#section",
+    "title": "Data exploration",
+    "section": "2019",
+    "text": "2019\nGreen Edge legacy meeting (Nice, France)"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Camera Trap Cesar",
+    "section": "",
+    "text": "Visualizing the data\n\n\n\nR\n\n\n\n\n\n\n\nDiego J. Lizcano\n\n\nJun 15, 2024\n\n\n\n\n\n\n\n\nNo matching items\n\nCitationBibTeX citation:@online{untitled,\n  author = {},\n  url = {https://dlizcano.github.io/cametrapcesar/},\n  langid = {en}\n}\nFor attribution, please cite this work as:\nn.d. https://dlizcano.github.io/cametrapcesar/."
+  }
+]
