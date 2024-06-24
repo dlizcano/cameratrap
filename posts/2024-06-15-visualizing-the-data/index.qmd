@@ -1,9 +1,17 @@
 ---
-title: 'Visualizing the data'
-author: 'Diego J. Lizcano'
+title: 'Visualizing Cesar Cameratrap Data'
+subtitle: "Visualizing as a simple interactive map and calendar"
+description: "a lot of camera trap data from Galictis Biodiversidad"
+author: 
+  - name: 'Diego J. Lizcano'
+    orcid: 0000-0002-9648-0576
+    affiliation: "WildMon"
 date: '2024-06-15'
-categories: [R]
+file-modified: Sys.Date()
+categories: [R, calendar, map]
 image: 'img/preview.jpg'
+citation: true
+bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-06-15-visualizing-the-data/grateful-refs.bib
 ---
 As a simple map and calendar
 
@@ -14,8 +22,8 @@ As a simple map and calendar
 # library(renv)
 # renv::use(lockfile = "renv.lock")
 
-library(quarto)
-library(styler)
+library(quarto) # R Interface to 'Quarto' Markdown Publishing System
+library(styler) # Non-Invasive Pretty Printing of R Code
 ```
 
 ## Load packages
@@ -23,28 +31,23 @@ library(styler)
 ```{r setup, include=TRUE}
 
 # library(ggpmthemes)
-library(glue)
-library(ggforce)
-library(curl)
-library(patchwork)
-library(readxl)
-library(sf)
-library(mapview)
+library(glue) # Interpreted String Literals
+library(curl) # A Modern and Flexible Web Client for R
+library(patchwork) # The Composer of Plots
+library(readxl) # Read Excel Files
+library(sf) # Simple Features for R
+library(mapview) # Interactive Viewing of Spatial Data in R
 library(ggTimeSeries) # calendar
+library(grateful) # Facilitate Citation of R Packages
 
-library(knitr)
+library(knitr) # A General-Purpose Package for Dynamic Report Generation in R
 # options(kableExtra.auto_format = FALSE)
-library(kableExtra)
-library(tidyverse)
+library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
+library(tidyverse) # Easily Install and Load the 'Tidyverse'
+library(ggforce) # Accelerating 'ggplot2'
 
 source("C:/CodigoR/CameraTrapCesar/R/organiza_datos.R")
-# theme_set(theme_exo())
-# theme_update(
-#   rect = element_rect(fill = "#173f50"),
-#   text = element_text(colour = "white"),
-#   axis.text = element_text(colour = "white"),
-#   axis.ticks = element_line(colour = "white")
-# )
+
 ```
 
 ## Load data
@@ -178,5 +181,25 @@ calendario(data=datos, Proyect = "MCAL" )
 ```
 
 
+## Package Citation
 
+```{r }
+pkgs <- cite_packages(output = "paragraph", out.dir = ".") #knitr::kable(pkgs)
+pkgs
+
+```
+
+## Sesion info
+
+<details>
+  
+<summary>Session info</summary>
+
+```{r sessioninfo, echo = FALSE}
+#| label: sessioninfo
+options(width = 150)
+devtools::session_info()
+```
+
+</details>
 

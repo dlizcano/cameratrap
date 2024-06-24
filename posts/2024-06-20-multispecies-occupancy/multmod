@@ -1,0 +1,157 @@
+model{
+### PRIORS 
+## occupancy intercept estimate of community (community mean)
+beta0.mean ~ dnorm(0, 0.05)
+beta0.tau ~ dgamma(0.1, 0.1)
+beta0.sigma <- sqrt(1 / beta0.tau)
+
+## detection intercept estimate of community (community mean)
+alpha0.mean ~ dnorm(0, 0.05)
+alpha0.tau ~ dgamma(0.1, 0.1)
+alpha0.sigma <- sqrt(1 / alpha0.tau)
+
+## Data augmentation parameter
+omega ~ dunif(0, 1)
+
+## Continuous site covariates on detection - Fixed effects
+# < empty > 
+
+## Continuous site covariates on detection - Independent effects
+# < empty > 
+
+## Continuous site covariates on detection - with random effects
+# < empty > 
+
+## Categorical site covariates on detection - Fixed effect
+# < empty > 
+
+## Categorical site covariates on detection - with random effects
+# < empty > 
+
+## Continuous observation-level covariates on detection - Fixed effects
+# Covariate: effort
+alpha.obs.fixed.cont.effort ~ dnorm(0, 0.05)
+
+## Continuous observation-level covariates on detection - with random effects
+# < empty > 
+
+## Categorical observation-level covariates on detection - Fixed effect
+# < empty > 
+
+## Categorical observation-level covariates on detection - with random effects
+# < empty > 
+
+## Continuous site covariates on Occupancy - Fixed effects
+# < empty > 
+
+## Continuous site covariates on Occupancy - Independent effects
+# < empty > 
+
+## Continuous site covariates on occupancy - with random effects
+# Covariate: elevation|Species
+
+beta.ranef.cont.elevation.mean ~ dnorm(0, 0.05)
+beta.ranef.cont.elevation.tau ~ dgamma(0.1, 0.1)
+beta.ranef.cont.elevation.sigma <- sqrt(1 / beta.ranef.cont.elevation.tau)
+
+
+## Categorical site covariates on Occupancy - Fixed effects
+# < empty > 
+
+## Categorical site covariates on occupancy - with random effects
+# < empty > 
+
+# Species-station random effect on detection probability
+# < empty > 
+
+## Draws of random effects other than species
+
+
+### MODEL LOOPS 
+
+# species loop
+for (i in 1:M){
+##  Draw species-specific random effect parameters from community distributions
+# intercepts:
+beta0[i] ~ dnorm(beta0.mean, beta0.tau)
+alpha0[i] ~ dnorm(alpha0.mean, alpha0.tau)
+
+# Metacommunity membership indicator (data augmentation)
+w[i] ~ dbern(omega)
+
+
+
+
+# categorical detection covariates: no random effect of species
+
+
+# continuous observation-level detection covariates: no random effect of species
+
+
+# categorical observation covariates: no random effect of species
+
+
+# continuous occupancy covariate with random effects: elevation|Species
+beta.ranef.cont.elevation[i] ~ dnorm(beta.ranef.cont.elevation.mean, beta.ranef.cont.elevation.tau)
+
+
+# categorical occupancy covariates: no random effect of species
+
+# station loop
+for (j in 1:J){
+
+# Occupancy probability formula
+
+logit.psi[i,j] <- beta0[i] + beta.ranef.cont.elevation[i] * elevation[j]
+psi[i,j] <- exp(logit.psi[i,j]) / (exp(logit.psi[i,j]) + 1)
+z[i,j] ~ dbern(psi[i, j] * w[i])
+
+# No random effect of species and station on detection probability
+# occasion loop
+for (k in 1:maxocc){
+# Detection probability formula
+logit.p[i,j,k] <- alpha0[i] + alpha.obs.fixed.cont.effort * effort[j, k]
+
+# convert p to real scale
+p[i,j,k] <- exp(logit.p[i,j,k]) / (1+exp(logit.p[i,j,k]))
+
+# Ensure occasions without effort have p = 0
+
+
+p.eff[i,j,k] <- z[i,j] * p[i,j,k] * effort_binary[j,k]
+y[i,j,k] ~ dbern(p.eff[i,j,k])
+}   # close occasion loop
+
+}   # close station loop
+
+# Goodness-of-fit test was temporarily removed from models.
+
+
+### Number of occupied stations for each species
+NStationsOccupied[i] <- sum(z[i, 1:J])
+
+### species is part of community?
+speciesInCommunity[i] <- 1 - equals(NStationsOccupied[i],0)
+
+### Fraction of stations occupied
+fractionStationsOccupied[i] <- NStationsOccupied[i] /J
+
+### Does species occur at all (at any station)
+occ[i] <- 1 - equals(fractionStationsOccupied[i], 0)
+}    # close species loop
+
+### total number of species
+Nspecies <- sum(speciesInCommunity[1:M])
+
+### Total number of unobserved species
+n0 <- sum(w[(nspec+1):(nspec+nz)])
+
+### Total metacommunity size
+Ntotal <- sum(w[])
+
+### Species richness at every location
+for (j in 1:J){
+Nspecies_station[j] <- sum(z[1:M,j])
+}
+
+}
