@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/index.html</loc>
-    <lastmod>2024-06-20T19:27:14.148Z</lastmod>
+    <loc>https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index.html</loc>
+    <lastmod>2024-06-28T04:36:51.802Z</lastmod>
   </url>
   <url>
     <loc>https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index.html</loc>
-    <lastmod>2024-06-22T17:08:53.151Z</lastmod>
+    <lastmod>2024-06-28T04:27:52.301Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dlizcano.github.io/cametrapcesar/diversity.html</loc>
+    <lastmod>2024-06-20T20:47:53.286Z</lastmod>
   </url>
   <url>
     <loc>https://dlizcano.github.io/cametrapcesar/about.html</loc>
     <lastmod>2024-06-22T15:01:58.670Z</lastmod>
   </url>
   <url>
+    <loc>https://dlizcano.github.io/cametrapcesar/dataexploration.html</loc>
+    <lastmod>2024-06-21T22:22:50.650Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dlizcano.github.io/cametrapcesar/index.html</loc>
+    <lastmod>2024-06-20T19:27:14.148Z</lastmod>
+  </url>
+  <url>
     <loc>https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index.html</loc>
-    <lastmod>2024-06-24T07:10:43.486Z</lastmod>
+    <lastmod>2024-06-28T04:46:46.232Z</lastmod>
   </url>
 </urlset>

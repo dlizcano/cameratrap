@@ -6,13 +6,13 @@ website:
     utterances:
       repo: dlizcano/dlizcano.github.io
   page-navigation: true
-  title: "Camera Trap Cesar"
+  title: "Camera Trap Blog"
   site-url: "https://dlizcano.github.io/cametrapcesar"
   description: "Cameratrap | Data visualization | R enthousiast"
   cookie-consent: false
   twitter-card: true
   open-graph:
-    site-name: "Camera Trap Cesar Project"
+    site-name: "Camera Trap Blog"
   navbar:
     right:
       - dataexploration.qmd
@@ -42,8 +42,6 @@ format:
     fig-asp: 0.618 # 1 / pi
     fig-format: png
 
-citation: true
-google-scholar: true
 
 knitr:
   opts_chunk:

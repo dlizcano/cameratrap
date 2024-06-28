@@ -10,7 +10,7 @@ date: '2024-06-23'
 file-modified: Sys.Date()
 categories: [R, occupancy, JAGS, camtrapR]
 image: 'img/preview.png'
-draft: true
+draft: false
 citation: true
 bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-06-20-multispecies-occupancy/grateful-refs.bib
 ---
@@ -31,6 +31,8 @@ library(styler) # Non-Invasive Pretty Printing of R Code
 ```
 
 ## Load packages
+
+First we load some packages
 
 ```{r setup, include=TRUE}
 
@@ -61,6 +63,8 @@ library(tidyverse) # Easily Install and Load the 'Tidyverse'
 
 ## Load data
 
+The data set is i a excel file so we use read_excel function  to load it.
+
 ```{r warning=FALSE}
 
 datos <- read_excel("C:/CodigoR/CameraTrapCesar/data/CT_Cesar.xlsx")
@@ -71,7 +75,7 @@ datos <- read_excel("C:/CodigoR/CameraTrapCesar/data/CT_Cesar.xlsx")
 
 ## Selecting Just CT_Becerril 2021
 
-Sometimes we need to make unique codes per camera and cameraOperation table.
+To this example I selected just one place one year, Becerril 2021. Sometimes we need to make unique codes per camera and cameraOperation table.
 
 ```{r}
 # make a new column Station
@@ -95,7 +99,9 @@ CToperation  <- datos_PCF |> filter(Year==2021) |> group_by(Station) |>
 ```
 
 
-## Generating cameraOperation and making detectionHistory 
+## Generating cameraOperation and making detection histories for all the species. 
+
+The package CamtrapR has the function 'cameraOperation' which makes a table of cameras (stations) and dates (setup, puck-up), this table is key to generate the detection histories using the function 'detectionHistory' in the next step. 
 
 ```{r }
 # Generamos la matríz de operación de las cámaras
@@ -146,10 +152,11 @@ ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
 
 
 ## Preparing spatial covariates
-### make sf, get elevation and derive terrain 
+### make sf object, get elevation and derive terrain (slope and roughness).
 
+We use the lat and long to make a sf object with the camera locations.
 
-```{r}
+```{r, out.width= "600px" , out.height="500px"}
 
 # make sf object
 projlatlon <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
@@ -170,11 +177,15 @@ cos_rast <- c(elev,slope, rough) # make a stack
 # rename stack
 names(cos_rast) <- c("elev", "slope", "rough")
 
+plot(cos_rast)
+
 mapview(elev) + mapview(datos_PCF_sf)
 
 ```
 
 ### Extract values from the rasters
+
+We use the camera locations to extract the raster (elevations, slope and roughness) information. 
 
 ```{r}
 
@@ -189,6 +200,8 @@ covs <- terra::extract(cos_rast, datos_PCF_sf)
 
 ## Multispecies occupancy model
 ### Preparing the model
+
+Now  we have all ready to make our model.  We put the data of the species, and the covariates in a list. 
 
 ```{r}
 
@@ -212,6 +225,7 @@ modelfile <- (fileext = "modoccu.txt")
 ```
 
 ### Generating the model
+We use the function 'communityModel' to setup our model, selecting which covariates is for detection or occupancy and if it is fixed or random effect. 
 
 ```{r}
 
@@ -232,7 +246,7 @@ summary(comu_model)
 
 ### Running the model
 
-> Go for a coffe and enjoy it waiting for the signal beep
+> Go for a coffe and enjoy while you wait for the signal beep.
 
 ```{r}
 #| echo: true
@@ -307,6 +321,8 @@ plot_effects(comu_model, # El modelo
 ```
 
 #### See the species richness
+
+Notice the estimated species richness is: `r modresult["Ntotal",]`
 
 ```{r}
 

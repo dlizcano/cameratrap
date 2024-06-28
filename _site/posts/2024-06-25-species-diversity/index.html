@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.46">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="author" content="Diego J. Lizcano">
+<meta name="dcterms.date" content="2024-06-25">
+<meta name="description" content="using packages vegan and iNext">
+<title>Species diversity – Camera Trap Blog</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script><link rel="stylesheet" href="../../styles.css">
+<meta property="og:title" content="Camera Trap Blog - Species diversity">
+<meta property="og:description" content="using packages vegan and iNext">
+<meta property="og:image" content="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/img/preview.png">
+<meta property="og:site_name" content="Camera Trap Blog">
+<meta property="og:image:height" content="408">
+<meta property="og:image:width" content="661">
+<meta name="twitter:title" content="Camera Trap Blog - Species diversity">
+<meta name="twitter:description" content="using packages vegan and iNext">
+<meta name="twitter:image" content="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/img/preview.png">
+<meta name="twitter:image-height" content="408">
+<meta name="twitter:image-width" content="661">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Camera Trap Blog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+<li class="nav-item">
+    <a class="nav-link" href="../../dataexploration.html"> 
+<span class="menu-text">Data exploration</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../diversity.html"> 
+<span class="menu-text">Diversity</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/dlizcano"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/dlizcano"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+</div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Species diversity</h1>
+            <p class="subtitle lead">Species acumulation curves, rarefaction and other plots</p>
+                  <div>
+        <div class="description">
+          using packages <code>vegan</code> and <code>iNext</code>
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">R</div>
+                <div class="quarto-category">calendar</div>
+                <div class="quarto-category">map</div>
+              </div>
+                  </div>
+  </div>
+    
+  <div class="quarto-title-meta-author">
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-heading">Affiliation</div>
+    
+      <div class="quarto-title-meta-contents">
+      <p class="author">Diego J. Lizcano <a href="https://orcid.org/0000-0002-9648-0576" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+    </div>
+    <div class="quarto-title-meta-contents">
+          <p class="affiliation">
+              WildMon
+            </p>
+        </div>
+    </div>
+
+  <div class="quarto-title-meta">
+
+        
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 25, 2024</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
+   
+  <ul>
+<li><a href="#load-packages" id="toc-load-packages" class="nav-link active" data-scroll-target="#load-packages">Load packages</a></li>
+  <li><a href="#load-data" id="toc-load-data" class="nav-link" data-scroll-target="#load-data">Load data</a></li>
+  <li><a href="#selecting-just-ct_becerril-2021" id="toc-selecting-just-ct_becerril-2021" class="nav-link" data-scroll-target="#selecting-just-ct_becerril-2021">Selecting Just CT_Becerril 2021</a></li>
+  <li><a href="#generating-cameraoperation-and-making-detection-histories-for-all-the-species." id="toc-generating-cameraoperation-and-making-detection-histories-for-all-the-species." class="nav-link" data-scroll-target="#generating-cameraoperation-and-making-detection-histories-for-all-the-species.">Generating cameraOperation and making detection histories for all the species.</a></li>
+  <li><a href="#we-use-the-detection-histories-to-make-the-vegan-mat" id="toc-we-use-the-detection-histories-to-make-the-vegan-mat" class="nav-link" data-scroll-target="#we-use-the-detection-histories-to-make-the-vegan-mat">We use the detection histories to make the vegan mat</a></li>
+  <li><a href="#rarefaction-using-vegan" id="toc-rarefaction-using-vegan" class="nav-link" data-scroll-target="#rarefaction-using-vegan">Rarefaction using <code>vegan</code></a></li>
+  <li><a href="#convert-cameratrap-operation-to-sf-and-get-elevation" id="toc-convert-cameratrap-operation-to-sf-and-get-elevation" class="nav-link" data-scroll-target="#convert-cameratrap-operation-to-sf-and-get-elevation">Convert Cameratrap-operation to sf and get elevation</a></li>
+  <li><a href="#nonmetric-multidimensional-scaling" id="toc-nonmetric-multidimensional-scaling" class="nav-link" data-scroll-target="#nonmetric-multidimensional-scaling">Nonmetric Multidimensional Scaling</a></li>
+  <li><a href="#rarefaction-using-inext" id="toc-rarefaction-using-inext" class="nav-link" data-scroll-target="#rarefaction-using-inext">Rarefaction using <code>iNEXT</code></a></li>
+  <li><a href="#package-citation" id="toc-package-citation" class="nav-link" data-scroll-target="#package-citation">Package Citation</a></li>
+  <li><a href="#sesion-info" id="toc-sesion-info" class="nav-link" data-scroll-target="#sesion-info">Sesion info</a></li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="load-packages" class="level2"><h2 class="anchored" data-anchor-id="load-packages">Load packages</h2>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span> <span class="co"># The Composer of Plots</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://readxl.tidyverse.org">readxl</a></span><span class="op">)</span> <span class="co"># Read Excel Files</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span> <span class="co"># Simple Features for R</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jhollist/elevatr/">elevatr</a></span><span class="op">)</span> <span class="co"># Access Elevation Data from Various APIs</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-spatial/mapview">mapview</a></span><span class="op">)</span> <span class="co"># Interactive Viewing of Spatial Data in R</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://pakillo.github.io/grateful/">grateful</a></span><span class="op">)</span> <span class="co"># Facilitate Citation of R Packages</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jniedballa/camtrapR">camtrapR</a></span><span class="op">)</span> <span class="co"># Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/vegandevs/vegan">vegan</a></span><span class="op">)</span> <span class="co"># Community Ecology Package </span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://chao.stat.nthu.edu.tw/wordpress/software_download/">iNEXT</a></span><span class="op">)</span> <span class="co"># Interpolation and Extrapolation for Species Diversity</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://yihui.org/knitr/">knitr</a></span><span class="op">)</span> <span class="co"># A General-Purpose Package for Dynamic Report Generation in R</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/">kableExtra</a></span><span class="op">)</span> <span class="co"># Construct Complex Table with 'kable' and Pipe Syntax</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span> <span class="co"># Easily Install and Load the 'Tidyverse'</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggforce.data-imaginist.com">ggforce</a></span><span class="op">)</span> <span class="co"># Accelerating 'ggplot2'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section><section id="load-data" class="level2"><h2 class="anchored" data-anchor-id="load-data">Load data</h2>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="va">datos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html">read_excel</a></span><span class="op">(</span><span class="st">"C:/CodigoR/CameraTrapCesar/data/CT_Cesar.xlsx"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section><section id="selecting-just-ct_becerril-2021" class="level2"><h2 class="anchored" data-anchor-id="selecting-just-ct_becerril-2021">Selecting Just CT_Becerril 2021</h2>
+<p>To this example I selected just one place one year, Becerril 2021. Sometimes we need to make unique codes per camera and cameraOperation table.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># make a new column Station</span></span>
+<span><span class="co"># datos_PCF &lt;- datos |&gt; dplyr::filter(Proyecto=="CT_LaPaz_Manaure") |&gt; unite ("Station", ProyectoEtapa:Salida:CT, sep = "-")</span></span>
+<span></span>
+<span><span class="co"># fix dates</span></span>
+<span><span class="va">datos</span><span class="op">$</span><span class="va">Start</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="va">datos</span><span class="op">$</span><span class="va">Start</span>, <span class="st">"%d/%m/%Y"</span><span class="op">)</span></span>
+<span><span class="va">datos</span><span class="op">$</span><span class="va">End</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="va">datos</span><span class="op">$</span><span class="va">End</span>, <span class="st">"%d/%m/%Y"</span><span class="op">)</span></span>
+<span><span class="va">datos</span><span class="op">$</span><span class="va">eventDate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="va">datos</span><span class="op">$</span><span class="va">eventDate</span>, <span class="st">"%d/%m/%Y"</span><span class="op">)</span></span>
+<span><span class="va">datos</span><span class="op">$</span><span class="va">eventDateTime</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd_hms.html">ymd_hms</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">datos</span><span class="op">$</span><span class="va">eventDate</span>, <span class="st">" "</span>,</span>
+<span>                              <span class="va">datos</span><span class="op">$</span><span class="va">eventTime</span>, <span class="st">":00"</span>, sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># filter Becerril</span></span>
+<span><span class="va">datos_Becerril</span> <span class="op">&lt;-</span> <span class="va">datos</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">ProyectoEtapa</span><span class="op">==</span><span class="st">"CT_Becerril"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span> <span class="op">(</span>Station<span class="op">=</span><span class="va">IdGeo</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">Year</span><span class="op">==</span><span class="fl">2021</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># filter MLJ</span></span>
+<span><span class="va">datos_MLJ</span> <span class="op">&lt;-</span> <span class="va">datos</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">ProyectoEtapa</span><span class="op">==</span><span class="st">"MLJ_TH_TS_2021"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span> <span class="op">(</span>Station<span class="op">=</span><span class="va">IdGeo</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># filter CL</span></span>
+<span><span class="va">datos_CL1</span> <span class="op">&lt;-</span> <span class="va">datos</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">ProyectoEtapa</span><span class="op">==</span><span class="st">"CL-TH2022"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span> <span class="op">(</span>Station<span class="op">=</span><span class="va">IdGeo</span><span class="op">)</span></span>
+<span><span class="co"># filter CL</span></span>
+<span><span class="va">datos_CL2</span> <span class="op">&lt;-</span> <span class="va">datos</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">ProyectoEtapa</span><span class="op">==</span><span class="st">"CL-TS2022"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span> <span class="op">(</span>Station<span class="op">=</span><span class="va">IdGeo</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># filter PCF</span></span>
+<span><span class="va">datos_PCF</span> <span class="op">&lt;-</span> <span class="va">datos</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">Proyecto</span><span class="op">==</span><span class="st">"PCF"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span> <span class="op">(</span>Station<span class="op">=</span><span class="va">IdGeo</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">data_south</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">datos_MLJ</span>,<span class="va">datos_CL1</span>, <span class="va">datos_CL2</span>,<span class="va">datos_PCF</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># filter 2021 and make uniques</span></span>
+<span><span class="va">CToperation</span>  <span class="op">&lt;-</span> <span class="va">data_south</span> <span class="op">|&gt;</span> </span>
+<span>              <span class="co"># filter(Year==2021) |&gt; </span></span>
+<span>              <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">Station</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>              <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>minStart<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="va">Start</span><span class="op">)</span>, maxEnd<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">End</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="va">Longitude</span>, <span class="va">Latitude</span>, <span class="va">minStart</span>, <span class="va">maxEnd</span>, <span class="va">Year</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section><section id="generating-cameraoperation-and-making-detection-histories-for-all-the-species." class="level2"><h2 class="anchored" data-anchor-id="generating-cameraoperation-and-making-detection-histories-for-all-the-species.">Generating cameraOperation and making detection histories for all the species.</h2>
+<p>The package CamtrapR has the function ‘cameraOperation’ which makes a table of cameras (stations) and dates (setup, puck-up), this table is key to generate the detection histories using the function ‘detectionHistory’ in the next step.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Generamos la matríz de operación de las cámaras</span></span>
+<span></span>
+<span><span class="va">camop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://jniedballa.github.io/camtrapR/reference/cameraOperation.html">cameraOperation</a></span><span class="op">(</span>CTtable<span class="op">=</span> <span class="va">CToperation</span>, <span class="co"># Tabla de operación</span></span>
+<span>                         stationCol<span class="op">=</span> <span class="st">"Station"</span>, <span class="co"># Columna que define la estación</span></span>
+<span>                         setupCol<span class="op">=</span> <span class="st">"minStart"</span>, <span class="co">#Columna fecha de colocación</span></span>
+<span>                         retrievalCol<span class="op">=</span> <span class="st">"maxEnd"</span>, <span class="co">#Columna fecha de retiro</span></span>
+<span>                         <span class="co">#hasProblems= T, # Hubo fallos de cámaras</span></span>
+<span>                         dateFormat<span class="op">=</span> <span class="st">"%Y-%m-%d"</span><span class="op">)</span> <span class="co">#, # Formato de las fechas</span></span>
+<span>                         <span class="co">#cameraCol="CT")</span></span>
+<span>                         <span class="co"># sessionCol= "Year")</span></span>
+<span></span>
+<span><span class="co"># Generar las historias de detección ---------------------------------------</span></span>
+<span><span class="co">## remove plroblem species</span></span>
+<span><span class="co"># ind &lt;- which(datos_PCF$Species=="Marmosa sp.")</span></span>
+<span><span class="co"># datos_PCF &lt;- datos_PCF[-ind,]</span></span>
+<span></span>
+<span><span class="va">DetHist_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">datos_PCF</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span>, FUN <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://jniedballa.github.io/camtrapR/reference/detectionHistory.html">detectionHistory</a></span><span class="op">(</span></span>
+<span>    recordTable         <span class="op">=</span> <span class="va">datos_PCF</span>, <span class="co"># Tabla de registros</span></span>
+<span>    camOp                <span class="op">=</span> <span class="va">camop</span>, <span class="co"># Matriz de operación de cámaras</span></span>
+<span>    stationCol           <span class="op">=</span> <span class="st">"Station"</span>,</span>
+<span>    speciesCol           <span class="op">=</span> <span class="st">"Species"</span>,</span>
+<span>    recordDateTimeCol    <span class="op">=</span> <span class="st">"eventDateTime"</span>,</span>
+<span>    recordDateTimeFormat  <span class="op">=</span> <span class="st">"%Y-%m-%d"</span>,</span>
+<span>    species              <span class="op">=</span> <span class="va">x</span>,     <span class="co"># la función reemplaza x por cada una de las especies</span></span>
+<span>    occasionLength       <span class="op">=</span> <span class="fl">7</span>, <span class="co"># Colapso de las historias a 10 ías</span></span>
+<span>    day1                 <span class="op">=</span> <span class="st">"station"</span>, <span class="co"># ("survey"),or #inicia en la fecha de cada station</span></span>
+<span>    datesAsOccasionNames <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    includeEffort        <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    scaleEffort          <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    output               <span class="op">=</span> <span class="op">(</span><span class="st">"binary"</span><span class="op">)</span>, <span class="co"># ("binary") or ("count")</span></span>
+<span>    <span class="co">#unmarkedMultFrameInput=TRUE</span></span>
+<span>    timeZone             <span class="op">=</span> <span class="st">"America/Bogota"</span> </span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># names</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">DetHist_list</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">datos_PCF</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Finalmente creamos una lista nueva donde estén solo las historias de detección</span></span>
+<span><span class="va">ylist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">DetHist_list</span>, FUN <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="va">detection_history</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span>  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section><section id="we-use-the-detection-histories-to-make-the-vegan-mat" class="level2"><h2 class="anchored" data-anchor-id="we-use-the-detection-histories-to-make-the-vegan-mat">We use the detection histories to make the vegan mat</h2>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># loop to make matrix</span></span>
+<span><span class="va">mat_vegan</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">ylist</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">datos_PCF</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">datos_PCF</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">mat_vegan</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">ylist</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="fl">1</span>, <span class="va">sum</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="va">mat_vegan</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/replace_na.html">replace_na</a></span><span class="op">(</span><span class="va">mat_vegan</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, <span class="fl">0</span><span class="op">)</span> <span class="co"># replace na with 0</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">mat_vegan</span><span class="op">)</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">datos_PCF</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">mat_vegan</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">ylist</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section><section id="rarefaction-using-vegan" class="level2"><h2 class="anchored" data-anchor-id="rarefaction-using-vegan">Rarefaction using <code>vegan</code>
+</h2>
+<blockquote class="blockquote">
+<p>Notice that sites are cameras and the acumulation is species per camera not time</p>
+</blockquote>
+<p>Rarefaction is a technique to assess expected species richness. Rarefaction allows the calculation of species richness for a given number of individual samples, based on the construction of rarefaction curves.</p>
+<p>The issue that occurs when sampling various species in a community is that the larger the number of individuals sampled, the more species that will be found. Rarefaction curves are created by randomly re-sampling the pool of N samples multiple times and then plotting the average number of species found in each sample (1,2, … N). “Thus rarefaction generates the expected number of species in a small collection of n individuals (or n samples) drawn at random from the large pool of N samples.”. Rarefaction curves generally grow rapidly at first, as the most common species are found, but the curves plateau as only the rarest species remain to be sampled.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/vegan/man/rarefy.html">rarecurve</a></span><span class="op">(</span><span class="va">mat_vegan</span>, col <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div>
+<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="va">sp1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vegan/man/specaccum.html">specaccum</a></span><span class="op">(</span><span class="va">mat_vegan</span><span class="op">)</span></span>
+<span><span class="va">sp2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vegan/man/specaccum.html">specaccum</a></span><span class="op">(</span><span class="va">mat_vegan</span>, <span class="st">"random"</span><span class="op">)</span></span>
+<span><span class="co"># sp2</span></span>
+<span><span class="co"># summary(sp2)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">sp1</span>, ci.type<span class="op">=</span><span class="st">"poly"</span>, col<span class="op">=</span><span class="st">"blue"</span>, lwd<span class="op">=</span><span class="fl">2</span>, ci.lty<span class="op">=</span><span class="fl">0</span>, ci.col<span class="op">=</span><span class="st">"lightblue"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">sp2</span>, col<span class="op">=</span><span class="st">"yellow"</span>, add<span class="op">=</span><span class="cn">TRUE</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div>
+<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span></span>
+<span><span class="va">mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vegan/man/specaccum.html">fitspecaccum</a></span><span class="op">(</span><span class="va">sp1</span>, <span class="st">"gleason"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mods</span>, col<span class="op">=</span><span class="st">"hotpink"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">sp2</span>, col <span class="op">=</span> <span class="st">"yellow"</span>, border <span class="op">=</span> <span class="st">"blue"</span>, lty<span class="op">=</span><span class="fl">1</span>, cex<span class="op">=</span><span class="fl">0.3</span>, add<span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div>
+<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-5-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span></span>
+<span><span class="co">## Accumulation model</span></span>
+<span><span class="va">pool</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vegan/man/specpool.html">poolaccum</a></span><span class="op">(</span><span class="va">mat_vegan</span><span class="op">)</span></span>
+<span><span class="co"># summary(pool, display = "chao")</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">pool</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div>
+<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-5-4.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section id="convert-cameratrap-operation-to-sf-and-get-elevation" class="level2"><h2 class="anchored" data-anchor-id="convert-cameratrap-operation-to-sf-and-get-elevation">Convert Cameratrap-operation to sf and get elevation</h2>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="co"># datos_distinct &lt;- datos |&gt; distinct(Longitude, Latitude, CT, Proyecto)</span></span>
+<span></span>
+<span><span class="va">projlatlon</span> <span class="op">&lt;-</span> <span class="st">"+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"</span></span>
+<span></span>
+<span><span class="va">CToperation_sf</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html">st_as_sf</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">CToperation</span>,</span>
+<span>                         coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Longitude"</span>, </span>
+<span>                                    <span class="st">"Latitude"</span><span class="op">)</span>,</span>
+<span>                         crs <span class="op">=</span> <span class="va">projlatlon</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">CToperation_elev_sf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/elevatr/man/get_elev_point.html">get_elev_point</a></span><span class="op">(</span><span class="va">CToperation_sf</span>, src <span class="op">=</span> <span class="st">"aws"</span><span class="op">)</span> <span class="co"># get elevation from AWS</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section><section id="nonmetric-multidimensional-scaling" class="level2"><h2 class="anchored" data-anchor-id="nonmetric-multidimensional-scaling">Nonmetric Multidimensional Scaling</h2>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="va">example_NMDS</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/vegan/man/metaMDS.html">metaMDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">mat_vegan</span><span class="op">)</span>, </span>
+<span>                     distance<span class="op">=</span><span class="st">"mahalanobis"</span>,</span>
+<span>                     zerodist <span class="op">=</span> <span class="st">"ignore"</span>,</span>
+<span>                     k<span class="op">=</span><span class="fl">5</span><span class="op">)</span> <span class="co"># T</span></span>
+<span><span class="co">#&gt; Wisconsin double standardization</span></span>
+<span><span class="co">#&gt; Run 0 stress 6.206335e-17 </span></span>
+<span><span class="co">#&gt; Run 1 stress 9.99461e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1168074  max resid 0.3175113 </span></span>
+<span><span class="co">#&gt; Run 2 stress 7.631245e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1278865  max resid 0.2916251 </span></span>
+<span><span class="co">#&gt; Run 3 stress 1.58022e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1235651  max resid 0.2996528 </span></span>
+<span><span class="co">#&gt; Run 4 stress 9.320794e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1208166  max resid 0.3200581 </span></span>
+<span><span class="co">#&gt; Run 5 stress 4.478466e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1202726  max resid 0.3321868 </span></span>
+<span><span class="co">#&gt; Run 6 stress 9.244741e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1237762  max resid 0.2579971 </span></span>
+<span><span class="co">#&gt; Run 7 stress 1.836232e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1256306  max resid 0.2732227 </span></span>
+<span><span class="co">#&gt; Run 8 stress 9.610568e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1310691  max resid 0.3033674 </span></span>
+<span><span class="co">#&gt; Run 9 stress 6.931872e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1305507  max resid 0.3303185 </span></span>
+<span><span class="co">#&gt; Run 10 stress 0 </span></span>
+<span><span class="co">#&gt; ... New best solution</span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1308715  max resid 0.2913168 </span></span>
+<span><span class="co">#&gt; Run 11 stress 9.643033e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1297956  max resid 0.3144529 </span></span>
+<span><span class="co">#&gt; Run 12 stress 9.600753e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1192894  max resid 0.303578 </span></span>
+<span><span class="co">#&gt; Run 13 stress 9.893604e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1291389  max resid 0.2881513 </span></span>
+<span><span class="co">#&gt; Run 14 stress 9.461393e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1290142  max resid 0.3043352 </span></span>
+<span><span class="co">#&gt; Run 15 stress 9.947138e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1249568  max resid 0.2750595 </span></span>
+<span><span class="co">#&gt; Run 16 stress 9.105381e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1175285  max resid 0.3073789 </span></span>
+<span><span class="co">#&gt; Run 17 stress 9.000514e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1358244  max resid 0.3173435 </span></span>
+<span><span class="co">#&gt; Run 18 stress 2.273649e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1251571  max resid 0.2780923 </span></span>
+<span><span class="co">#&gt; Run 19 stress 0 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1121258  max resid 0.3381846 </span></span>
+<span><span class="co">#&gt; Run 20 stress 2.578529e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1216622  max resid 0.2616067 </span></span>
+<span><span class="co">#&gt; *** Best solution was not repeated -- monoMDS stopping criteria:</span></span>
+<span><span class="co">#&gt;     20: stress &lt; smin</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/vegan/man/ordisurf.html">ordisurf</a></span><span class="op">(</span><span class="op">(</span><span class="va">example_NMDS</span><span class="op">)</span>,<span class="va">CToperation_elev_sf</span><span class="op">$</span><span class="va">elevation</span>,main<span class="op">=</span><span class="st">""</span>,col<span class="op">=</span><span class="st">"forestgreen"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Family: gaussian </span></span>
+<span><span class="co">#&gt; Link function: identity </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Formula:</span></span>
+<span><span class="co">#&gt; y ~ s(x1, x2, k = 10, bs = "tp", fx = FALSE)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimated degrees of freedom:</span></span>
+<span><span class="co">#&gt; 8.64  total = 9.64 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; REML score: 308.0692</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/vegan/man/orditorp.html">orditorp</a></span><span class="op">(</span><span class="va">example_NMDS</span>,display<span class="op">=</span><span class="st">"species"</span>,col<span class="op">=</span><span class="st">"blue"</span>,air<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span>   cex<span class="op">=</span><span class="fl">0.5</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div>
+<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section id="rarefaction-using-inext" class="level2"><h2 class="anchored" data-anchor-id="rarefaction-using-inext">Rarefaction using <code>iNEXT</code>
+</h2>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span></span>
+<span><span class="co"># inedat &lt;- lapply(apply(mat_vegan, 2, sum, na.rm=TRUE), as.incfreq)</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># out &lt;- iNEXT(inedat,          # The data frame</span></span>
+<span><span class="co">#              q=0,                    # The type of diversity estimator (see discussion of the options below)</span></span>
+<span><span class="co">#              datatype="incidence_freq",   # The type of analysis</span></span>
+<span><span class="co">#              knots=40,                    # The number of data points in your line (more = smoother)</span></span>
+<span><span class="co">#              se=TRUE,                     # Logical statement if you want confidence intervals</span></span>
+<span><span class="co">#              conf=0.95,                   # The level of confidence intervals</span></span>
+<span><span class="co">#              nboot=50)                    # The number of replications to perform - this generates your confidence interval - the bigger the number the longer the run time</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">bird</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iNEXT/man/iNEXT.html">iNEXT</a></span><span class="op">(</span><span class="va">bird</span>, datatype<span class="op">=</span><span class="st">"abundance"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/iNEXT/man/ggiNEXT.html">ggiNEXT</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div>
+<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section id="package-citation" class="level2"><h2 class="anchored" data-anchor-id="package-citation">Package Citation</h2>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pakillo.github.io/grateful/reference/cite_packages.html">cite_packages</a></span><span class="op">(</span>output <span class="op">=</span> <span class="st">"paragraph"</span>, out.dir <span class="op">=</span> <span class="st">"."</span><span class="op">)</span> <span class="co">#knitr::kable(pkgs)</span></span>
+<span><span class="va">pkgs</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<p>We used R version 4.3.2 <span class="citation" data-cites="base">(<a href="#ref-base" role="doc-biblioref">R Core Team 2023</a>)</span> and the following R packages: camtrapR v. 2.3.0 <span class="citation" data-cites="camtrapR">(<a href="#ref-camtrapR" role="doc-biblioref">Niedballa et al. 2016</a>)</span>, devtools v. 2.4.5 <span class="citation" data-cites="devtools">(<a href="#ref-devtools" role="doc-biblioref">Wickham et al. 2022</a>)</span>, elevatr v. 0.99.0 <span class="citation" data-cites="elevatr">(<a href="#ref-elevatr" role="doc-biblioref">Hollister et al. 2023</a>)</span>, ggforce v. 0.4.2 <span class="citation" data-cites="ggforce">(<a href="#ref-ggforce" role="doc-biblioref">Pedersen 2024a</a>)</span>, iNEXT v. 3.0.1 <span class="citation" data-cites="iNEXT2014 iNEXT2024">(<a href="#ref-iNEXT2014" role="doc-biblioref">Chao et al. 2014</a>; <a href="#ref-iNEXT2024" role="doc-biblioref">Hsieh, Ma, and Chao 2024</a>)</span>, kableExtra v. 1.4.0 <span class="citation" data-cites="kableExtra">(<a href="#ref-kableExtra" role="doc-biblioref">Zhu 2024</a>)</span>, knitr v. 1.46 <span class="citation" data-cites="knitr2014 knitr2015 knitr2024">(<a href="#ref-knitr2014" role="doc-biblioref">Xie 2014</a>, <a href="#ref-knitr2015" role="doc-biblioref">2015</a>, <a href="#ref-knitr2024" role="doc-biblioref">2024</a>)</span>, mapview v. 2.11.2 <span class="citation" data-cites="mapview">(<a href="#ref-mapview" role="doc-biblioref">Appelhans et al. 2023</a>)</span>, patchwork v. 1.2.0 <span class="citation" data-cites="patchwork">(<a href="#ref-patchwork" role="doc-biblioref">Pedersen 2024b</a>)</span>, rmarkdown v. 2.27 <span class="citation" data-cites="rmarkdown2018 rmarkdown2020 rmarkdown2024">(<a href="#ref-rmarkdown2018" role="doc-biblioref">Xie, Allaire, and Grolemund 2018</a>; <a href="#ref-rmarkdown2020" role="doc-biblioref">Xie, Dervieux, and Riederer 2020</a>; <a href="#ref-rmarkdown2024" role="doc-biblioref">Allaire et al. 2024</a>)</span>, sf v. 1.0.15 <span class="citation" data-cites="sf2018 sf2023">(<a href="#ref-sf2018" role="doc-biblioref">Pebesma 2018</a>; <a href="#ref-sf2023" role="doc-biblioref">Pebesma and Bivand 2023</a>)</span>, tidyverse v. 2.0.0 <span class="citation" data-cites="tidyverse">(<a href="#ref-tidyverse" role="doc-biblioref">Wickham et al. 2019</a>)</span>, vegan v. 2.6.4 <span class="citation" data-cites="vegan">(<a href="#ref-vegan" role="doc-biblioref">Oksanen et al. 2022</a>)</span>.</p>
+</div>
+</div>
+</section><section id="sesion-info" class="level2"><h2 class="anchored" data-anchor-id="sesion-info">Sesion info</h2>
+<details><summary>
+Session info
+</summary><div class="cell">
+<pre><code>#&gt; ─ Session info ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+#&gt;  setting  value
+#&gt;  version  R version 4.3.2 (2023-10-31 ucrt)
+#&gt;  os       Windows 10 x64 (build 19042)
+#&gt;  system   x86_64, mingw32
+#&gt;  ui       RTerm
+#&gt;  language (EN)
+#&gt;  collate  Spanish_Colombia.utf8
+#&gt;  ctype    Spanish_Colombia.utf8
+#&gt;  tz       America/Bogota
+#&gt;  date     2024-06-27
+#&gt;  pandoc   3.1.11 @ C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
+#&gt; 
+#&gt; ─ Packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+#&gt;  ! package       * version date (UTC) lib source
+#&gt;    abind           1.4-5   2016-07-21 [1] CRAN (R 4.3.1)
+#&gt;    base64enc       0.1-3   2015-07-28 [1] CRAN (R 4.3.1)
+#&gt;    cachem          1.0.8   2023-05-01 [1] CRAN (R 4.3.2)
+#&gt;    camtrapR      * 2.3.0   2024-02-26 [1] CRAN (R 4.3.3)
+#&gt;    cellranger      1.1.0   2016-07-27 [1] CRAN (R 4.3.2)
+#&gt;    class           7.3-22  2023-05-03 [2] CRAN (R 4.3.2)
+#&gt;    classInt        0.4-10  2023-09-05 [1] CRAN (R 4.3.2)
+#&gt;    cli             3.6.2   2023-12-11 [1] CRAN (R 4.3.2)
+#&gt;    cluster         2.1.4   2022-08-22 [2] CRAN (R 4.3.2)
+#&gt;    codetools       0.2-19  2023-02-01 [2] CRAN (R 4.3.2)
+#&gt;    colorspace      2.1-0   2023-01-23 [1] CRAN (R 4.3.2)
+#&gt;    crayon          1.5.2   2022-09-29 [1] CRAN (R 4.3.2)
+#&gt;    crosstalk       1.2.1   2023-11-23 [1] CRAN (R 4.3.2)
+#&gt;    curl            5.2.0   2023-12-08 [1] CRAN (R 4.3.2)
+#&gt;    data.table      1.15.0  2024-01-30 [1] CRAN (R 4.3.2)
+#&gt;    DBI             1.2.2   2024-02-16 [1] CRAN (R 4.3.2)
+#&gt;    devtools        2.4.5   2022-10-11 [1] CRAN (R 4.3.2)
+#&gt;    digest          0.6.34  2024-01-11 [1] CRAN (R 4.3.2)
+#&gt;    dplyr         * 1.1.4   2023-11-17 [1] CRAN (R 4.3.2)
+#&gt;    e1071           1.7-14  2023-12-06 [1] CRAN (R 4.3.2)
+#&gt;    elevatr       * 0.99.0  2023-09-12 [1] CRAN (R 4.3.2)
+#&gt;    ellipsis        0.3.2   2021-04-29 [1] CRAN (R 4.3.2)
+#&gt;    evaluate        0.23    2023-11-01 [1] CRAN (R 4.3.2)
+#&gt;    fansi           1.0.6   2023-12-08 [1] CRAN (R 4.3.2)
+#&gt;    farver          2.1.1   2022-07-06 [1] CRAN (R 4.3.2)
+#&gt;    fastmap         1.1.1   2023-02-24 [1] CRAN (R 4.3.2)
+#&gt;    forcats       * 1.0.0   2023-01-29 [1] CRAN (R 4.3.2)
+#&gt;    fs              1.6.3   2023-07-20 [1] CRAN (R 4.3.2)
+#&gt;    generics        0.1.3   2022-07-05 [1] CRAN (R 4.3.2)
+#&gt;    ggforce       * 0.4.2   2024-02-19 [1] CRAN (R 4.3.3)
+#&gt;    ggplot2       * 3.5.1   2024-04-23 [1] CRAN (R 4.3.3)
+#&gt;    glue            1.7.0   2024-01-09 [1] CRAN (R 4.3.2)
+#&gt;    grateful      * 0.2.4   2023-10-22 [1] CRAN (R 4.3.3)
+#&gt;    gtable          0.3.4   2023-08-21 [1] CRAN (R 4.3.2)
+#&gt;    hms             1.1.3   2023-03-21 [1] CRAN (R 4.3.2)
+#&gt;    htmltools       0.5.7   2023-11-03 [1] CRAN (R 4.3.2)
+#&gt;    htmlwidgets     1.6.4   2023-12-06 [1] CRAN (R 4.3.2)
+#&gt;    httpuv          1.6.14  2024-01-26 [1] CRAN (R 4.3.2)
+#&gt;    httr            1.4.7   2023-08-15 [1] CRAN (R 4.3.2)
+#&gt;    iNEXT         * 3.0.1   2024-03-24 [1] CRAN (R 4.3.3)
+#&gt;    jsonlite        1.8.8   2023-12-04 [1] CRAN (R 4.3.2)
+#&gt;    kableExtra    * 1.4.0   2024-01-24 [1] CRAN (R 4.3.3)
+#&gt;    KernSmooth      2.23-22 2023-07-10 [2] CRAN (R 4.3.2)
+#&gt;    knitr         * 1.46    2024-04-06 [1] CRAN (R 4.3.3)
+#&gt;    labeling        0.4.3   2023-08-29 [1] CRAN (R 4.3.1)
+#&gt;    later           1.3.2   2023-12-06 [1] CRAN (R 4.3.2)
+#&gt;    lattice       * 0.22-5  2023-10-24 [1] CRAN (R 4.3.2)
+#&gt;    leafem          0.2.3   2023-09-17 [1] CRAN (R 4.3.2)
+#&gt;    leaflet         2.2.1   2023-11-13 [1] CRAN (R 4.3.2)
+#&gt;    lifecycle       1.0.4   2023-11-07 [1] CRAN (R 4.3.2)
+#&gt;    lubridate     * 1.9.3   2023-09-27 [1] CRAN (R 4.3.2)
+#&gt;    magrittr        2.0.3   2022-03-30 [1] CRAN (R 4.3.2)
+#&gt;    mapview       * 2.11.2  2023-10-13 [1] CRAN (R 4.3.2)
+#&gt;    MASS            7.3-60  2023-05-04 [2] CRAN (R 4.3.2)
+#&gt;    Matrix          1.6-1.1 2023-09-18 [2] CRAN (R 4.3.2)
+#&gt;    memoise         2.0.1   2021-11-26 [1] CRAN (R 4.3.2)
+#&gt;    mgcv            1.9-1   2023-12-21 [1] CRAN (R 4.3.3)
+#&gt;    mime            0.12    2021-09-28 [1] CRAN (R 4.3.1)
+#&gt;    miniUI          0.1.1.1 2018-05-18 [1] CRAN (R 4.3.2)
+#&gt;    munsell         0.5.0   2018-06-12 [1] CRAN (R 4.3.2)
+#&gt;    nlme            3.1-163 2023-08-09 [2] CRAN (R 4.3.2)
+#&gt;    patchwork     * 1.2.0   2024-01-08 [1] CRAN (R 4.3.3)
+#&gt;    permute       * 0.9-7   2022-01-27 [1] CRAN (R 4.3.3)
+#&gt;    pillar          1.9.0   2023-03-22 [1] CRAN (R 4.3.2)
+#&gt;    pkgbuild        1.4.4   2024-03-17 [1] CRAN (R 4.3.3)
+#&gt;    pkgconfig       2.0.3   2019-09-22 [1] CRAN (R 4.3.2)
+#&gt;    pkgload         1.3.4   2024-01-16 [1] CRAN (R 4.3.2)
+#&gt;    plyr            1.8.9   2023-10-02 [1] CRAN (R 4.3.2)
+#&gt;    png             0.1-8   2022-11-29 [1] CRAN (R 4.3.1)
+#&gt;    polyclip        1.10-6  2023-09-27 [1] CRAN (R 4.3.1)
+#&gt;    prettyunits     1.2.0   2023-09-24 [1] CRAN (R 4.3.2)
+#&gt;    profvis         0.3.8   2023-05-02 [1] CRAN (R 4.3.2)
+#&gt;    progress        1.2.3   2023-12-06 [1] CRAN (R 4.3.3)
+#&gt;    progressr       0.14.0  2023-08-10 [1] CRAN (R 4.3.2)
+#&gt;    promises        1.2.1   2023-08-10 [1] CRAN (R 4.3.2)
+#&gt;    proxy           0.4-27  2022-06-09 [1] CRAN (R 4.3.2)
+#&gt;    purrr         * 1.0.2   2023-08-10 [1] CRAN (R 4.3.2)
+#&gt;    R6              2.5.1   2021-08-19 [1] CRAN (R 4.3.2)
+#&gt;    raster          3.6-26  2023-10-14 [1] CRAN (R 4.3.2)
+#&gt;    Rcpp            1.0.12  2024-01-09 [1] CRAN (R 4.3.2)
+#&gt;    RcppNumerical   0.6-0   2023-09-06 [1] CRAN (R 4.3.3)
+#&gt;  D RcppParallel    5.1.7   2023-02-27 [1] CRAN (R 4.3.2)
+#&gt;    readr         * 2.1.5   2024-01-10 [1] CRAN (R 4.3.2)
+#&gt;    readxl        * 1.4.3   2023-07-06 [1] CRAN (R 4.3.2)
+#&gt;    remotes         2.5.0   2024-03-17 [1] CRAN (R 4.3.3)
+#&gt;    renv            1.0.7   2024-04-11 [1] CRAN (R 4.3.3)
+#&gt;    reshape2        1.4.4   2020-04-09 [1] CRAN (R 4.3.3)
+#&gt;    rlang           1.1.3   2024-01-10 [1] CRAN (R 4.3.2)
+#&gt;    rmarkdown       2.27    2024-05-17 [1] CRAN (R 4.3.3)
+#&gt;    rstudioapi      0.16.0  2024-03-24 [1] CRAN (R 4.3.3)
+#&gt;    satellite       1.0.5   2024-02-10 [1] CRAN (R 4.3.2)
+#&gt;    scales          1.3.0   2023-11-28 [1] CRAN (R 4.3.3)
+#&gt;    secr            4.6.6   2024-02-29 [1] CRAN (R 4.3.3)
+#&gt;    sessioninfo     1.2.2   2021-12-06 [1] CRAN (R 4.3.2)
+#&gt;    sf            * 1.0-15  2023-12-18 [1] CRAN (R 4.3.2)
+#&gt;    shiny           1.8.0   2023-11-17 [1] CRAN (R 4.3.2)
+#&gt;    slippymath      0.3.1   2019-06-28 [1] CRAN (R 4.3.2)
+#&gt;    sp              2.1-3   2024-01-30 [1] CRAN (R 4.3.2)
+#&gt;    stringi         1.8.3   2023-12-11 [1] CRAN (R 4.3.2)
+#&gt;    stringr       * 1.5.1   2023-11-14 [1] CRAN (R 4.3.2)
+#&gt;    svglite         2.1.3   2023-12-08 [1] CRAN (R 4.3.2)
+#&gt;    systemfonts     1.0.5   2023-10-09 [1] CRAN (R 4.3.2)
+#&gt;    terra           1.7-71  2024-01-31 [1] CRAN (R 4.3.2)
+#&gt;    tibble        * 3.2.1   2023-03-20 [1] CRAN (R 4.3.2)
+#&gt;    tidyr         * 1.3.1   2024-01-24 [1] CRAN (R 4.3.2)
+#&gt;    tidyselect      1.2.1   2024-03-11 [1] CRAN (R 4.3.3)
+#&gt;    tidyverse     * 2.0.0   2023-02-22 [1] CRAN (R 4.3.2)
+#&gt;    timechange      0.3.0   2024-01-18 [1] CRAN (R 4.3.2)
+#&gt;    tweenr          2.0.3   2024-02-26 [1] CRAN (R 4.3.3)
+#&gt;    tzdb            0.4.0   2023-05-12 [1] CRAN (R 4.3.2)
+#&gt;    units           0.8-5   2023-11-28 [1] CRAN (R 4.3.2)
+#&gt;    urlchecker      1.0.1   2021-11-30 [1] CRAN (R 4.3.2)
+#&gt;    usethis         2.2.3   2024-02-19 [1] CRAN (R 4.3.2)
+#&gt;    utf8            1.2.4   2023-10-22 [1] CRAN (R 4.3.2)
+#&gt;    vctrs           0.6.5   2023-12-01 [1] CRAN (R 4.3.2)
+#&gt;    vegan         * 2.6-4   2022-10-11 [1] CRAN (R 4.3.3)
+#&gt;    viridisLite     0.4.2   2023-05-02 [1] CRAN (R 4.3.2)
+#&gt;    withr           3.0.0   2024-01-16 [1] CRAN (R 4.3.2)
+#&gt;    xfun            0.44    2024-05-15 [1] CRAN (R 4.3.3)
+#&gt;    xml2            1.3.6   2023-12-04 [1] CRAN (R 4.3.2)
+#&gt;    xtable          1.8-4   2019-04-21 [1] CRAN (R 4.3.2)
+#&gt;    yaml            2.3.8   2023-12-11 [1] CRAN (R 4.3.2)
+#&gt; 
+#&gt;  [1] C:/Users/usuario/AppData/Local/R/win-library/4.3
+#&gt;  [2] C:/Program Files/R/R-4.3.2/library
+#&gt; 
+#&gt;  D ── DLL MD5 mismatch, broken installation.
+#&gt; 
+#&gt; ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</code></pre>
+</div>
+</details>
+
+
+</section><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-rmarkdown2024" class="csl-entry" role="listitem">
+Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier Luraschi, Kevin Ushey, Aron Atkins, et al. 2024. <em><span class="nocase">rmarkdown</span>: Dynamic Documents for r</em>. <a href="https://github.com/rstudio/rmarkdown">https://github.com/rstudio/rmarkdown</a>.
+</div>
+<div id="ref-mapview" class="csl-entry" role="listitem">
+Appelhans, Tim, Florian Detsch, Christoph Reudenbach, and Stefan Woellauer. 2023. <em><span class="nocase">mapview</span>: Interactive Viewing of Spatial Data in r</em>. <a href="https://CRAN.R-project.org/package=mapview">https://CRAN.R-project.org/package=mapview</a>.
+</div>
+<div id="ref-iNEXT2014" class="csl-entry" role="listitem">
+Chao, Anne, Nicholas J. Gotelli, T. C. Hsieh, Elizabeth L. Sander, K. H. Ma, Robert K. Colwell, and Aaron M. Ellison. 2014. <span>“Rarefaction and Extrapolation with Hill Numbers: A Framework for Sampling and Estimation in Species Diversity Studies.”</span> <em>Ecological Monographs</em> 84: 45–67.
+</div>
+<div id="ref-elevatr" class="csl-entry" role="listitem">
+Hollister, Jeffrey, Tarak Shah, Jakub Nowosad, Alec L. Robitaille, Marcus W. Beck, and Mike Johnson. 2023. <em><span class="nocase">elevatr</span>: Access Elevation Data from Various APIs</em>. <a href="https://doi.org/10.5281/zenodo.8335450">https://doi.org/10.5281/zenodo.8335450</a>.
+</div>
+<div id="ref-iNEXT2024" class="csl-entry" role="listitem">
+Hsieh, T. C., K. H. Ma, and Anne Chao. 2024. <em><span class="nocase">iNEXT</span>: Interpolation and Extrapolation for Species Diversity</em>. <a href="http://chao.stat.nthu.edu.tw/wordpress/software_download/">http://chao.stat.nthu.edu.tw/wordpress/software_download/</a>.
+</div>
+<div id="ref-camtrapR" class="csl-entry" role="listitem">
+Niedballa, Jürgen, Rahel Sollmann, Alexandre Courtiol, and Andreas Wilting. 2016. <span>“<span class="nocase">camtrapR</span>: An r Package for Efficient Camera Trap Data Management.”</span> <em>Methods in Ecology and Evolution</em> 7 (12): 1457–62. <a href="https://doi.org/10.1111/2041-210X.12600">https://doi.org/10.1111/2041-210X.12600</a>.
+</div>
+<div id="ref-vegan" class="csl-entry" role="listitem">
+Oksanen, Jari, Gavin L. Simpson, F. Guillaume Blanchet, Roeland Kindt, Pierre Legendre, Peter R. Minchin, R. B. O’Hara, et al. 2022. <em><span class="nocase">vegan</span>: Community Ecology Package</em>. <a href="https://CRAN.R-project.org/package=vegan">https://CRAN.R-project.org/package=vegan</a>.
+</div>
+<div id="ref-sf2018" class="csl-entry" role="listitem">
+Pebesma, Edzer. 2018. <span>“<span class="nocase">Simple Features for R: Standardized Support for Spatial Vector Data</span>.”</span> <em><span>The R Journal</span></em> 10 (1): 439–46. <a href="https://doi.org/10.32614/RJ-2018-009">https://doi.org/10.32614/RJ-2018-009</a>.
+</div>
+<div id="ref-sf2023" class="csl-entry" role="listitem">
+Pebesma, Edzer, and Roger Bivand. 2023. <em><span class="nocase">Spatial Data Science: With applications in R</span></em>. <span>Chapman and Hall/CRC</span>. <a href="https://doi.org/10.1201/9780429459016">https://doi.org/10.1201/9780429459016</a>.
+</div>
+<div id="ref-ggforce" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin. 2024a. <em><span class="nocase">ggforce</span>: Accelerating <span>“<span class="nocase">ggplot2</span>”</span></em>. <a href="https://CRAN.R-project.org/package=ggforce">https://CRAN.R-project.org/package=ggforce</a>.
+</div>
+<div id="ref-patchwork" class="csl-entry" role="listitem">
+———. 2024b. <em><span class="nocase">patchwork</span>: The Composer of Plots</em>. <a href="https://CRAN.R-project.org/package=patchwork">https://CRAN.R-project.org/package=patchwork</a>.
+</div>
+<div id="ref-base" class="csl-entry" role="listitem">
+R Core Team. 2023. <em><span>R</span>: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-tidyverse" class="csl-entry" role="listitem">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019. <span>“Welcome to the <span class="nocase">tidyverse</span>.”</span> <em>Journal of Open Source Software</em> 4 (43): 1686. <a href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-devtools" class="csl-entry" role="listitem">
+Wickham, Hadley, Jim Hester, Winston Chang, and Jennifer Bryan. 2022. <em><span class="nocase">devtools</span>: Tools to Make Developing r Packages Easier</em>. <a href="https://CRAN.R-project.org/package=devtools">https://CRAN.R-project.org/package=devtools</a>.
+</div>
+<div id="ref-knitr2014" class="csl-entry" role="listitem">
+Xie, Yihui. 2014. <span>“<span class="nocase">knitr</span>: A Comprehensive Tool for Reproducible Research in <span>R</span>.”</span> In <em>Implementing Reproducible Computational Research</em>, edited by Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman; Hall/CRC.
+</div>
+<div id="ref-knitr2015" class="csl-entry" role="listitem">
+———. 2015. <em>Dynamic Documents with <span>R</span> and Knitr</em>. 2nd ed. Boca Raton, Florida: Chapman; Hall/CRC. <a href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-knitr2024" class="csl-entry" role="listitem">
+———. 2024. <em><span class="nocase">knitr</span>: A General-Purpose Package for Dynamic Report Generation in r</em>. <a href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-rmarkdown2018" class="csl-entry" role="listitem">
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. <em>R Markdown: The Definitive Guide</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a href="https://bookdown.org/yihui/rmarkdown">https://bookdown.org/yihui/rmarkdown</a>.
+</div>
+<div id="ref-rmarkdown2020" class="csl-entry" role="listitem">
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R Markdown Cookbook</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a href="https://bookdown.org/yihui/rmarkdown-cookbook">https://bookdown.org/yihui/rmarkdown-cookbook</a>.
+</div>
+<div id="ref-kableExtra" class="csl-entry" role="listitem">
+Zhu, Hao. 2024. <em><span class="nocase">kableExtra</span>: Construct Complex Table with <span>“<span class="nocase">kable</span>”</span> and Pipe Syntax</em>. <a href="https://CRAN.R-project.org/package=kableExtra">https://CRAN.R-project.org/package=kableExtra</a>.
+</div>
+</div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{j._lizcano2024,
+  author = {J. Lizcano, Diego},
+  title = {Species Diversity},
+  date = {2024-06-25},
+  url = {https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-j._lizcano2024" class="csl-entry quarto-appendix-citeas" role="listitem">
+J. Lizcano, Diego. 2024. <span>“Species Diversity.”</span> June 25,
+2024. <a href="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/">https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/</a>.
+</div></div></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/dlizcano\.github\.io\/cametrapcesar");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><script src="https://utteranc.es/client.js" repo="dlizcano/dlizcano.github.io" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

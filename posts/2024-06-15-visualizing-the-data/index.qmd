@@ -9,7 +9,7 @@ author:
 date: '2024-06-15'
 file-modified: Sys.Date()
 categories: [R, calendar, map]
-image: 'img/preview.jpg'
+image: 'img/preview.png'
 citation: true
 bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-06-15-visualizing-the-data/grateful-refs.bib
 ---

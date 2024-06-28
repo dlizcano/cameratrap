@@ -1,0 +1,286 @@
+---
+title: 'Species diversity'
+subtitle: "Species acumulation curves, rarefaction and other plots"
+description: "using packages `vegan` and `iNext`"
+author: 
+  - name: 'Diego J. Lizcano'
+    orcid: 0000-0002-9648-0576
+    affiliation: "WildMon"
+date: '2024-06-25'
+file-modified: Sys.Date()
+categories: [R, calendar, map]
+image: 'img/preview.png'
+citation: true
+bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-06-25-species-diversity/grateful-refs.bib
+---
+
+## Load packages
+
+```{r setup, include=TRUE}
+
+
+library(patchwork) # The Composer of Plots
+library(readxl) # Read Excel Files
+library(sf) # Simple Features for R
+library(elevatr) # Access Elevation Data from Various APIs
+library(mapview) # Interactive Viewing of Spatial Data in R
+library(grateful) # Facilitate Citation of R Packages
+library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses
+library(vegan) # Community Ecology Package 
+library(iNEXT) # Interpolation and Extrapolation for Species Diversity
+library(knitr) # A General-Purpose Package for Dynamic Report Generation in R
+library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
+library(tidyverse) # Easily Install and Load the 'Tidyverse'
+library(ggforce) # Accelerating 'ggplot2'
+
+
+```
+
+
+
+## Load data
+
+```{r warning=FALSE}
+
+datos <- read_excel("C:/CodigoR/CameraTrapCesar/data/CT_Cesar.xlsx")
+
+```
+
+
+
+
+## Selecting Just CT_Becerril 2021
+
+To this example I selected just one place one year, Becerril 2021. Sometimes we need to make unique codes per camera and cameraOperation table.
+
+```{r}
+# make a new column Station
+# datos_PCF <- datos |> dplyr::filter(Proyecto=="CT_LaPaz_Manaure") |> unite ("Station", ProyectoEtapa:Salida:CT, sep = "-")
+
+# fix dates
+datos$Start <- as.Date(datos$Start, "%d/%m/%Y")
+datos$End <- as.Date(datos$End, "%d/%m/%Y")
+datos$eventDate <- as.Date(datos$eventDate, "%d/%m/%Y")
+datos$eventDateTime <- ymd_hms(paste(datos$eventDate, " ",
+                              datos$eventTime, ":00", sep=""))
+
+# filter Becerril
+datos_Becerril <- datos |> dplyr::filter(ProyectoEtapa=="CT_Becerril") |> mutate (Station=IdGeo) |> filter(Year==2021)
+
+# filter MLJ
+datos_MLJ <- datos |> dplyr::filter(ProyectoEtapa=="MLJ_TH_TS_2021") |> mutate (Station=IdGeo)
+
+# filter CL
+datos_CL1 <- datos |> dplyr::filter(ProyectoEtapa=="CL-TH2022") |> mutate (Station=IdGeo)
+# filter CL
+datos_CL2 <- datos |> dplyr::filter(ProyectoEtapa=="CL-TS2022") |> mutate (Station=IdGeo)
+
+# filter PCF
+datos_PCF <- datos |> dplyr::filter(Proyecto=="PCF") |> mutate (Station=IdGeo)
+
+data_south <- rbind(datos_MLJ,datos_CL1, datos_CL2,datos_PCF)
+
+# filter 2021 and make uniques
+CToperation  <- data_south |> 
+              # filter(Year==2021) |> 
+              group_by(Station) |> 
+              mutate(minStart=min(Start), maxEnd=max(End)) |>  distinct(Longitude, Latitude, minStart, maxEnd, Year) |> 
+  ungroup()
+
+
+```
+
+
+## Generating cameraOperation and making detection histories for all the species. 
+
+The package CamtrapR has the function 'cameraOperation' which makes a table of cameras (stations) and dates (setup, puck-up), this table is key to generate the detection histories using the function 'detectionHistory' in the next step. 
+
+```{r }
+# Generamos la matríz de operación de las cámaras
+
+camop <- cameraOperation(CTtable= CToperation, # Tabla de operación
+                         stationCol= "Station", # Columna que define la estación
+                         setupCol= "minStart", #Columna fecha de colocación
+                         retrievalCol= "maxEnd", #Columna fecha de retiro
+                         #hasProblems= T, # Hubo fallos de cámaras
+                         dateFormat= "%Y-%m-%d") #, # Formato de las fechas
+                         #cameraCol="CT")
+                         # sessionCol= "Year")
+
+# Generar las historias de detección ---------------------------------------
+## remove plroblem species
+# ind <- which(datos_PCF$Species=="Marmosa sp.")
+# datos_PCF <- datos_PCF[-ind,]
+
+DetHist_list <- lapply(unique(datos_PCF$Species), FUN = function(x) {
+  detectionHistory(
+    recordTable         = datos_PCF, # Tabla de registros
+    camOp                = camop, # Matriz de operación de cámaras
+    stationCol           = "Station",
+    speciesCol           = "Species",
+    recordDateTimeCol    = "eventDateTime",
+    recordDateTimeFormat  = "%Y-%m-%d",
+    species              = x,     # la función reemplaza x por cada una de las especies
+    occasionLength       = 7, # Colapso de las historias a 10 ías
+    day1                 = "station", # ("survey"),or #inicia en la fecha de cada station
+    datesAsOccasionNames = FALSE,
+    includeEffort        = TRUE,
+    scaleEffort          = FALSE,
+    output               = ("binary"), # ("binary") or ("count")
+    #unmarkedMultFrameInput=TRUE
+    timeZone             = "America/Bogota" 
+    )
+  }
+)
+
+# names
+names(DetHist_list) <- unique(datos_PCF$Species)
+
+# Finalmente creamos una lista nueva donde estén solo las historias de detección
+ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
+
+
+  
+```
+
+
+## We use the detection histories to make the vegan mat
+
+```{r}
+# loop to make matrix
+mat_vegan <- matrix(NA, dim(ylist[[1]])[1], length(unique(datos_PCF$Species)))
+for(i in 1:length(unique(datos_PCF$Species))){
+  mat_vegan[,i] <- apply(ylist[[i]], 1, sum, na.rm=TRUE)
+  mat_vegan[,i] <- tidyr::replace_na(mat_vegan[,i], 0) # replace na with 0
+}
+
+colnames(mat_vegan)  <- unique(datos_PCF$Species)
+rownames(mat_vegan) <- rownames(ylist[[1]])
+```
+
+## Rarefaction using `vegan`
+ 
+> Notice that sites are cameras and the acumulation is species per camera not time
+ 
+Rarefaction is a technique to assess expected species richness. Rarefaction allows the calculation of species richness for a given number of individual samples, based on the construction of rarefaction curves.
+
+The issue that occurs when sampling various species in a community is that the larger the number of individuals sampled, the more species that will be found. Rarefaction curves are created by randomly re-sampling the pool of N samples multiple times and then plotting the average number of species found in each sample (1,2, … N). “Thus rarefaction generates the expected number of species in a small collection of n individuals (or n samples) drawn at random from the large pool of N samples.”. Rarefaction curves generally grow rapidly at first, as the most common species are found, but the curves plateau as only the rarest species remain to be sampled.
+
+
+
+```{r}
+rarecurve(mat_vegan, col = "blue") 
+
+sp1 <- specaccum(mat_vegan)
+sp2 <- specaccum(mat_vegan, "random")
+# sp2
+# summary(sp2)
+plot(sp1, ci.type="poly", col="blue", lwd=2, ci.lty=0, ci.col="lightblue")
+boxplot(sp2, col="yellow", add=TRUE, pch="+")
+
+
+mods <- fitspecaccum(sp1, "gleason")
+plot(mods, col="hotpink")
+boxplot(sp2, col = "yellow", border = "blue", lty=1, cex=0.3, add= TRUE)
+
+
+## Accumulation model
+pool <- poolaccum(mat_vegan)
+# summary(pool, display = "chao")
+plot(pool)
+
+
+
+
+```
+
+
+
+
+
+## Convert Cameratrap-operation to sf and get elevation
+
+```{r}
+
+# datos_distinct <- datos |> distinct(Longitude, Latitude, CT, Proyecto)
+
+projlatlon <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+CToperation_sf <-  st_as_sf(x = CToperation,
+                         coords = c("Longitude", 
+                                    "Latitude"),
+                         crs = projlatlon)
+
+CToperation_elev_sf <- get_elev_point(CToperation_sf, src = "aws") # get elevation from AWS
+
+
+```
+
+## Nonmetric Multidimensional Scaling
+
+```{r}
+
+example_NMDS=metaMDS(as.data.frame(mat_vegan), 
+                     distance="mahalanobis",
+                     zerodist = "ignore",
+                     k=5) # T
+
+ordisurf((example_NMDS),CToperation_elev_sf$elevation,main="",col="forestgreen")
+orditorp(example_NMDS,display="species",col="blue",air=0.1,
+   cex=0.5)
+
+
+```
+
+
+
+## Rarefaction using `iNEXT`
+
+```{r}
+
+
+# inedat <- lapply(apply(mat_vegan, 2, sum, na.rm=TRUE), as.incfreq)
+# 
+# out <- iNEXT(inedat,          # The data frame
+#              q=0,                    # The type of diversity estimator (see discussion of the options below)
+#              datatype="incidence_freq",   # The type of analysis
+#              knots=40,                    # The number of data points in your line (more = smoother)
+#              se=TRUE,                     # Logical statement if you want confidence intervals
+#              conf=0.95,                   # The level of confidence intervals
+#              nboot=50)                    # The number of replications to perform - this generates your confidence interval - the bigger the number the longer the run time
+
+data(bird)
+out <- iNEXT(bird, datatype="abundance")
+ggiNEXT(out)
+
+```
+
+
+
+
+
+
+
+## Package Citation
+
+```{r }
+pkgs <- cite_packages(output = "paragraph", out.dir = ".") #knitr::kable(pkgs)
+pkgs
+
+```
+
+## Sesion info
+
+<details>
+  
+<summary>Session info</summary>
+
+```{r sessioninfo, echo = FALSE}
+#| label: sessioninfo
+options(width = 150)
+devtools::session_info()
+```
+
+</details>
+
+
