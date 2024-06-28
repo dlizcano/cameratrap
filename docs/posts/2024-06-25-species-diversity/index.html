@@ -93,7 +93,10 @@ div.csl-indent {
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark"><script id="quarto-search-options" type="application/json">{
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -119,7 +122,14 @@ div.csl-indent {
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
-}</script><link rel="stylesheet" href="../../styles.css">
+}</script><style>
+
+      .quarto-title-block .quarto-title-banner {
+        background-image: url(img/banner.jpg);
+background-size: cover;
+      }
+</style>
+<link rel="stylesheet" href="../../styles.css">
 <meta property="og:title" content="Camera Trap Blog - Species diversity">
 <meta property="og:description" content="using packages vegan and iNext">
 <meta property="og:image" content="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/img/preview.png">
@@ -192,8 +202,9 @@ div.csl-indent {
       </div>
                           <div class="quarto-categories">
                 <div class="quarto-category">R</div>
-                <div class="quarto-category">calendar</div>
-                <div class="quarto-category">map</div>
+                <div class="quarto-category">diversity</div>
+                <div class="quarto-category">accumulation</div>
+                <div class="quarto-category">effort</div>
               </div>
                   </div>
   </div>
@@ -237,7 +248,7 @@ div.csl-indent {
   <li><a href="#load-data" id="toc-load-data" class="nav-link" data-scroll-target="#load-data">Load data</a></li>
   <li><a href="#selecting-just-ct_becerril-2021" id="toc-selecting-just-ct_becerril-2021" class="nav-link" data-scroll-target="#selecting-just-ct_becerril-2021">Selecting Just CT_Becerril 2021</a></li>
   <li><a href="#generating-cameraoperation-and-making-detection-histories-for-all-the-species." id="toc-generating-cameraoperation-and-making-detection-histories-for-all-the-species." class="nav-link" data-scroll-target="#generating-cameraoperation-and-making-detection-histories-for-all-the-species.">Generating cameraOperation and making detection histories for all the species.</a></li>
-  <li><a href="#we-use-the-detection-histories-to-make-the-vegan-mat" id="toc-we-use-the-detection-histories-to-make-the-vegan-mat" class="nav-link" data-scroll-target="#we-use-the-detection-histories-to-make-the-vegan-mat">We use the detection histories to make the vegan mat</a></li>
+  <li><a href="#use-the-detection-histories-to-make-the-a-matrix-for-vegan" id="toc-use-the-detection-histories-to-make-the-a-matrix-for-vegan" class="nav-link" data-scroll-target="#use-the-detection-histories-to-make-the-a-matrix-for-vegan">Use the detection histories to make the a matrix for <code>vegan</code></a></li>
   <li><a href="#rarefaction-using-vegan" id="toc-rarefaction-using-vegan" class="nav-link" data-scroll-target="#rarefaction-using-vegan">Rarefaction using <code>vegan</code></a></li>
   <li><a href="#convert-cameratrap-operation-to-sf-and-get-elevation" id="toc-convert-cameratrap-operation-to-sf-and-get-elevation" class="nav-link" data-scroll-target="#convert-cameratrap-operation-to-sf-and-get-elevation">Convert Cameratrap-operation to sf and get elevation</a></li>
   <li><a href="#nonmetric-multidimensional-scaling" id="toc-nonmetric-multidimensional-scaling" class="nav-link" data-scroll-target="#nonmetric-multidimensional-scaling">Nonmetric Multidimensional Scaling</a></li>
@@ -247,7 +258,13 @@ div.csl-indent {
   </ul></nav>
     </div>
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="load-packages" class="level2"><h2 class="anchored" data-anchor-id="load-packages">Load packages</h2>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><p>There are two commonly used ways to account for survey effort when estimating species richness using camera traps:</p>
+<ol type="1">
+<li><p>using the rarefaction of observed richness.</p></li>
+<li><p>using multispecies occupancy models to account for the species present but not observed (occupancy model).</p></li>
+</ol>
+<p>In this post we can see an example of No 1.</p>
+<section id="load-packages" class="level2"><h2 class="anchored" data-anchor-id="load-packages">Load packages</h2>
 <div class="cell">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
 <span></span>
@@ -359,7 +376,9 @@ div.csl-indent {
 <span>  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-</section><section id="we-use-the-detection-histories-to-make-the-vegan-mat" class="level2"><h2 class="anchored" data-anchor-id="we-use-the-detection-histories-to-make-the-vegan-mat">We use the detection histories to make the vegan mat</h2>
+</section><section id="use-the-detection-histories-to-make-the-a-matrix-for-vegan" class="level2"><h2 class="anchored" data-anchor-id="use-the-detection-histories-to-make-the-a-matrix-for-vegan">Use the detection histories to make the a matrix for <code>vegan</code>
+</h2>
+<p>Species accumulation curves made using the package vegan, plot the increase in species richness as we add survey units. If the curve plateaus (flattens), then that suggests you have sampled the majority of the species in your survey area.</p>
 <div class="cell">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># loop to make matrix</span></span>
 <span><span class="va">mat_vegan</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">ylist</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">datos_PCF</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -383,7 +402,7 @@ div.csl-indent {
 <details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/vegan/man/rarefy.html">rarecurve</a></span><span class="op">(</span><span class="va">mat_vegan</span>, col <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-5-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -396,7 +415,7 @@ div.csl-indent {
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">sp2</span>, col<span class="op">=</span><span class="st">"yellow"</span>, add<span class="op">=</span><span class="cn">TRUE</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-5-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="index_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -407,7 +426,7 @@ div.csl-indent {
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">sp2</span>, col <span class="op">=</span> <span class="st">"yellow"</span>, border <span class="op">=</span> <span class="st">"blue"</span>, lty<span class="op">=</span><span class="fl">1</span>, cex<span class="op">=</span><span class="fl">0.3</span>, add<span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-5-3.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-5-3.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="index_files/figure-html/unnamed-chunk-5-3.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -419,7 +438,7 @@ div.csl-indent {
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">pool</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-5-4.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-5-4.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="index_files/figure-html/unnamed-chunk-5-4.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -448,49 +467,49 @@ div.csl-indent {
 <span>                     k<span class="op">=</span><span class="fl">5</span><span class="op">)</span> <span class="co"># T</span></span>
 <span><span class="co">#&gt; Wisconsin double standardization</span></span>
 <span><span class="co">#&gt; Run 0 stress 6.206335e-17 </span></span>
-<span><span class="co">#&gt; Run 1 stress 9.99461e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1168074  max resid 0.3175113 </span></span>
-<span><span class="co">#&gt; Run 2 stress 7.631245e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1278865  max resid 0.2916251 </span></span>
-<span><span class="co">#&gt; Run 3 stress 1.58022e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1235651  max resid 0.2996528 </span></span>
-<span><span class="co">#&gt; Run 4 stress 9.320794e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1208166  max resid 0.3200581 </span></span>
-<span><span class="co">#&gt; Run 5 stress 4.478466e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1202726  max resid 0.3321868 </span></span>
-<span><span class="co">#&gt; Run 6 stress 9.244741e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1237762  max resid 0.2579971 </span></span>
-<span><span class="co">#&gt; Run 7 stress 1.836232e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1256306  max resid 0.2732227 </span></span>
-<span><span class="co">#&gt; Run 8 stress 9.610568e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1310691  max resid 0.3033674 </span></span>
-<span><span class="co">#&gt; Run 9 stress 6.931872e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1305507  max resid 0.3303185 </span></span>
-<span><span class="co">#&gt; Run 10 stress 0 </span></span>
+<span><span class="co">#&gt; Run 1 stress 9.900395e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1174021  max resid 0.2814254 </span></span>
+<span><span class="co">#&gt; Run 2 stress 0 </span></span>
 <span><span class="co">#&gt; ... New best solution</span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1308715  max resid 0.2913168 </span></span>
-<span><span class="co">#&gt; Run 11 stress 9.643033e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1297956  max resid 0.3144529 </span></span>
-<span><span class="co">#&gt; Run 12 stress 9.600753e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1192894  max resid 0.303578 </span></span>
-<span><span class="co">#&gt; Run 13 stress 9.893604e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1291389  max resid 0.2881513 </span></span>
-<span><span class="co">#&gt; Run 14 stress 9.461393e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1290142  max resid 0.3043352 </span></span>
-<span><span class="co">#&gt; Run 15 stress 9.947138e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1249568  max resid 0.2750595 </span></span>
-<span><span class="co">#&gt; Run 16 stress 9.105381e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1175285  max resid 0.3073789 </span></span>
-<span><span class="co">#&gt; Run 17 stress 9.000514e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1358244  max resid 0.3173435 </span></span>
-<span><span class="co">#&gt; Run 18 stress 2.273649e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1251571  max resid 0.2780923 </span></span>
-<span><span class="co">#&gt; Run 19 stress 0 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1121258  max resid 0.3381846 </span></span>
-<span><span class="co">#&gt; Run 20 stress 2.578529e-05 </span></span>
-<span><span class="co">#&gt; ... Procrustes: rmse 0.1216622  max resid 0.2616067 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1274743  max resid 0.3010555 </span></span>
+<span><span class="co">#&gt; Run 3 stress 9.503892e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1252807  max resid 0.3076543 </span></span>
+<span><span class="co">#&gt; Run 4 stress 9.409423e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1256172  max resid 0.3008394 </span></span>
+<span><span class="co">#&gt; Run 5 stress 0 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1296931  max resid 0.2887971 </span></span>
+<span><span class="co">#&gt; Run 6 stress 0 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1271139  max resid 0.2942954 </span></span>
+<span><span class="co">#&gt; Run 7 stress 4.205314e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.130922  max resid 0.3101329 </span></span>
+<span><span class="co">#&gt; Run 8 stress 9.223465e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1199831  max resid 0.2764593 </span></span>
+<span><span class="co">#&gt; Run 9 stress 0.001820025 </span></span>
+<span><span class="co">#&gt; Run 10 stress 1.956979e-06 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.125014  max resid 0.2846524 </span></span>
+<span><span class="co">#&gt; Run 11 stress 9.969246e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.120835  max resid 0.3404864 </span></span>
+<span><span class="co">#&gt; Run 12 stress 9.011002e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1339128  max resid 0.2991148 </span></span>
+<span><span class="co">#&gt; Run 13 stress 9.744544e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1283807  max resid 0.3068027 </span></span>
+<span><span class="co">#&gt; Run 14 stress 0.0002139071 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1242437  max resid 0.3187497 </span></span>
+<span><span class="co">#&gt; Run 15 stress 7.456558e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1271297  max resid 0.3093352 </span></span>
+<span><span class="co">#&gt; Run 16 stress 9.598634e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.124509  max resid 0.298872 </span></span>
+<span><span class="co">#&gt; Run 17 stress 4.070221e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1200932  max resid 0.2873942 </span></span>
+<span><span class="co">#&gt; Run 18 stress 9.940308e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1210946  max resid 0.2618398 </span></span>
+<span><span class="co">#&gt; Run 19 stress 9.209465e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1264992  max resid 0.2993904 </span></span>
+<span><span class="co">#&gt; Run 20 stress 9.952299e-05 </span></span>
+<span><span class="co">#&gt; ... Procrustes: rmse 0.1220567  max resid 0.300368 </span></span>
 <span><span class="co">#&gt; *** Best solution was not repeated -- monoMDS stopping criteria:</span></span>
-<span><span class="co">#&gt;     20: stress &lt; smin</span></span>
+<span><span class="co">#&gt;      2: no. of iterations &gt;= maxit</span></span>
+<span><span class="co">#&gt;     18: stress &lt; smin</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/vegan/man/ordisurf.html">ordisurf</a></span><span class="op">(</span><span class="op">(</span><span class="va">example_NMDS</span><span class="op">)</span>,<span class="va">CToperation_elev_sf</span><span class="op">$</span><span class="va">elevation</span>,main<span class="op">=</span><span class="st">""</span>,col<span class="op">=</span><span class="st">"forestgreen"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -501,14 +520,14 @@ div.csl-indent {
 <span><span class="co">#&gt; y ~ s(x1, x2, k = 10, bs = "tp", fx = FALSE)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated degrees of freedom:</span></span>
-<span><span class="co">#&gt; 8.64  total = 9.64 </span></span>
+<span><span class="co">#&gt; 8.84  total = 9.84 </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; REML score: 308.0692</span></span>
+<span><span class="co">#&gt; REML score: 301.3758</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/vegan/man/orditorp.html">orditorp</a></span><span class="op">(</span><span class="va">example_NMDS</span>,display<span class="op">=</span><span class="st">"species"</span>,col<span class="op">=</span><span class="st">"blue"</span>,air<span class="op">=</span><span class="fl">0.1</span>,</span>
 <span>   cex<span class="op">=</span><span class="fl">0.5</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-7-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -533,7 +552,7 @@ div.csl-indent {
 <span><span class="fu"><a href="https://rdrr.io/pkg/iNEXT/man/ggiNEXT.html">ggiNEXT</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-8-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -560,7 +579,7 @@ Session info
 #&gt;  collate  Spanish_Colombia.utf8
 #&gt;  ctype    Spanish_Colombia.utf8
 #&gt;  tz       America/Bogota
-#&gt;  date     2024-06-27
+#&gt;  date     2024-06-28
 #&gt;  pandoc   3.1.11 @ C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
 #&gt; 
 #&gt; ─ Packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -1335,7 +1354,38 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script><script src="https://utteranc.es/client.js" repo="dlizcano/dlizcano.github.io" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
 </script>
 </div> <!-- /content -->
-
+<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","closeEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"bottom"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 </body></html>

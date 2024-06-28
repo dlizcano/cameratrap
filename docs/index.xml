@@ -15,7 +15,13 @@
   <title>Species diversity</title>
   <dc:creator>Diego J. Lizcano</dc:creator>
   <link>https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/</link>
-  <description><![CDATA[ <section id="load-packages" class="level2"><h2 class="anchored" data-anchor-id="load-packages">Load packages</h2>
+  <description><![CDATA[ <p>There are two commonly used ways to account for survey effort when estimating species richness using camera traps:</p>
+<ol type="1">
+<li><p>using the rarefaction of observed richness.</p></li>
+<li><p>using multispecies occupancy models to account for the species present but not observed (occupancy model).</p></li>
+</ol>
+<p>In this post we can see an example of No 1.</p>
+<section id="load-packages" class="level2"><h2 class="anchored" data-anchor-id="load-packages">Load packages</h2>
 <div class="cell">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
 <span></span>
@@ -918,7 +924,9 @@ font-style: inherit;">)</span></span>
 <span>  </span></code></pre></div>
 </details>
 </div>
-</section><section id="we-use-the-detection-histories-to-make-the-vegan-mat" class="level2"><h2 class="anchored" data-anchor-id="we-use-the-detection-histories-to-make-the-vegan-mat">We use the detection histories to make the vegan mat</h2>
+</section><section id="use-the-detection-histories-to-make-the-a-matrix-for-vegan" class="level2"><h2 class="anchored" data-anchor-id="use-the-detection-histories-to-make-the-a-matrix-for-vegan">Use the detection histories to make the a matrix for <code>vegan</code>
+</h2>
+<p>Species accumulation curves made using the package vegan, plot the increase in species richness as we add survey units. If the curve plateaus (flattens), then that suggests you have sampled the majority of the species in your survey area.</p>
 <div class="cell">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb5" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -1160,7 +1168,7 @@ background-color: null;
 font-style: inherit;">)</span> </span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-5-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -1251,7 +1259,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-5-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -1316,7 +1324,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-5-3.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-5-3.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-5-3.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -1352,7 +1360,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-5-4.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-5-4.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-5-4.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -1475,133 +1483,133 @@ background-color: null;
 font-style: inherit;">#&gt; Run 0 stress 6.206335e-17 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 1 stress 9.99461e-05 </span></span>
+font-style: inherit;">#&gt; Run 1 stress 9.900395e-05 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1168074  max resid 0.3175113 </span></span>
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1174021  max resid 0.2814254 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 2 stress 7.631245e-05 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1278865  max resid 0.2916251 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; Run 3 stress 1.58022e-05 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1235651  max resid 0.2996528 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; Run 4 stress 9.320794e-05 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1208166  max resid 0.3200581 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; Run 5 stress 4.478466e-05 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1202726  max resid 0.3321868 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; Run 6 stress 9.244741e-05 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1237762  max resid 0.2579971 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; Run 7 stress 1.836232e-05 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1256306  max resid 0.2732227 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; Run 8 stress 9.610568e-05 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1310691  max resid 0.3033674 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; Run 9 stress 6.931872e-05 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1305507  max resid 0.3303185 </span></span>
-<span><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#&gt; Run 10 stress 0 </span></span>
+font-style: inherit;">#&gt; Run 2 stress 0 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">#&gt; ... New best solution</span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1308715  max resid 0.2913168 </span></span>
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1274743  max resid 0.3010555 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 11 stress 9.643033e-05 </span></span>
+font-style: inherit;">#&gt; Run 3 stress 9.503892e-05 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1297956  max resid 0.3144529 </span></span>
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1252807  max resid 0.3076543 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 12 stress 9.600753e-05 </span></span>
+font-style: inherit;">#&gt; Run 4 stress 9.409423e-05 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1192894  max resid 0.303578 </span></span>
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1256172  max resid 0.3008394 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 13 stress 9.893604e-05 </span></span>
+font-style: inherit;">#&gt; Run 5 stress 0 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1291389  max resid 0.2881513 </span></span>
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1296931  max resid 0.2887971 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 14 stress 9.461393e-05 </span></span>
+font-style: inherit;">#&gt; Run 6 stress 0 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1290142  max resid 0.3043352 </span></span>
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1271139  max resid 0.2942954 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 15 stress 9.947138e-05 </span></span>
+font-style: inherit;">#&gt; Run 7 stress 4.205314e-05 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1249568  max resid 0.2750595 </span></span>
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.130922  max resid 0.3101329 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 16 stress 9.105381e-05 </span></span>
+font-style: inherit;">#&gt; Run 8 stress 9.223465e-05 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1175285  max resid 0.3073789 </span></span>
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1199831  max resid 0.2764593 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 17 stress 9.000514e-05 </span></span>
+font-style: inherit;">#&gt; Run 9 stress 0.001820025 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1358244  max resid 0.3173435 </span></span>
+font-style: inherit;">#&gt; Run 10 stress 1.956979e-06 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 18 stress 2.273649e-05 </span></span>
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.125014  max resid 0.2846524 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1251571  max resid 0.2780923 </span></span>
+font-style: inherit;">#&gt; Run 11 stress 9.969246e-05 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 19 stress 0 </span></span>
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.120835  max resid 0.3404864 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1121258  max resid 0.3381846 </span></span>
+font-style: inherit;">#&gt; Run 12 stress 9.011002e-05 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; Run 20 stress 2.578529e-05 </span></span>
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1339128  max resid 0.2991148 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; ... Procrustes: rmse 0.1216622  max resid 0.2616067 </span></span>
+font-style: inherit;">#&gt; Run 13 stress 9.744544e-05 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1283807  max resid 0.3068027 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; Run 14 stress 0.0002139071 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1242437  max resid 0.3187497 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; Run 15 stress 7.456558e-05 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1271297  max resid 0.3093352 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; Run 16 stress 9.598634e-05 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.124509  max resid 0.298872 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; Run 17 stress 4.070221e-05 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1200932  max resid 0.2873942 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; Run 18 stress 9.940308e-05 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1210946  max resid 0.2618398 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; Run 19 stress 9.209465e-05 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1264992  max resid 0.2993904 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; Run 20 stress 9.952299e-05 </span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt; ... Procrustes: rmse 0.1220567  max resid 0.300368 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">#&gt; *** Best solution was not repeated -- monoMDS stopping criteria:</span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt;     20: stress &lt; smin</span></span>
+font-style: inherit;">#&gt;      2: no. of iterations &gt;= maxit</span></span>
+<span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#&gt;     18: stress &lt; smin</span></span>
 <span></span>
 <span><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -1656,13 +1664,13 @@ background-color: null;
 font-style: inherit;">#&gt; Estimated degrees of freedom:</span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; 8.64  total = 9.64 </span></span>
+font-style: inherit;">#&gt; 8.84  total = 9.84 </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">#&gt; </span></span>
 <span><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">#&gt; REML score: 308.0692</span></span>
+font-style: inherit;">#&gt; REML score: 301.3758</span></span>
 <span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;"><a href="https://rdrr.io/pkg/vegan/man/orditorp.html">orditorp</a></span><span class="op" style="color: #5E5E5E;
@@ -1691,7 +1699,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-7-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -1766,7 +1774,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-8-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -1815,7 +1823,7 @@ Session info
 #&gt;  collate  Spanish_Colombia.utf8
 #&gt;  ctype    Spanish_Colombia.utf8
 #&gt;  tz       America/Bogota
-#&gt;  date     2024-06-27
+#&gt;  date     2024-06-28
 #&gt;  pandoc   3.1.11 @ C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
 #&gt; 
 #&gt; ─ Packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -2026,8 +2034,9 @@ J. Lizcano, Diego. 2024. <span>“Species Diversity.”</span> June 25,
 2024. <a href="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/">https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/</a>.
 </div></div></section></div> ]]></description>
   <category>R</category>
-  <category>calendar</category>
-  <category>map</category>
+  <category>diversity</category>
+  <category>accumulation</category>
+  <category>effort</category>
   <guid>https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/</guid>
   <pubDate>Tue, 25 Jun 2024 05:00:00 GMT</pubDate>
   <media:content url="https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/img/preview.png" medium="image" type="image/png" height="89" width="144"/>
@@ -3026,7 +3035,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-5-1.png" width="600" height="500" class="figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-5-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-5-1.png" width="600" height="500" class="figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -3538,7 +3547,7 @@ background-color: null;
 font-style: inherit;">#&gt; $effort</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-12-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -3567,7 +3576,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-12-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -3605,7 +3614,7 @@ background-color: null;
 font-style: inherit;">#&gt; $rough</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-12-3.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-12-3.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-12-3.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -3613,7 +3622,7 @@ font-style: inherit;">#&gt; $rough</span></span></code></pre></div>
 #&gt; $elev</code></pre>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-12-4.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-12-4.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-12-4.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -3699,7 +3708,7 @@ background-color: null;
 font-style: inherit;"># intervalos de credibilidad</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-13-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -3724,7 +3733,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-13-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -4293,7 +4302,7 @@ background-color: null;
 font-style: inherit;">plotN</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-14-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -4433,7 +4442,7 @@ font-style: inherit;">)</span>  </span>
 <div class="cell">
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-16-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -4532,7 +4541,7 @@ font-style: inherit;">)</span></span>
 <div class="cell">
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-18-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -5403,7 +5412,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-5-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -5452,7 +5461,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-6-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -5476,7 +5485,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-7-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -5500,7 +5509,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-8-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -5524,7 +5533,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-9-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -5548,7 +5557,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-10-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -5572,7 +5581,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-11-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -5596,7 +5605,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-12-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -5620,7 +5629,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-13-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -5644,7 +5653,7 @@ background-color: null;
 font-style: inherit;">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img"></p>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-14-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
