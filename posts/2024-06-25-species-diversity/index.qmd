@@ -1,7 +1,7 @@
 ---
 title: 'Species diversity'
 subtitle: "Species acumulation curves, rarefaction and other plots"
-description: "using packages `vegan` and `iNext`"
+description: "using packages `vegan` and `iNext` to analyze diversity on camera trap data"
 author: 
   - name: 'Diego J. Lizcano'
     orcid: 0000-0002-9648-0576
@@ -39,13 +39,17 @@ library(readxl) # Read Excel Files
 library(sf) # Simple Features for R
 library(elevatr) # Access Elevation Data from Various APIs
 library(mapview) # Interactive Viewing of Spatial Data in R
+library(tmap)
+library(eks) # make countours
 library(grateful) # Facilitate Citation of R Packages
 library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses
 library(vegan) # Community Ecology Package 
 library(ggvegan)
+# library(BiodiversityR) # cause error!
 library(ggordiplots)
 library(grid)
 library(gridExtra)
+library(DT)
 library(MeanRarity)
 library(SpadeR)
 library(iNEXT) # Interpolation and Extrapolation for Species Diversity
@@ -53,7 +57,7 @@ library(knitr) # A General-Purpose Package for Dynamic Report Generation in R
 library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
 library(tidyverse) # Easily Install and Load the 'Tidyverse'
 library(ggforce) # Accelerating 'ggplot2'
-
+library(plotly)
 
 ```
 
@@ -65,7 +69,7 @@ library(ggforce) # Accelerating 'ggplot2'
 
 datos <- read_excel("C:/CodigoR/CameraTrapCesar/data/CT_Cesar.xlsx")
 
-# write.csv(habs, "C:/CodigoR/CameraTrapCesar/data/habitats.csv")
+# habitat types extracted from Copernicus
 habs <- read.csv("C:/CodigoR/CameraTrapCesar/data/habitats.csv")
 
 
@@ -77,6 +81,9 @@ habs <- read.csv("C:/CodigoR/CameraTrapCesar/data/habitats.csv")
 ## Pooling together several sites
 
 For this example I selected one year for the sites: Becerril 2021, LaPaz_Manaure 2019, MLJ, CL1, CL2 and PCF.  Sometimes we need to make unique codes per camera and cameraOperation table. This was not the case.
+
+For this example we are using the habitat type were the camera was installed as a way to see the sampling effort (number of cameras) per habitat type. Th habitat type was extracted overlaying the camera points on top of the [Land Cover 100m global dataset from COPERNICUS](https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_Landcover_100m_Proba-V-C3_Global#bands) using Google Earth engine connected to R. How to do this will be in another post. 
+
 
 ```{r}
 # make a new column Station
@@ -119,7 +126,10 @@ CToperation  <- data_south |>
 ```
 
 
-## Generating cameraOperation and making detection histories for all the species. 
+
+
+
+## Generating the cameraOperation table and making detection histories for all the species. 
 
 The package CamtrapR has the function 'cameraOperation' which makes a table of cameras (stations) and dates (setup, puck-up), this table is key to generate the detection histories using the function 'detectionHistory' in the next step. 
 
@@ -161,10 +171,10 @@ DetHist_list <- lapply(unique(data_south$Species), FUN = function(x) {
   }
 )
 
-# names
+# put names to the species 
 names(DetHist_list) <- unique(data_south$Species)
 
-# Finalmente creamos una lista nueva donde estén solo las historias de detección
+# Finally we make a new list to put all the detection histories.
 ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
 
 
@@ -172,9 +182,9 @@ ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
 ```
 
 
-## Use the detection histories to make the a matrix for `vegan`
+## Use the detection histories to make the a matrix for `vegan` and the incidence for `iNEXT`.
 
-Species accumulation curves made using the package vegan, plot the increase in species richness as we add survey units. If the curve plateaus (flattens), then that suggests you have sampled the majority of the species in your survey area.
+Species accumulation curves made using the package vegan, plot the increase in species richness as we add survey units. If the curve plateaus (flattens), then that suggests you have sampled the majority of the species in your survey site (camera or habitat type).
 
 
 ```{r}
@@ -224,7 +234,7 @@ colnames(cesar_sp) <- names(sp_by_hab)
 
 
 
-# function to Format data to incidence
+# function to Format data to incidence and use iNext
 f_incidences <- function(habitat_rows=closed_forest_rows){ylist %>%  # historias de detection
   map(~rowSums(.,na.rm = T)) %>% # sumo las detecciones en cada sitio
   reduce(cbind) %>% # unimos las listas
@@ -241,7 +251,7 @@ f_incidences <- function(habitat_rows=closed_forest_rows){ylist %>%  # historias
   as.matrix() # Requiere formato de matriz
 }
 
-# incidence frequency table (is a list whit 5 habitats)
+# Make incidence frequency table (is a list whit 5 habitats)
 # Make an empty list to store our data
 incidence_cesar <- list() 
 incidence_cesar[[1]] <- f_incidences(closed_forest_rows)
@@ -253,17 +263,48 @@ incidence_cesar[[5]] <- f_incidences(open_forest_other)
 # put names
 names(incidence_cesar) <- names(sp_by_hab)
 
-incidence_cesar <- within(incidence_cesar, rm("herbaceous_wetland"))
-
-############## here error loop here?
-# Calculate the row sums for the selected rows
-# specific_rows_sums <- rowSums(specific_rows[, c("Cerdocyon thous"  , "Cuniculus paca"  , "Cuniculus taczanowskii" )])
-# 
-# 
-# all_numeric_sums <- mat_vegan2 %>%
-#   mutate(TotalSums = rowSums(select(., where(is.numeric))))
+# we deleted this habitat type for making error
+incidence_cesar <- within(incidence_cesar, rm("herbaceous_wetland")) 
 
 ```
+
+
+## To start lets plot the species vs sites
+
+```{r}
+#| fig-height: 10
+#| fig-width: 8
+
+# Transpose if needed to have sample site names on rows
+abund_table<-mat_vegan
+# Convert to relative frequencies
+abund_table <- abund_table/rowSums(abund_table)
+library(reshape2)
+df<-melt(abund_table)
+colnames(df)<-c("Sampled_site","Species","Value")
+library(plyr)
+library(scales)
+ 
+# We are going to apply transformation to our data to make it
+# easier on eyes 
+ 
+#df<-ddply(df,.(Samples),transform,rescale=scale(Value))
+df<-ddply(df,.(Sampled_site),transform,rescale=sqrt(Value))
+ 
+# Plot heatmap
+p <- ggplot(df, aes(Species, Sampled_site)) + 
+  geom_tile(aes(fill = rescale),colour = "white") + 
+  scale_fill_gradient(low = "white",high = "#1E5A8C")+
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0)) + theme(legend.position = "none",axis.ticks = element_blank(),axis.text.x = element_text(angle = 90, hjust = 1,size=6),axis.text.y = element_text(size=4))
+
+# ggplotly(p) # see interactive
+# View the plot
+p
+ 
+```
+> Notice how some cameras didn't record any species. Here showed as the gay horizontal line. Perhaps we need to delete those cameras.
+
 
 ## Rarefaction using `vegan`
  
@@ -285,7 +326,7 @@ sp2 <- specaccum(mat_vegan, "random")
 # sp2
 # summary(sp2)
 plot(sp1, ci.type="poly", col="blue", lwd=2, ci.lty=0, ci.col="lightblue")
-boxplot(sp2, col="yellow", add=TRUE, pch="+")
+# boxplot(sp2, col="yellow", add=TRUE, pch="+")
 
 
 mods <- fitspecaccum(sp1, "gleason")
@@ -303,6 +344,22 @@ plot(pool)
 
 ```
 
+### Ranked abundance distribution
+
+An alternative approach to species abundance distribution is to plot logarithmic abundances in decreasing order, or against ranks of species. 
+
+
+
+```{r}
+k <- sample(nrow(mat_vegan), 1)
+rad <- radfit(mat_vegan[22,]) # species 22
+# plot(rad)
+radlattice(rad)
+
+
+```
+
+
 ### Hill Diversities using vegan
 
 ```{r}
@@ -315,11 +372,35 @@ plot(mod, as.table=TRUE, col = c(1, 2, 2))
 persp(mod)
 ```
 
+### Total number of species 
+
+```{r}
+DT::datatable(round(specpool(mat_vegan),3))
+
+```
+
+### Number of unseen species per camera
+
+Look at S.chao1 
+
+```{r}
+DT::datatable(
+t(round(as.data.frame(estimateR(mat_vegan[,])),3))
+)
+
+# save as dataframe
+S_per_site <- as.data.frame(t(round(as.data.frame(estimateR(mat_vegan[,])),3)))
+# add sites
+S_per_site$Station <- rownames(S_per_site)
+```
+
+It is weird to have .5 species in some sites.
 
 
-## Convert Cameratrap-operation to sf 
 
-In this step we convert the Cameratrap-operation table to sf, we add elevation from AWS and habitat type to finally visualize the map
+## Map it converting Cameratrap-operation to sf 
+
+In this step we convert the Cameratrap-operation table to sf, we add elevation from AWS, habitat type and species per site (S.chao1) to finally visualize the map showing the number of species as the size of the dot.
 
 ```{r}
 
@@ -337,14 +418,57 @@ habs <- read.csv("C:/CodigoR/CameraTrapCesar/data/habitats.csv")
 
 CToperation_elev_sf <- get_elev_point(CToperation_sf, src = "aws") # get elevation from AWS
 
-CToperation_elev_sf <- CToperation_elev_sf |>  left_join(habs, by='Station')
+CToperation_elev_sf <- CToperation_elev_sf |> left_join(habs, by='Station') |> left_join(S_per_site, by='Station') |> select("Station", "elevation", "minStart.x","maxEnd.x", "Year.x", "hab_code" , "S.obs", "S.chao1")
 
 # add habitat 
 # CToperation_elev_sf$habs <- habs$hab_code
 # see the map
-mapview(CToperation_elev_sf, zcol="hab_code")
+mapview(CToperation_elev_sf, zcol="hab_code", cex = "S.chao1", alpha = 0)
 
 ```
+
+## Perhaps it is easyer to plot the species number as a countour map
+
+One advantage of using the eks density estimate, is that it is clearer what the output means. The 20% contour means “20% of the measurements lie inside this contour”. The documentation for eks takes issue with how stat_density_2d does its calculation, I don't know who is right because the estimated value is species.
+
+
+```{r}
+# select chao
+species <- dplyr::select(CToperation_elev_sf, "S.chao1")
+# hakeoides_coord <- data.frame(sf::st_coordinates(hakeoides))
+Sta_den <- eks::st_kde(species) # calculate density
+
+# VERY conveniently, eks can generate an sf file of contour lines
+contours <- eks::st_get_contour(Sta_den, cont=c( 10,20,30,40,50,60,70,80, 90)) %>% 
+  mutate(value=as.numeric(levels(contlabel)))
+
+
+# pal_fun <- leaflet::colorQuantile("YlOrRd", NULL, n = 5)
+
+p_popup <- paste("Species", as.numeric(levels(contours$estimate)), "number")
+
+
+tmap::tmap_mode("view") # set mode to interactive plots
+
+tmap::tm_shape(species) + 
+    tmap::tm_sf(col="black", size=0.2) +
+  #   contours from eks
+  tmap::tm_shape(contours) +
+    tmap::tm_polygons("estimate",
+                      palette="Reds",
+                      alpha=0.5 )
+
+
+## geom_sf plot
+# ## suitable smoothing matrix gives optimally smoothed contours
+# gs1 <- ggplot(Sta_den) + geom_sf(data=CToperation_elev_sf, fill=NA) + ggthemes::theme_map() +
+#     colorspace::scale_fill_discrete_sequential(palette="Heat2") 
+# gs1 + geom_sf(data=st_get_contour(Sta_den), aes(fill=label_percent(contlabel))) +
+#     coord_sf(xlim=xlim, ylim=ylim) 
+```
+
+> In general terms the species estimate per site seems to be larger near the mine and decrease with the distance to the mine. Also notice kernel density estimates are larger than s.chao1.
+
 
 ## Nonmetric Multidimensional Scaling (NMDS)
 
@@ -377,15 +501,45 @@ We can make a similar plot using `gg_ordisurf` from the package `ggordiplots` bu
 # To fit a surface with ggordiplots:
 
  
-gg_ordisurf(ord = example_NMDS,
-env.var = CToperation_elev_sf$elevation,
-var.label = "Elevation",
-pt.size = 2,
-groups = CToperation_elev_sf$hab_code,
-binwidth = 50)
+ordiplot <- gg_ordisurf(ord = example_NMDS, 
+                        env.var = CToperation_elev_sf$elevation,
+                        var.label = "Elevation",
+                        pt.size = 2,
+                        groups = CToperation_elev_sf$hab_code,
+                        binwidth = 50)
+
+# ggplotly(ordiplot$plot) # see interactive
+
+# # alternative using biodiversityR
+# 
+# A1.surface <- ordisurf( y=example_NMDS)
+# A1.grid <- ordisurfgrid.long(A1.surface)
+# # Preparing the plot
+# 
+# plotgg4 <- ggplot() + 
+#     geom_contour_filled(data=A1.grid, 
+#                         aes(x=x, y=y, z=z)) +
+#     geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+#     geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+#     xlab(axis.long2[1, "label"]) +
+#     ylab(axis.long2[2, "label"]) +  
+#     scale_x_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+#     scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+#     geom_point(data=sites.long2, 
+#                aes(x=axis1, y=axis2, shape=Management), 
+#                colour="red", size=4) +
+#     BioR.theme +
+#     scale_fill_viridis_d() +
+#     labs(fill="A1") +
+#     coord_fixed(ratio=1)
+# # and seeing the plot.
+# 
+# plotgg4
+
 ```
 
 The contours connect species in the ordination space that are predicted to have the same elevation.
+
 
 
 ## Rarefaction using `iNEXT`
@@ -393,17 +547,6 @@ The contours connect species in the ordination space that are predicted to have 
 ```{r}
 
 
-# inedat <- lapply(apply(mat_vegan, 2, sum, na.rm=TRUE), as.incfreq)
-# 
-# out <- iNEXT(inedat,          # The data frame
-#              q=0,                    # The type of diversity estimator (see discussion of the options below)
-#              datatype="incidence_freq",   # The type of analysis
-#              knots=40,                    # The number of data points in your line (more = smoother)
-#              se=TRUE,                     # Logical statement if you want confidence intervals
-#              conf=0.95,                   # The level of confidence intervals
-#              nboot=50)                    # The number of replications to perform - this generates your confidence interval - the bigger the number the longer the run time
-
-#data(bird)
 
 out <- iNEXT(incidence_cesar, # The data frame
              q=0,# The type of diversity estimator 
@@ -431,7 +574,7 @@ ggiNEXT(out2, type=1, facet.var="Order.q", color.var="Assemblage") + theme_class
 
 ```
 
-the iNEXT package is well suited for comparisons of diversity indices through the use of hill numbers - of which the ‘q’ value represents the traditional Shannon (q=1) and Simpson (q=2) diversity indices (species richness: q = 0). Note Increasing values of q reduces the influence of rare species on your estimate of community diversity.
+The `iNEXT` package is well suited for comparisons of diversity indices through the use of hill numbers - of which the `q` value = 1 represents the traditional diversity indices: The species richness is q = 0. The Shannon index is (q=1), and Simpson is (q=2). Note Increasing values of q reduces the influence of rare species on our estimate of community diversity.
 
 
 

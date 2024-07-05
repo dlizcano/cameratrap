@@ -1,7 +1,7 @@
 ---
-title: 'Visualizing Cesar Cameratrap Data'
-subtitle: "Visualizing as a simple interactive map and calendar"
-description: "a lot of camera trap data from Galictis Biodiversidad"
+title: 'A calendar to visualize camera trap data'
+subtitle: "Visualizing dates of photos as a simple interactive map and a calendar"
+description: "Using several camera trap data campaingns from Galictis Biodiversidad"
 author: 
   - name: 'Diego J. Lizcano'
     orcid: 0000-0002-9648-0576
