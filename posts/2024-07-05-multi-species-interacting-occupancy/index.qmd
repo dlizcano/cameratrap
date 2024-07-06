@@ -1,0 +1,525 @@
+---
+title: 'A multi-species (species interactions) occupancy model'
+subtitle: "Marginal vs conditional occupancy"
+description: "A mountain tapir, puma and andean bear interacting model"
+author: 
+  - name: 'Diego J. Lizcano'
+    orcid: 0000-0002-9648-0576
+    affiliation: "WildMon"
+date: '2024-07-07'
+file-modified: Sys.Date()
+categories: [R, occupancy, tapir]
+image: 'img/preview.png'
+citation: true
+bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-07-05-multi-species-interacting-occupancy/grateful-refs.bib
+---
+
+## How can we model species interactions?:
+
+1.  Direct observations of interactions (e.g. predation events)
+2.  Indirect ways:
+
+-   Over time. We can use Activity pattern analysis (e.g. Ridout and Linkie 2009, overlap R package). Doesn't necessarily test if species are typically found in the **same locations**.
+
+-   Over space. Multispecies occupancy models. Don't necessary test if species are active at the **same time**.
+
+### Three are several types of multispecies occupancy models:
+
+-   Two or more species, no interactions explicitly modeled (e.g. community occupancy models; AHM1 Chap 11).
+
+-   Two species, species interaction factor, sometimes has numerical issues (MacKenzie et al. 2004).
+
+-   Two species, asymmetric interactions (Waddle et al. 2010, Richmond et al. 2010).
+
+-   Models above available in PRESENCE, MARK software 2+ species, symmetric interactions (Rota et al. 2016, AHM2 Chap 8) \<- focus of this post.
+
+```{r}
+#| label: renv
+#| include: false
+# https://www.joelnitta.com/posts/2024-01-11_using_renv_with_blog/
+# library(renv)
+# renv::use(lockfile = "renv.lock")
+
+library(quarto) # R Interface to 'Quarto' Markdown Publishing System
+library(styler) # Non-Invasive Pretty Printing of R Code
+```
+
+## Load packages
+
+```{r setup, include=TRUE}
+
+# library(ggpmthemes)
+library(glue) # Interpreted String Literals
+library(patchwork) # The Composer of Plots
+library(readxl) # Read Excel Files
+library(sf) # Simple Features for R
+library(mapview) # Interactive Viewing of Spatial Data in R
+library(grateful) # Facilitate Citation of R Packages
+library (terra)
+library(unmarked)
+library(stars)
+library(elevatr)
+library(ubms)
+library(camtrapR)
+library(knitr) # A General-Purpose Package for Dynamic Report Generation in R
+# options(kableExtra.auto_format = FALSE)
+library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
+library(DT)
+library(tidyverse) # Easily Install and Load the 'Tidyverse'
+library(ggforce) # Accelerating 'ggplot2'
+
+library(readr)
+
+
+
+source("C:/CodigoR/CameraTrapCesar/R/organiza_datos.R")
+
+```
+
+## Load data
+
+```{r warning=FALSE}
+#| include: false
+#| eval: false
+
+ecu14 <- loadproject("F:/WCS-CameraTrap/data/BDcorregidas/Ecuador/ECU-014.xlsx") |> 
+  mutate(eventDateTime=`Date_Time Captured`) |> 
+  dplyr::rename(Deployment_id="Deployment ID")
+
+ecu15 <- loadproject("F:/WCS-CameraTrap/data/BDcorregidas/Ecuador/ECU-015.xlsx") |> 
+    mutate(eventDateTime=`Date_Time Captured`) |> 
+  dplyr::rename(Deployment_id="Deployment ID")
+
+ecu16 <- loadproject("F:/WCS-CameraTrap/data/BDcorregidas/Ecuador/ECU-016.xlsx") |> 
+    mutate(eventDateTime=`Date_Time Captured`) |> 
+  dplyr::rename(Deployment_id="Deployment ID")
+
+
+pitalito <- loadproject("C:/CodigoR/CameraTrapCesar/data/Wild_ID_PU.xlsx") |> 
+    mutate(eventDateTime=`Date_Time Captured`) |> 
+  dplyr::rename(Deployment_id="Deployment ID")
+
+
+cocha <- read_excel("C:/CodigoR/CameraTrapCesar/data/Full_data_Ucumari_Huila_Cocha1_Cocha2.xlsx", sheet = "cocha2") |>
+  mutate(eventDateTime=`Photo Date`) |>
+  dplyr::rename(Deployment_id="Camera Trap Name") |>
+   dplyr::rename(start_date="Camera Start Date")  |>
+  dplyr::rename(end_date="Camera End Date")  |>
+  unite("scientificName", Genus:Species, sep=" ")
+
+
+
+# filter and make uniques
+CToperation_cocha <- cocha |> 
+            # dplyr::rename(Deployment_id="Deployment ID") |> 
+            dplyr::mutate(year=year(as_date("Photo Date")))|> 
+            distinct(Longitude, Latitude, start_date, end_date, year, Deployment_id)
+
+# CToperation_ecu16 <- CToperation_ecu16[-29,]
+
+# Generamos la matríz de operación de las cámaras
+
+camop_cocha <- cameraOperation(CTtable= CToperation_cocha, # Tabla de operación
+                         stationCol= "Deployment_id", # define la estación
+                         setupCol= "start_date", #Columna fecha de colocación
+                         retrievalCol= "end_date", #Columna fecha de retiro
+                         #hasProblems= T, # Hubo fallos de cámaras
+                         dateFormat= "%Y-%m-%d") #, # Formato de las fechas
+                         #cameraCol="CT")
+                         # sessionCol= "Year")
+
+
+## remove problem species
+# # ind <- which(ecu14$scientificName=="Cerdocyon thous")
+# ind <- which(is.na(pitalito$scientificName))
+#  pitalito <- pitalito[-ind,]
+
+DetHist_list <- lapply(unique(cocha$scientificName), FUN = function(x) {
+  detectionHistory(
+    recordTable         = cocha, # Tabla de registros
+    camOp                = camop_cocha, # Matriz de operación de cámaras
+    stationCol           = "Deployment_id",
+    speciesCol           = "scientificName",
+    recordDateTimeCol    = "eventDateTime",
+    recordDateTimeFormat  = "%Y-%m-%d",
+    species              = x,     # la función reemplaza x por cada una de las especies
+    occasionLength       = 17, # Colapso de las historias a 10 días
+    day1                 = "station", #inicie en la fecha de cada survey
+    datesAsOccasionNames = FALSE,
+    includeEffort        = TRUE,
+    scaleEffort          = FALSE,
+    #unmarkedMultFrameInput=TRUE
+    timeZone             = "America/Bogota" 
+    )
+  }
+)
+
+# names
+names(DetHist_list) <- unique(cocha$scientificName)
+# Finalmente creamos una lista nueva donde estén solo las historias de detección
+ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
+effortlist <- lapply(DetHist_list, FUN = function(x) x$effort)
+
+### Danta, Puma, Oso
+which(unique(cocha$scientificName)=="Tapirus pinchaque")
+which(unique(cocha$scientificName)=="Puma concolor")
+which(unique(cocha$scientificName)=="Tremarctos ornatus")
+
+###########################################
+danta <- as.data.frame(ylist[[6]])
+danta$Deployment_id <- rownames(as.data.frame(ylist[[6]]))
+danta_effort <- as.data.frame(effortlist[[6]]) 
+colnames(danta_effort) <- (c("e1","e2","e3","e4"))
+
+danta <- danta |> left_join(CToperation_cocha) |>  
+              select(!c(start_date, end_date, year)) |> 
+              cbind(danta_effort) |> write.csv("C:/CodigoR/CameraTrapCesar/data/danta_cocha.csv")
+
+######################################
+puma <- as.data.frame(ylist[[2]])
+puma$Deployment_id <- rownames(as.data.frame(ylist[[2]]))
+puma_effort <- as.data.frame(effortlist[[2]]) 
+colnames(puma_effort) <- (c("e1","e2","e3","e4"))
+
+puma <- puma |> left_join(CToperation_cocha) |>  
+              select(!c(start_date, end_date, year)) |> 
+              cbind(puma_effort) |> write.csv("C:/CodigoR/CameraTrapCesar/data/puma_cocha.csv")
+############################################
+
+oso <- as.data.frame(ylist[[15]])
+oso$Deployment_id <- rownames(as.data.frame(ylist[[15]]))
+oso_effort <- as.data.frame(effortlist[[15]]) 
+colnames(oso_effort) <- (c("e1","e2","e3","e4"))
+
+oso <- oso |> left_join(CToperation_cocha) |>  
+              select(!c(start_date, end_date, year)) |> 
+              cbind(oso_effort) |> write.csv("C:/CodigoR/CameraTrapCesar/data/oso_cocha.csv")
+
+
+
+```
+
+
+
+```{r}
+
+odp_ecu_col<- read_csv("C:/CodigoR/CameraTrapCesar/data/oso_danta_puma_ucu_pitalito_cocha2_ecuador_noNA.csv")
+
+
+```
+
+## Convert to sf
+
+```{r}
+
+datos_distinct <- odp_ecu_col |> distinct(Longitude, Latitude, Deployment_id)
+
+projlatlon <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+datos_sf <-  st_as_sf(x = datos_distinct,
+                         coords = c("Longitude", 
+                                    "Latitude"),
+                         crs = projlatlon)
+
+mapview(datos_sf, zcol="Deployment_id")
+
+```
+
+## get rasters
+
+```{r}
+
+#load raster
+per_tree_cov <- rast("F:/WCS-CameraTrap/raster/latlon/Veg_Cont_Fields_Yearly_250m_v61/Perc_TreeCov/MOD44B_Perc_TreeCov_2010_065.tif")
+road_den <- rast("F:/WCS-CameraTrap/raster/latlon/RoadDensity/grip4_total_dens_m_km2.asc")
+# elev <- rast("D:/CORREGIDAS/elevation_z7.tif")
+landcov <- rast("F:/WCS-CameraTrap/raster/latlon/LandCover_Type_Yearly_500m_v61/LC1/MCD12Q1_LC1_2010_001.tif") 
+cattle <- rast("F:/WCS-CameraTrap/raster/latlon/Global cattle distribution/5_Ct_2010_Da.tif")
+#river <- st_read("F:/WCS-CameraTrap/shp/DensidadRios/MCD12Q1_LC1_2001_001_RECLASS_MASK_GRID_3600m_DensDrenSouthAmer.shp")
+
+# get elevation map
+#elevation_detailed <- rast(get_elev_raster(sites, z = 10, clip="bbox", neg_to_na=TRUE))
+elevation_detailed <- get_elev_point (datos_sf, src="aws", overwrite=TRUE)
+
+
+# extract covs using points and add to sites
+# covs <- cbind(sites, terra::extract(SiteCovsRast, sites))
+per_tre <- terra::extract(per_tree_cov, datos_sf)
+roads <- terra::extract(road_den, datos_sf)
+# eleva <- terra::extract(elevation_detailed, sites)
+land_cov <- terra::extract(landcov, datos_sf)
+cattle_den <-  terra::extract(cattle, datos_sf)
+
+sites <- as.data.frame(datos_sf)
+
+# remove decimals convert to factor
+sites$land_cover <-  factor(land_cov$MCD12Q1_LC1_2010_001)
+# sites$elevation <-  eleva$file3be898018c3
+sites$per_tree_cov <- per_tre$MOD44B_Perc_TreeCov_2010_065 
+#  fix 200 isue
+ind <- which(sites$per_tree_cov== 200)
+sites$per_tree_cov[ind] <- 0
+
+sites$elevation <- elevation_detailed$elevation
+sites$roads <- roads$grip4_total_dens_m_km2
+sites$cattle <- cattle_den[,2]
+
+# arrange detections observations
+
+effort <- as.data.frame(odp_ecu_col[,19:23])
+
+ylist <- list(oso  =as.matrix(odp_ecu_col[,4:8]),
+              danta=as.matrix(odp_ecu_col[,9:13]),
+              puma =as.matrix(odp_ecu_col[,14:18]))
+
+lapply(ylist, head) # look at first few rows
+
+site_covs <- as.data.frame(sites[,4:7])
+# site_covs$roads <- as.numeric(site_covs$roads)
+# site_covs <- scale(site_covs)
+head(site_covs)
+
+
+ObsCovs_list <- list(effort= odp_ecu_col[,19:23])
+
+
+# Make UMF object
+umf <- unmarkedFrameOccuMulti(y=ylist, 
+                              siteCovs=site_covs,
+                              obsCovs=ObsCovs_list
+                              )
+head(umf)
+summary(umf)
+
+plot(umf)
+
+```
+
+## Set up the formulas
+
+### Intercept-only model, assuming independence
+
+For now, we assume independence among species. We do this by only allowing 1st
+ order natural parameters (maxOrder = 1).  
+ 
+ This is equivalent to fitting 3 single-species occupancy models.
+ 
+```{r}
+
+umf@fDesign
+
+fit_1 <- occuMulti(detformulas = c('~1', '~1', '~1'),
+                   stateformulas = c('~1', '~1', '~1'),
+                   maxOrder = 1,
+                   data = umf)
+
+# DT::datatable(round(summary(fit_1), 3))
+
+summary(fit_1)
+
+
+```
+
+### Intercept-only model, assuming dependence
+
+- Set maxOrder = 2 to estimate up to 2nd  order natural parameters
+- Permits dependence between species
+- Fixes all natural parameters > maxOrder at 0
+
+```{r}
+
+fit_2 <- occuMulti(detformulas = c('~1', '~1', '~1'),
+                   stateformulas = c('~1', '~1', '~1',
+                                     '~1', '~1', '~1'),
+                   maxOrder = 2,
+                   data = umf)
+
+summary(fit_2)
+
+```
+
+oso y danta occur together more frequently than expected by chance (p<0.01)
+danta y puma occur together more frequently than expected by chance (p<0.01)
+
+
+### Incorporating covariates
+
+Any parameter can be modeled as a function of covariates
+Covariate models for each parameter can be unique
+Names of detection covariates correspond to names provided in named list
+Names of occupancy covariates correspond to names in data.frame
+The model below is driven less by biology and more by an interest in demonstrating that each parameter can be modeled uniquely.
+
+
+```{r}
+fit_3 <- occuMulti(detformulas = c('~effort', '~effort', '~effort'),
+                   stateformulas = c('~cattle', #oso
+                                     '~per_tree_cov', #danta
+                                     '~elevation', #puma
+                                     '~per_tree_cov', #oso:danta
+                                     '~1', #oso:puma
+                                     '~per_tree_cov' #danta:puma
+                                     ),
+                   maxOrder = 2,
+                   se=TRUE,
+                   penalty=0.5,
+                   data = umf)
+
+summary(fit_3)
+
+
+```
+
+
+
+### Conditional occupancy probability
+
+Calculation of conditional and marginal occupancy probabilities is done with the predict function.
+
+Create a data.frame for predictions
+The procedure is equivalent to creating data frames for all other applications of predict
+Include complete range of observed cattle; hold all other variables at their mean.
+
+```{r}
+nd_cond <- data.frame(
+  cattle = rep(mean(site_covs$cattle), 100),
+  elevation = rep(mean(site_covs$elevation), 100),
+  roads = rep(mean(site_covs$roads), 100),
+  per_tree_cov = seq(min(site_covs$per_tree_cov), max(site_covs$per_tree_cov),
+                 length.out = 100)
+)
+```
+
+
+### Predicting danta occurrence when oso are present
+
+species indicates which species we assume when predicting occupancy
+cond indicates which species we are assuming is present or absent
+
+```{r}
+danta_oso_1 <- predict(fit_3, type = 'state', species = 'danta',
+                     cond = 'oso', newdata = nd_cond)
+
+```
+### Predicting danta occurrence when oso are absent
+
+putting a - in front of oso tells predict you wish to assume oso are absent
+
+
+```{r}
+
+danta_oso_0 <- predict(fit_3, type = 'state', species = 'danta',
+                     cond = '-oso', newdata = nd_cond)
+
+```
+
+
+### danta oso
+
+```{r}
+
+gg_df_cond1 <- data.frame(
+  per_tree_cov = rep(nd_cond$per_tree_cov, 2),
+  occupancy = c(danta_oso_1$Predicted,
+                danta_oso_0$Predicted),
+  low = c(danta_oso_1$lower,
+          danta_oso_0$lower),
+  high = c(danta_oso_1$upper,
+           danta_oso_0$upper),
+  conditional = rep(c('Bear present', 'Bear absent'),
+                    each = 100)
+)
+
+
+cond_fig1 <- ggplot(gg_df_cond1, aes(x = per_tree_cov, y = occupancy,
+                                   group = conditional)) +
+  geom_ribbon(aes(ymin = low, ymax = high, fill = conditional)) +
+  geom_line() +
+  ylab('Conditional Tapir\noccupancy probability') +
+  xlab('per_tree_cov') +
+  labs(fill = 'Bear state') +
+  theme(text = element_text(size = 15),
+        legend.position = c(0.75, 0.85))
+
+cond_fig1
+```
+
+
+
+
+
+
+#### danta puma 
+
+```{r}
+
+danta_puma_1 <- predict(fit_3, type = 'state', species = 'danta',
+                     cond = 'puma', newdata = nd_cond)
+
+danta_puma_0 <- predict(fit_3, type = 'state', species = 'danta',
+                     cond = '-puma', newdata = nd_cond)
+
+
+gg_df_cond2 <- data.frame(
+  per_tree_cov = rep(nd_cond$per_tree_cov, 2),
+  occupancy = c(danta_puma_1$Predicted,
+                danta_puma_0$Predicted),
+  low = c(danta_puma_1$lower,
+          danta_puma_0$lower),
+  high = c(danta_puma_1$upper,
+           danta_puma_0$upper),
+  conditional = rep(c('Puma present', 'Puma absent'),
+                    each = 100)
+)
+
+
+
+cond_fig2 <- ggplot(gg_df_cond2, aes(x = per_tree_cov, y = occupancy,
+                                   group = conditional)) +
+  geom_ribbon(aes(ymin = low, ymax = high, fill = conditional)) +
+  geom_line() +
+  ylab('Conditional Tapir\noccupancy probability') +
+  xlab('per_tree_cov') +
+  labs(fill = 'Puma state') +
+  theme(text = element_text(size = 15),
+        legend.position = c(0.75, 0.85))
+
+cond_fig2
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
+
+
+## Package Citation
+
+```{r }
+pkgs <- cite_packages(output = "paragraph", out.dir = ".") #knitr::kable(pkgs)
+pkgs
+
+```
+
+## Sesion info
+
+<details>
+
+<summary>Session info</summary>
+
+```{r sessioninfo, echo = FALSE}
+#| label: sessioninfo
+options(width = 150)
+devtools::session_info()
+```
+
+</details>
