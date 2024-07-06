@@ -29,9 +29,9 @@ bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-07-05-multi-species-interact
 
 -   Two species, species interaction factor, sometimes has numerical issues (MacKenzie et al. 2004).
 
--   Two species, asymmetric interactions (Waddle et al. 2010, Richmond et al. 2010).
+-   Two species, asymmetric interactions (Waddle et al. 2010, Richmond et al. 2010). Available in PRESENCE and MARK software 
 
--   Models above available in PRESENCE, MARK software 2+ species, symmetric interactions (Rota et al. 2016, AHM2 Chap 8) \<- focus of this post.
+-   Two species, symmetric interactions (Rota et al. 2016, AHM2 Chap 8) \<- focus of this post.
 
 ```{r}
 #| label: renv
@@ -414,7 +414,137 @@ danta_oso_0 <- predict(fit_3, type = 'state', species = 'danta',
 ```
 
 
-### danta oso
+### danta oso marginal occupancy box plot
+
+
+```{r}
+################################## Marginal
+danta_marginal <- predict(fit_3, type="state", species="danta")
+head(danta_marginal)
+
+oso_marginal <- predict(fit_3, type='state', species="oso") # get coyote
+marg_plot_dat <- rbind(danta_marginal[1,], oso_marginal[1,])
+marg_plot_dat$Species <- c("Tapir", "Bear")
+marg_plot_dat
+
+
+plot(1:2, marg_plot_dat$Predicted, ylim=c(0,0.9), 
+     xlim=c(0.5,2.5), pch=19, cex=1.5, xaxt='n', 
+     xlab="", ylab="Marginal occupancy")
+axis(1, at=1:2, labels=marg_plot_dat$Species)
+
+# CIs
+top <- 0.1
+for (i in 1:2){
+  segments(i, marg_plot_dat$lower[i], i, marg_plot_dat$upper[i])
+  segments(i-top, marg_plot_dat$lower[i], i+top)
+  segments(i-top, marg_plot_dat$upper[i], i+top)
+}
+
+```
+
+
+### danta puma marginal occupancy box plot
+
+
+```{r}
+################################## Marginal
+danta_marginal <- predict(fit_3, type="state", species="danta")
+head(danta_marginal)
+
+oso_marginal <- predict(fit_3, type='state', species="puma") # get coyote
+marg_plot_dat <- rbind(danta_marginal[1,], oso_marginal[1,])
+marg_plot_dat$Species <- c("Tapir", "Puma")
+marg_plot_dat
+
+
+plot(1:2, marg_plot_dat$Predicted, ylim=c(0,0.9), 
+     xlim=c(0.5,2.5), pch=19, cex=1.5, xaxt='n', 
+     xlab="", ylab="Marginal occupancy")
+axis(1, at=1:2, labels=marg_plot_dat$Species)
+
+# CIs
+top <- 0.1
+for (i in 1:2){
+  segments(i, marg_plot_dat$lower[i], i, marg_plot_dat$upper[i])
+  segments(i-top, marg_plot_dat$lower[i], i+top)
+  segments(i-top, marg_plot_dat$upper[i], i+top)
+}
+
+```
+
+
+
+### danta oso conditional box plot
+
+```{r}
+
+######################### Conditional
+danta_oso <- predict(fit_3, type="state", species="danta", cond="oso")
+head(danta_oso)
+
+danta_No_oso <- predict(fit_3, type="state", species="danta", cond="-oso")
+head(danta_oso)
+
+
+plot_data <- rbind(danta_oso[1,], danta_No_oso[1,])
+plot_data$Oso_status <- c("Present","Absent")
+head(plot_data)
+
+plot(1:2, plot_data$Predicted, ylim=c(0, 0.9), 
+     xlim=c(0.5,2.5), pch=19, cex=1.5, xaxt='n', 
+     xlab="Bear status", ylab="Tapir cond. occupancy")
+axis(1, at=1:2, labels=plot_data$Oso_status)
+
+# CIs
+top <- 0.1
+for (i in 1:2){
+  segments(i, plot_data$lower[i], i, plot_data$upper[i])
+  segments(i-top, plot_data$lower[i], i+top)
+  segments(i-top, plot_data$upper[i], i+top)
+}
+
+
+
+
+```
+
+
+### danta puma conditional box plot
+
+```{r}
+
+######################### Conditional
+danta_oso <- predict(fit_3, type="state", species="danta", cond="puma")
+head(danta_oso)
+
+danta_No_oso <- predict(fit_3, type="state", species="danta", cond="-puma")
+head(danta_oso)
+
+
+plot_data <- rbind(danta_oso[1,], danta_No_oso[1,])
+plot_data$Oso_status <- c("Present","Absent")
+head(plot_data)
+
+plot(1:2, plot_data$Predicted, ylim=c(0, 0.9), 
+     xlim=c(0.5,2.5), pch=19, cex=1.5, xaxt='n', 
+     xlab="Puma status", ylab="Tapir cond. occupancy")
+axis(1, at=1:2, labels=plot_data$Oso_status)
+
+# CIs
+top <- 0.1
+for (i in 1:2){
+  segments(i, plot_data$lower[i], i, plot_data$upper[i])
+  segments(i-top, plot_data$lower[i], i+top)
+  segments(i-top, plot_data$upper[i], i+top)
+}
+
+
+
+
+```
+
+### predicting with covariates
 
 ```{r}
 
@@ -433,7 +563,7 @@ gg_df_cond1 <- data.frame(
 
 cond_fig1 <- ggplot(gg_df_cond1, aes(x = per_tree_cov, y = occupancy,
                                    group = conditional)) +
-  geom_ribbon(aes(ymin = low, ymax = high, fill = conditional)) +
+  geom_ribbon(aes(ymin = low, ymax = high, fill = conditional),  alpha=0.5) +
   geom_line() +
   ylab('Conditional Tapir\noccupancy probability') +
   xlab('per_tree_cov') +
@@ -476,7 +606,7 @@ gg_df_cond2 <- data.frame(
 
 cond_fig2 <- ggplot(gg_df_cond2, aes(x = per_tree_cov, y = occupancy,
                                    group = conditional)) +
-  geom_ribbon(aes(ymin = low, ymax = high, fill = conditional)) +
+  geom_ribbon(aes(ymin = low, ymax = high, fill = conditional),  alpha=0.5) +
   geom_line() +
   ylab('Conditional Tapir\noccupancy probability') +
   xlab('per_tree_cov') +
@@ -500,6 +630,7 @@ cond_fig2
 
 
 
+https://eesc.usgs.gov/MBR/workshops/ahm2023/04_Multispecies%20_occupancy/multispecies-occupancy.html
 
 
 ## Package Citation
