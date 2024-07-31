@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.46">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="author" content="Diego J. Lizcano">
+<meta name="dcterms.date" content="2024-07-17">
+<meta name="description" content="Fits the single season occupancy model of MacKenzie et al (2002).">
+<title>Single Season Occupancy Model – Camera Trap Blog</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script><style>
+
+      .quarto-title-block .quarto-title-banner {
+        background-image: url(img/banner.jpg);
+background-size: cover;
+      }
+</style>
+<script src="../../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><link href="../../site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="../../site_libs/datatables-binding-0.32/datatables.js"></script><script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><link href="../../site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="../../site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="../../site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script><link href="../../site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+<script src="../../site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script><link href="../../site_libs/leaflet-1.3.1/leaflet.css" rel="stylesheet">
+<script src="../../site_libs/leaflet-1.3.1/leaflet.js"></script><link href="../../site_libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet">
+<script src="../../site_libs/proj4-2.6.2/proj4.min.js"></script><script src="../../site_libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script><link href="../../site_libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet">
+<script src="../../site_libs/leaflet-binding-2.2.1/leaflet.js"></script><script src="../../site_libs/leaflet-providers-2.0.0/leaflet-providers_2.0.0.js"></script><script src="../../site_libs/leaflet-providers-plugin-2.2.1/leaflet-providers-plugin.js"></script><link href="../../site_libs/HomeButton-0.0.1/home-button.css" rel="stylesheet">
+<script src="../../site_libs/HomeButton-0.0.1/home-button.js"></script><script src="../../site_libs/HomeButton-0.0.1/easy-button-src.min.js"></script><script src="../../site_libs/clipboard-0.0.1/setClipboardText.js"></script><link href="../../site_libs/mapviewCSS-0.0.1/mapview-popup.css" rel="stylesheet">
+<link href="../../site_libs/mapviewCSS-0.0.1/mapview.css" rel="stylesheet">
+<script src="../../site_libs/katios_occu_efb90c-1/data_stars_katios_occu0a1bf3.txt"></script><script src="../../site_libs/joda-0.0.1/joda.js"></script><script src="../../site_libs/joda-0.0.1/addImageQuery-bindings.js"></script><link rel="stylesheet" href="../../styles.css">
+<meta property="og:title" content="Camera Trap Blog - Single Season Occupancy Model">
+<meta property="og:description" content="Fits the single season occupancy model of MacKenzie et al (2002).">
+<meta property="og:image" content="https://dlizcano.github.io/cametrapcesar/posts/2024-07-29-sigle-season-occupancy/img/preview.jpg">
+<meta property="og:site_name" content="Camera Trap Blog">
+<meta name="twitter:title" content="Camera Trap Blog - Single Season Occupancy Model">
+<meta name="twitter:description" content="Fits the single season occupancy model of MacKenzie et al (2002).">
+<meta name="twitter:image" content="https://dlizcano.github.io/cametrapcesar/posts/2024-07-29-sigle-season-occupancy/img/preview.jpg">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Camera Trap Blog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+<li class="nav-item">
+    <a class="nav-link" href="../../dataexploration.html"> 
+<span class="menu-text">Data exploration</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../diversity.html"> 
+<span class="menu-text">Diversity</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/dlizcano"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/dlizcano"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+</div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Single Season Occupancy Model</h1>
+            <p class="subtitle lead">The simplest model using the <code>ubms</code> package</p>
+                  <div>
+        <div class="description">
+          Fits the single season occupancy model of MacKenzie et al (2002).
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">R</div>
+                <div class="quarto-category">occupancy</div>
+                <div class="quarto-category">ubms</div>
+              </div>
+                  </div>
+  </div>
+    
+  <div class="quarto-title-meta-author">
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-heading">Affiliation</div>
+    
+      <div class="quarto-title-meta-contents">
+      <p class="author">Diego J. Lizcano <a href="https://orcid.org/0000-0002-9648-0576" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+    </div>
+    <div class="quarto-title-meta-contents">
+          <p class="affiliation">
+              WildMon
+            </p>
+        </div>
+    </div>
+
+  <div class="quarto-title-meta">
+
+        
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">July 17, 2024</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
+   
+  <ul>
+<li><a href="#load-packages" id="toc-load-packages" class="nav-link active" data-scroll-target="#load-packages">Load packages</a></li>
+  <li><a href="#organize-the-data" id="toc-organize-the-data" class="nav-link" data-scroll-target="#organize-the-data">Organize the data</a></li>
+  <li>
+<a href="#load-data" id="toc-load-data" class="nav-link" data-scroll-target="#load-data">Load data</a>
+  <ul class="collapse">
+<li><a href="#view-the-data" id="toc-view-the-data" class="nav-link" data-scroll-target="#view-the-data">View the data</a></li>
+  <li><a href="#view-as-map" id="toc-view-as-map" class="nav-link" data-scroll-target="#view-as-map">View as map</a></li>
+  <li><a href="#function-to-make-detection-history-matrix" id="toc-function-to-make-detection-history-matrix" class="nav-link" data-scroll-target="#function-to-make-detection-history-matrix">Function to make detection history matrix</a></li>
+  <li><a href="#apply-the-function-to-get-tapirus-bairdii-detection-matrix" id="toc-apply-the-function-to-get-tapirus-bairdii-detection-matrix" class="nav-link" data-scroll-target="#apply-the-function-to-get-tapirus-bairdii-detection-matrix">Apply the function to get <em>Tapirus bairdii</em> detection matrix</a></li>
+  <li><a href="#lets-extract-percent-tree-cover-2012-to-be-used-as-site-covariate" id="toc-lets-extract-percent-tree-cover-2012-to-be-used-as-site-covariate" class="nav-link" data-scroll-target="#lets-extract-percent-tree-cover-2012-to-be-used-as-site-covariate">Lets extract percent tree cover 2012 to be used as site covariate</a></li>
+  </ul>
+</li>
+  <li><a href="#create-unmarked-frame-object" id="toc-create-unmarked-frame-object" class="nav-link" data-scroll-target="#create-unmarked-frame-object">Create unmarked frame object</a></li>
+  <li>
+<a href="#fit-models" id="toc-fit-models" class="nav-link" data-scroll-target="#fit-models">Fit models</a>
+  <ul class="collapse">
+<li><a href="#model-selection" id="toc-model-selection" class="nav-link" data-scroll-target="#model-selection">Model selection</a></li>
+  <li><a href="#model-convergence" id="toc-model-convergence" class="nav-link" data-scroll-target="#model-convergence">Model convergence</a></li>
+  <li><a href="#evaluate-model-fit" id="toc-evaluate-model-fit" class="nav-link" data-scroll-target="#evaluate-model-fit">Evaluate model fit</a></li>
+  <li><a href="#model-inference" id="toc-model-inference" class="nav-link" data-scroll-target="#model-inference">Model inference</a></li>
+  <li><a href="#spatial-model" id="toc-spatial-model" class="nav-link" data-scroll-target="#spatial-model">Spatial model</a></li>
+  </ul>
+</li>
+  <li><a href="#predict-occupancy-in-a-map" id="toc-predict-occupancy-in-a-map" class="nav-link" data-scroll-target="#predict-occupancy-in-a-map">Predict occupancy in a map</a></li>
+  <li><a href="#package-citation" id="toc-package-citation" class="nav-link" data-scroll-target="#package-citation">Package Citation</a></li>
+  <li><a href="#sesion-info" id="toc-sesion-info" class="nav-link" data-scroll-target="#sesion-info">Sesion info</a></li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="load-packages" class="level2"><h2 class="anchored" data-anchor-id="load-packages">Load packages</h2>
+<p>First we load some packages</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://pakillo.github.io/grateful/">grateful</a></span><span class="op">)</span> <span class="co"># Facilitate Citation of R Packages</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span> <span class="co"># The Composer of Plots</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://readxl.tidyverse.org">readxl</a></span><span class="op">)</span> <span class="co"># Read Excel Files</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span> <span class="co"># Simple Features for R</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-spatial/mapview">mapview</a></span><span class="op">)</span> <span class="co"># Interactive Viewing of Spatial Data in R</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/">terra</a></span><span class="op">)</span> <span class="co"># Spatial Data Analysis</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jhollist/elevatr/">elevatr</a></span><span class="op">)</span> <span class="co"># Access Elevation Data from Various APIs</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://readr.tidyverse.org">readr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jniedballa/camtrapR">camtrapR</a></span><span class="op">)</span> <span class="co"># Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses </span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://groups.google.com/d/forum/unmarked">unmarked</a></span><span class="op">)</span> </span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://kenkellner.com/ubms/">ubms</a></span><span class="op">)</span> </span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/DT">DT</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/">kableExtra</a></span><span class="op">)</span> <span class="co"># Construct Complex Table with 'kable' and Pipe Syntax</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span> <span class="co"># Easily Install and Load the 'Tidyverse'</span></span>
+<span></span>
+<span><span class="co"># source("C:/CodigoR/CameraTrapCesar/R/organiza_datos.R")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section><section id="organize-the-data" class="level2"><h2 class="anchored" data-anchor-id="organize-the-data">Organize the data</h2>
+<p>The workflow starts with package <code>unmarked</code> and continue with the package <code>ubms</code> for model building, selection and prediction. The first step to perform the analysis is to organize data following the <code>unmarked</code> package. The data should have detection, non-detection records along with the covariates.</p>
+<p>See the <code>unmarkedFrameOccu</code> function for details typing: ?unmarkedFrameOccu in your R console.</p>
+</section><section id="load-data" class="level2"><h2 class="anchored" data-anchor-id="load-data">Load data</h2>
+<p>The data set was collected by Sebastián Mejía-Correa and is part of the study: <a href="https://tapirconservation.github.io/2014/06/30/volume-23-number-32/">Mejia-Correa S, Diaz-Martinez A. 2014. Densidad y hábitos alimentarios de la danta Tapirus bairdii en el Parque Nacional Natural Los Katios, Colombia. Tapir Conservation. 23:16–23.</a>.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span></span>
+<span><span class="va">katios1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html">read_excel</a></span><span class="op">(</span><span class="st">"C:/CodigoR/CameraTrapCesar/data/katios/Tbairdii_sebastian.xlsx"</span>, sheet <span class="op">=</span> <span class="st">"danta"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="view-the-data" class="level3"><h3 class="anchored" data-anchor-id="view-the-data">View the data</h3>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html">datatable</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html">head</a></span><span class="op">(</span><span class="va">katios1</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-2e5ccd1d4282c61ce6db" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-2e5ccd1d4282c61ce6db">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6"],["cam1","cam1","cam10","cam11","cam12","cam13"],[7.823889,7.823889,7.849278,7.845251,7.841917,7.836417],[-77.154444,-77.154444,-77.143556,-77.137861,-77.134028,-77.149556],["2012-07-12","2012-07-12","2012-07-13","2012-07-12","2012-07-12","2012-07-12"],["2012-08-26","2012-08-26","2012-08-27","2012-08-26","2012-08-26","2012-08-26"],["Tapirus bairdii","Tapirus bairdii","Tapirus bairdii","NA","NA","Tapirus bairdii"],["2012-07-17","2012-07-30","2012-08-09","2012-07-12","2012-07-12","2012-08-19"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>camera<\/th>\n      <th>Latitude<\/th>\n      <th>Longitude<\/th>\n      <th>start<\/th>\n      <th>end<\/th>\n      <th>species<\/th>\n      <th>date<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,3]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"camera","targets":1},{"name":"Latitude","targets":2},{"name":"Longitude","targets":3},{"name":"start","targets":4},{"name":"end","targets":5},{"name":"species","targets":6},{"name":"date","targets":7}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section><section id="view-as-map" class="level3"><h3 class="anchored" data-anchor-id="view-as-map">View as map</h3>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="va">projlatlon</span> <span class="op">&lt;-</span> <span class="st">"+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"</span></span>
+<span></span>
+<span><span class="va">katios_sf</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html">st_as_sf</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">katios1</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="va">Longitude</span>, <span class="va">Latitude</span>, <span class="va">camera</span><span class="op">)</span>,</span>
+<span>                         coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Longitude"</span>, </span>
+<span>                                    <span class="st">"Latitude"</span><span class="op">)</span>,</span>
+<span>                         crs <span class="op">=</span> <span class="va">projlatlon</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/mapview/man/mapView.html">mapview</a></span><span class="op">(</span><span class="va">katios_sf</span><span class="op">)</span><span class="co">#, zcol="species")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-b8dcf880a742a50bd083" style="width:100%;height:487px;"></div>
+<script type="application/json" data-for="htmlwidget-b8dcf880a742a50bd083">{"x":{"options":{"minZoom":1,"maxZoom":52,"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}},"preferCanvas":false,"bounceAtZoomLimits":false,"maxBounds":[[[-90,-370]],[[90,370]]]},"calls":[{"method":"addProviderTiles","args":["CartoDB.Positron","CartoDB.Positron","CartoDB.Positron",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["CartoDB.DarkMatter","CartoDB.DarkMatter","CartoDB.DarkMatter",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenStreetMap","OpenStreetMap","OpenStreetMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["Esri.WorldImagery","Esri.WorldImagery","Esri.WorldImagery",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenTopoMap","OpenTopoMap","OpenTopoMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"createMapPane","args":["point",440]},{"method":"addCircleMarkers","args":[[7.823889,7.849278,7.845251,7.841917,7.836417,7.84425,7.847111,7.85351,7.855806,7.860833,7.864556,7.826917,7.868833,7.872111,7.876694,7.833583,7.852639,7.853472,7.851861,7.852889,7.830972,7.831472,7.82981,7.833583,7.836778,7.840972,7.844639],[-77.154444,-77.143556,-77.137861,-77.134028,-77.149556,-77.1302,-77.133511,-77.134028,-77.135389,-77.134056,-77.13591700000001,-77.156722,-77.136444,-77.136222,-77.13711000000001,-77.148028,-77.15225,-77.156778,-77.160889,-77.165194,-77.155417,-77.151528,-77.146221,-77.14488900000001,-77.146306,-77.14272200000001,-77.141167],6,null,"katios_sf",{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}},"pane":"point","stroke":true,"color":"#333333","weight":1,"opacity":[0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9],"fill":true,"fillColor":["#4A0D5E","#471F68","#412D71","#393A7A","#2B4681","#0D5288","#005E8D","#006992","#006992","#007495","#007E97","#008898","#009297","#009B95","#00A492","#00AD8D","#00B587","#00BC80","#00C377","#00C377","#3EC96C","#65CF61","#84D454","#9FD946","#B9DD39","#D1E02E","#E8E22C"],"fillOpacity":[0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6]},null,null,["<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>1&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam1&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>2&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam10&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>3&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam11&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>4&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam12&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>5&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam13&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>6&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam14&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>7&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam15&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>8&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam16&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>9&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam17&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>10&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam18&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>11&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam19&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>12&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam2&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>13&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam20&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>14&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam21&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>15&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam22&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>16&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam23&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>17&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam24&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>18&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam25&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>19&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam26&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>20&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam27&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>21&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam3&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>22&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam4&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>23&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam5&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>24&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam6&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>25&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam7&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>26&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam8&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>27&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam9&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>"],{"maxWidth":800,"minWidth":50,"autoPan":true,"keepInView":false,"closeButton":true,"closeOnClick":true,"className":""},["cam1","cam10","cam11","cam12","cam13","cam14","cam15","cam16","cam17","cam18","cam19","cam2","cam20","cam21","cam22","cam23","cam24","cam25","cam26","cam27","cam3","cam4","cam5","cam6","cam7","cam8","cam9"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addScaleBar","args":[{"maxWidth":100,"metric":true,"imperial":true,"updateWhenIdle":true,"position":"bottomleft"}]},{"method":"addHomeButton","args":[-77.165194,7.823889,-77.1302,7.876694,true,"katios_sf","Zoom to katios_sf","<strong> katios_sf <\/strong>","bottomright"]},{"method":"addLayersControl","args":[["CartoDB.Positron","CartoDB.DarkMatter","OpenStreetMap","Esri.WorldImagery","OpenTopoMap"],"katios_sf",{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"addLegend","args":[{"colors":["#4A0D5E","#471E67","#422B70","#3B3778","#30427F","#1D4D85","#07588B","#00638F","#006D93","#007796","#008097","#008A98","#009397","#009B95","#00A392","#00AC8E","#00B388","#01BA82","#01C07B","#2CC671","#52CC67","#72D15C","#8DD650","#A5DA43","#BDDD37","#D3E02E","#E8E22C"],"labels":["cam1","cam10","cam11","cam12","cam13","cam14","cam15","cam16","cam17","cam18","cam19","cam2","cam20","cam21","cam22","cam23","cam24","cam25","cam26","cam27","cam3","cam4","cam5","cam6","cam7","cam8","cam9"],"na_color":null,"na_label":"NA","opacity":1,"position":"topright","type":"factor","title":"katios_sf","extra":null,"layerId":null,"className":"info legend","group":"katios_sf"}]}],"limits":{"lat":[7.823889,7.876694],"lng":[-77.165194,-77.1302]},"fitBounds":[7.823889,-77.165194,7.876694,-77.1302,[]]},"evals":[],"jsHooks":{"render":[{"code":"function(el, x, data) {\n  return (\n      function(el, x, data) {\n      // get the leaflet map\n      var map = this; //HTMLWidgets.find('#' + el.id);\n      // we need a new div element because we have to handle\n      // the mouseover output separately\n      // debugger;\n      function addElement () {\n      // generate new div Element\n      var newDiv = $(document.createElement('div'));\n      // append at end of leaflet htmlwidget container\n      $(el).append(newDiv);\n      //provide ID and style\n      newDiv.addClass('lnlt');\n      newDiv.css({\n      'position': 'relative',\n      'bottomleft':  '0px',\n      'background-color': 'rgba(255, 255, 255, 0.7)',\n      'box-shadow': '0 0 2px #bbb',\n      'background-clip': 'padding-box',\n      'margin': '0',\n      'padding-left': '5px',\n      'color': '#333',\n      'font': '9px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif',\n      'z-index': '700',\n      });\n      return newDiv;\n      }\n\n\n      // check for already existing lnlt class to not duplicate\n      var lnlt = $(el).find('.lnlt');\n\n      if(!lnlt.length) {\n      lnlt = addElement();\n\n      // grab the special div we generated in the beginning\n      // and put the mousmove output there\n\n      map.on('mousemove', function (e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                           ' lon: ' + (e.latlng.lng).toFixed(5) +\n                           ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                           ' | zoom: ' + map.getZoom() +\n                           ' | x: ' + L.CRS.EPSG3857.project(e.latlng).x.toFixed(0) +\n                           ' | y: ' + L.CRS.EPSG3857.project(e.latlng).y.toFixed(0) +\n                           ' | epsg: 3857 ' +\n                           ' | proj4: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs ');\n      } else {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      }\n      });\n\n      // remove the lnlt div when mouse leaves map\n      map.on('mouseout', function (e) {\n      var strip = document.querySelector('.lnlt');\n      if( strip !==null) strip.remove();\n      });\n\n      };\n\n      //$(el).keypress(67, function(e) {\n      map.on('preclick', function(e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      var txt = document.querySelector('.lnlt').textContent;\n      console.log(txt);\n      //txt.innerText.focus();\n      //txt.select();\n      setClipboardText('\"' + txt + '\"');\n      }\n      });\n\n      }\n      ).call(this.getMap(), el, x, data);\n}","data":null},{"code":"function(el, x, data) {\n  return (function(el,x,data){\n           var map = this;\n\n           map.on('keypress', function(e) {\n               console.log(e.originalEvent.code);\n               var key = e.originalEvent.code;\n               if (key === 'KeyE') {\n                   var bb = this.getBounds();\n                   var txt = JSON.stringify(bb);\n                   console.log(txt);\n\n                   setClipboardText('\\'' + txt + '\\'');\n               }\n           })\n        }).call(this.getMap(), el, x, data);\n}","data":null}]}}</script>
+</div>
+</div>
+</section><section id="function-to-make-detection-history-matrix" class="level3"><h3 class="anchored" data-anchor-id="function-to-make-detection-history-matrix">Function to make detection history matrix</h3>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span></span>
+<span><span class="va">f.matrix.creator</span><span class="op">&lt;-</span><span class="kw">function</span><span class="op">(</span><span class="va">data</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="co">#results object</span></span>
+<span>  <span class="va">res</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co">#get the dimensions of the matrix</span></span>
+<span>  </span>
+<span>  <span class="co">#list if sanpling units</span></span>
+<span>  <span class="va">cams</span><span class="op">&lt;-</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/unique.html">unique</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">camera</span><span class="op">)</span></span>
+<span>  <span class="va">cams</span><span class="op">&lt;-</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/sort.html">sort</a></span><span class="op">(</span><span class="va">cams</span><span class="op">)</span></span>
+<span>  <span class="va">rows</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">cams</span><span class="op">)</span></span>
+<span>  <span class="va">species</span><span class="op">&lt;-</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/unique.html">unique</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">species</span><span class="op">)</span></span>
+<span>  <span class="co">#start and end dates of sampling periods</span></span>
+<span>  <span class="co"># data&lt;-data[data$Sampling.Period==year,]</span></span>
+<span>  <span class="va">min</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">start</span><span class="op">)</span>, <span class="st">"%Y-%m-%d"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">max</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">end</span><span class="op">)</span>, <span class="st">"%Y-%m-%d"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">cols</span><span class="op">&lt;-</span><span class="va">max</span><span class="op">-</span><span class="va">min</span><span class="op">+</span><span class="fl">1</span></span>
+<span>  </span>
+<span>  <span class="co">#sampling period</span></span>
+<span>  <span class="va">date.header</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span>from<span class="op">=</span><span class="va">min</span>,to<span class="op">=</span><span class="va">max</span>, by<span class="op">=</span><span class="st">"days"</span><span class="op">)</span></span>
+<span>  <span class="va">mat</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="cn">NA</span>,<span class="va">rows</span>,<span class="va">cols</span>,dimnames<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">cams</span>,<span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">date.header</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co">#for all cameras, determine the open and close date and mark in the matrix</span></span>
+<span>  <span class="va">start.dates</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html">tapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">start</span><span class="op">)</span>,<span class="va">data</span><span class="op">$</span><span class="va">camera</span>,<span class="va">unique</span><span class="op">)</span></span>
+<span>  <span class="va">nms</span><span class="op">&lt;-</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html">names</a></span><span class="op">(</span><span class="va">start.dates</span><span class="op">)</span></span>
+<span>  <span class="co"># start.dates&lt;-ymd(start.dates)</span></span>
+<span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html">names</a></span><span class="op">(</span><span class="va">start.dates</span><span class="op">)</span><span class="op">&lt;-</span><span class="va">nms</span></span>
+<span>  <span class="va">end.dates</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html">tapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">end</span><span class="op">)</span>,<span class="va">data</span><span class="op">$</span><span class="va">camera</span>,<span class="va">unique</span><span class="op">)</span></span>
+<span>  <span class="co"># end.dates&lt;-ymd(end.dates)</span></span>
+<span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html">names</a></span><span class="op">(</span><span class="va">end.dates</span><span class="op">)</span><span class="op">&lt;-</span><span class="va">nms</span></span>
+<span>  </span>
+<span>  <span class="co">#outline the sampling periods for each camera j</span></span>
+<span>  <span class="kw">for</span><span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">start.dates</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>    <span class="co">#for each camera beginning and end of sampling</span></span>
+<span>    <span class="va">low</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">date.header</span><span class="op">==</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">start.dates</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">)</span>, format <span class="op">=</span> <span class="st">"%Y-%m-%d"</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">hi</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">date.header</span><span class="op">==</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">end.dates</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">)</span>, format <span class="op">=</span> <span class="st">"%Y-%m-%d"</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">low</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">hi</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span><span class="op">{</span></span>
+<span>      <span class="va">indx</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span>from<span class="op">=</span><span class="va">low</span>,to<span class="op">=</span><span class="va">hi</span><span class="op">)</span></span>
+<span>      <span class="va">mat</span><span class="op">[</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html">names</a></span><span class="op">(</span><span class="va">start.dates</span><span class="op">)</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>,<span class="va">indx</span><span class="op">]</span><span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span>    <span class="op">}</span> <span class="kw">else</span> <span class="kw">next</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="va">mat.template</span><span class="op">&lt;-</span><span class="va">mat</span></span>
+<span>  <span class="co">#get the species</span></span>
+<span>  <span class="co">#species&lt;-unique(data$bin)</span></span>
+<span>  <span class="co">#construct the matrix for each species i</span></span>
+<span>  <span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">species</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>    <span class="va">indx</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">species</span><span class="op">==</span><span class="va">species</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="co">#dates and cameras when/where the species was photographed</span></span>
+<span>    <span class="va">dates</span><span class="op">&lt;-</span><span class="va">data</span><span class="op">$</span><span class="va">date</span><span class="op">[</span><span class="va">indx</span><span class="op">]</span></span>
+<span>    <span class="va">cameras</span><span class="op">&lt;-</span><span class="va">data</span><span class="op">$</span><span class="va">camera</span><span class="op">[</span><span class="va">indx</span><span class="op">]</span></span>
+<span>    <span class="va">dates.cameras</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">dates</span>,<span class="va">cameras</span><span class="op">)</span></span>
+<span>    <span class="co">#unique combination of dates and cameras </span></span>
+<span>    <span class="va">dates.cameras</span><span class="op">&lt;-</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/unique.html">unique</a></span><span class="op">(</span><span class="va">dates.cameras</span><span class="op">)</span></span>
+<span>    <span class="co">#fill in the matrix</span></span>
+<span>    <span class="kw">for</span><span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">dates.cameras</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>      <span class="va">col</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">date.header</span><span class="op">==</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span> <span class="va">dates.cameras</span><span class="op">[</span><span class="va">j</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="va">row</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">cams</span><span class="op">==</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span> <span class="va">dates.cameras</span><span class="op">[</span><span class="va">j</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="va">mat</span><span class="op">[</span><span class="va">row</span>,<span class="va">col</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">1</span></span>
+<span>    <span class="op">}</span></span>
+<span>    <span class="va">mat.nas</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span>
+<span>    <span class="va">sum.nas</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">mat.nas</span>,<span class="fl">2</span>,<span class="va">sum</span><span class="op">)</span></span>
+<span>    <span class="va">indx.nas</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">sum.nas</span><span class="op">==</span><span class="va">rows</span><span class="op">)</span></span>
+<span>    <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">indx.nas</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span><span class="op">{</span></span>
+<span>      <span class="va">mat</span><span class="op">&lt;-</span><span class="va">mat</span><span class="op">[</span>,<span class="op">-</span><span class="va">indx.nas</span><span class="op">]</span></span>
+<span>    <span class="op">}</span></span>
+<span>    </span>
+<span>    <span class="va">res</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">res</span>,<span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="co">#return the matrix to its original form</span></span>
+<span>    <span class="va">mat</span><span class="op">&lt;-</span><span class="va">mat.template</span></span>
+<span>  <span class="op">}</span></span>
+<span>  </span>
+<span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">&lt;-</span><span class="va">species</span></span>
+<span>  <span class="co">#res&lt;-lapply(res,f.dum)</span></span>
+<span>  <span class="va">res</span> <span class="co">#object to return</span></span>
+<span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section><section id="apply-the-function-to-get-tapirus-bairdii-detection-matrix" class="level3"><h3 class="anchored" data-anchor-id="apply-the-function-to-get-tapirus-bairdii-detection-matrix">Apply the function to get <em>Tapirus bairdii</em> detection matrix</h3>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="co"># filter firs year and make uniques</span></span>
+<span></span>
+<span><span class="va">tbairdi</span> <span class="op">&lt;-</span> <span class="fu">f.matrix.creator</span><span class="op">(</span><span class="va">katios1</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section><section id="lets-extract-percent-tree-cover-2012-to-be-used-as-site-covariate" class="level3"><h3 class="anchored" data-anchor-id="lets-extract-percent-tree-cover-2012-to-be-used-as-site-covariate">Lets extract percent tree cover 2012 to be used as site covariate</h3>
+<p>The covariate is coming from MODIS. MOD44B Version 6 Vegetation Continuous Fields (VCF). <a href="https://lpdaac.usgs.gov/products/mod44bv006/">https://lpdaac.usgs.gov/products/mod44bv006/</a></p>
+<p>We plot the cameras as sf object on top the map and extract the values using the function <code><a href="https://rspatial.github.io/terra/reference/extract.html">terra::extract</a></code></p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># load the raster map</span></span>
+<span><span class="va">per_tree_cov</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html">rast</a></span><span class="op">(</span><span class="st">"C:/CodigoR/WCS-CameraTrap/raster/latlon/Veg_Cont_Fields_Yearly_250m_v61/Perc_TreeCov/MOD44B_Perc_TreeCov_2012_065.tif"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># extract values per camera</span></span>
+<span><span class="va">per_tre</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/extract.html">extract</a></span><span class="op">(</span><span class="va">per_tree_cov</span>, <span class="va">katios_sf</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># assign values to the sf object</span></span>
+<span><span class="va">katios_sf</span><span class="op">$</span><span class="va">per_tree_cov</span> <span class="op">&lt;-</span> <span class="va">per_tre</span><span class="op">$</span><span class="va">MOD44B_Perc_TreeCov_2012_065</span> </span>
+<span><span class="co">#  fix 200 issue</span></span>
+<span><span class="co"># ind &lt;- which(sites$per_tree_cov== 200)</span></span>
+<span><span class="co"># sites$per_tree_cov[ind] &lt;- 0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section></section><section id="create-unmarked-frame-object" class="level2"><h2 class="anchored" data-anchor-id="create-unmarked-frame-object">Create unmarked frame object</h2>
+<p>Lets use the <code>unmarked</code> package to make an unmarkedFrameOccu object.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rbchan.github.io/unmarked/reference/unmarkedFrameOccu.html">unmarkedFrameOccu</a></span><span class="op">(</span>y<span class="op">=</span><span class="va">tbairdi</span>, </span>
+<span>                         siteCovs<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
+<span>                           per_tree_cov<span class="op">=</span><span class="va">katios_sf</span><span class="op">$</span><span class="va">per_tree_cov</span><span class="op">)</span></span>
+<span>                           <span class="co">#road_den=sites$roads),</span></span>
+<span>                         <span class="co"># obsCovs=list(effort=ej)</span></span>
+<span>                      <span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html">plot</a></span><span class="op">(</span><span class="va">umf</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-9-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img"></a></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section id="fit-models" class="level2"><h2 class="anchored" data-anchor-id="fit-models">Fit models</h2>
+<p>lets use <code>ubms</code> package to fit models</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># fit_0 &lt;- occu(~1~1, data=umf) # unmarked</span></span>
+<span></span>
+<span><span class="va">fit_j0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kenkellner.com/ubms/reference/stan_occu.html">stan_occu</a></span><span class="op">(</span><span class="op">~</span><span class="fl">1</span><span class="op">~</span><span class="fl">1</span>, data<span class="op">=</span><span class="va">umf</span>, chains<span class="op">=</span><span class="fl">3</span>, iter<span class="op">=</span><span class="fl">10000</span>, cores<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">fit_j2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kenkellner.com/ubms/reference/stan_occu.html">stan_occu</a></span><span class="op">(</span><span class="op">~</span><span class="fl">1</span><span class="op">~</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/scale.html">scale</a></span><span class="op">(</span><span class="va">per_tree_cov</span><span class="op">)</span>, data<span class="op">=</span><span class="va">umf</span>, chains<span class="op">=</span><span class="fl">3</span>, iter<span class="op">=</span><span class="fl">10000</span>, cores<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="model-selection" class="level3"><h3 class="anchored" data-anchor-id="model-selection">Model selection</h3>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># compare models</span></span>
+<span><span class="va">models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"p(.)psi(.)"</span> <span class="op">=</span> <span class="va">fit_j0</span>, <span class="co"># put names</span></span>
+<span>                <span class="st">"p(.)psi(per_tree_cov)"</span> <span class="op">=</span> <span class="va">fit_j2</span><span class="op">)</span> <span class="co"># put names</span></span>
+<span></span>
+<span><span class="va">mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rbchan.github.io/unmarked/reference/fitList.html">fitList</a></span><span class="op">(</span>fits <span class="op">=</span> <span class="va">models</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## see model selection as a table</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html">datatable</a></span><span class="op">(</span> </span>
+<span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/math-generics.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rbchan.github.io/unmarked/reference/modSel.html">modSel</a></span><span class="op">(</span><span class="va">mods</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-6bd59b506fb9824f84fd" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-6bd59b506fb9824f84fd">{"x":{"filter":"none","vertical":false,"data":[["p(.)psi(per_tree_cov)","p(.)psi(.)"],[-108.413,-110.198],[3.336,2.674],[0,-1.786],[0,2.012],[0.915,0.08500000000000001]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>elpd<\/th>\n      <th>nparam<\/th>\n      <th>elpd_diff<\/th>\n      <th>se_diff<\/th>\n      <th>weight<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"elpd","targets":1},{"name":"nparam","targets":2},{"name":"elpd_diff","targets":3},{"name":"se_diff","targets":4},{"name":"weight","targets":5}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>The model p(.)psi(per_tree_cov) is the “better”.</p>
+<section id="estimates-for-the-null-model" class="level4"><h4 class="anchored" data-anchor-id="estimates-for-the-null-model">Estimates for the null model</h4>
+<p>Estimated values for the null model <code>p(.)psi(.)</code> are: 0.4412957, 0.0439908 for occupancy, and detection probability respectively.</p>
+</section><section id="details-of-the-best-model" class="level4"><h4 class="anchored" data-anchor-id="details-of-the-best-model">Details of the best model</h4>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fit_j2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; stan_occu(formula = ~1 ~ scale(per_tree_cov), data = umf, chains = 3, </span></span>
+<span><span class="co">#&gt;     iter = 10000, cores = 3)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Occupancy (logit-scale):</span></span>
+<span><span class="co">#&gt;                     Estimate   SD   2.5% 97.5% n_eff Rhat</span></span>
+<span><span class="co">#&gt; (Intercept)           -0.404 0.58 -1.493 0.771  9888    1</span></span>
+<span><span class="co">#&gt; scale(per_tree_cov)    1.329 0.70  0.145 2.907  9348    1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Detection (logit-scale):</span></span>
+<span><span class="co">#&gt;  Estimate    SD  2.5% 97.5% n_eff Rhat</span></span>
+<span><span class="co">#&gt;     -3.09 0.258 -3.63 -2.62  9447    1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; LOOIC: 216.825</span></span>
+<span><span class="co">#&gt; Runtime: 9.094 sec</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>we conclude MCMC chains have converged if all R&gt;1.05<br>
+Convergence here is not that good…</p>
+</section></section><section id="model-convergence" class="level3"><h3 class="anchored" data-anchor-id="model-convergence">Model convergence</h3>
+<p>Let see the chains.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">traceplot</span><span class="op">(</span><span class="va">fit_j2</span>, pars<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"beta_state"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-13-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<p>not that good…</p>
+</section><section id="evaluate-model-fit" class="level3"><h3 class="anchored" data-anchor-id="evaluate-model-fit">Evaluate model fit</h3>
+<p>Statistic (p) should be near 0.5 if the model fits well.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># eval</span></span>
+<span><span class="va">fit_top_gof</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kenkellner.com/ubms/reference/gof.html">gof</a></span><span class="op">(</span><span class="va">fit_j2</span>, draws<span class="op">=</span><span class="fl">500</span>, quiet<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">fit_top_gof</span></span>
+<span><span class="co">#&gt; MacKenzie-Bailey Chi-square </span></span>
+<span><span class="co">#&gt; Point estimate = 848041214.544</span></span>
+<span><span class="co">#&gt; Posterior predictive p = 0.14</span></span>
+<span></span>
+<span><span class="co"># plot(fit_top_gof)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>0.14 is not that bad.</p>
+</section><section id="model-inference" class="level3"><h3 class="anchored" data-anchor-id="model-inference">Model inference</h3>
+<p>No covariate for detection, and percent of forest tree cover in occupancy.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># ubms::plot_effects(fit_j2, "det")</span></span>
+<span><span class="fu">ubms</span><span class="fu">::</span><span class="fu"><a href="https://kenkellner.com/ubms/reference/plot_effects-ubmsFit-method.html">plot_effects</a></span><span class="op">(</span><span class="va">fit_j2</span>, <span class="st">"state"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-15-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="index_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The error band is large but there is a clear trend.</p>
+</section><section id="spatial-model" class="level3"><h3 class="anchored" data-anchor-id="spatial-model">Spatial model</h3>
+<p>Taking in to account spatial autocorrelation.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># convert to UTM</span></span>
+<span><span class="va">katios_utm</span> <span class="op">=</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_transform.html">st_transform</a></span><span class="op">(</span><span class="va">katios_sf</span>, <span class="fl">21818</span><span class="op">)</span></span>
+<span><span class="va">katios_cord</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_coordinates.html">st_coordinates</a></span><span class="op">(</span><span class="va">katios_utm</span><span class="op">)</span></span>
+<span><span class="va">site_cov</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span>per_tree_cov<span class="op">=</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/scale.html">scale</a></span><span class="op">(</span><span class="va">katios_sf</span><span class="op">$</span><span class="va">per_tree_cov</span><span class="op">)</span>,</span>
+<span>                  <span class="va">katios_cord</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html">names</a></span><span class="op">(</span><span class="va">site_cov</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"per_tree_cov"</span>, <span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="va">site_cov</span>, <span class="fu"><a href="https://kenkellner.com/ubms/reference/RSR.html">RSR</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, threshold<span class="op">=</span><span class="fl">1</span>, plot_site<span class="op">=</span><span class="fl">27</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-16-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img"></a></p>
+</figure>
+</div>
+</div>
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="va">form</span> <span class="op">&lt;-</span> <span class="op">~</span><span class="fl">1</span> <span class="op">~</span><span class="va">per_tree_cov</span> <span class="op">+</span> <span class="fu"><a href="https://kenkellner.com/ubms/reference/RSR.html">RSR</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, threshold<span class="op">=</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">umf2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rbchan.github.io/unmarked/reference/unmarkedFrameOccu.html">unmarkedFrameOccu</a></span><span class="op">(</span>y<span class="op">=</span><span class="va">tbairdi</span>, siteCovs<span class="op">=</span><span class="va">site_cov</span><span class="op">)</span></span>
+<span><span class="co"># fit_spatial &lt;- stan_occu(form, umf2, chains=3, cores=3, seed=123) # error</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Spatial model do not run… Error at Building RSR matrices: TridiagEigen: eigen decomposition failed. Probably to few sites.</p>
+</section></section><section id="predict-occupancy-in-a-map" class="level2"><h2 class="anchored" data-anchor-id="predict-occupancy-in-a-map">Predict occupancy in a map</h2>
+<p>Lets use a raster map with percent tree cover to predict the occupancy and see the resulting occupancy as a map.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># cut large raster </span></span>
+<span><span class="va">box</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/ext.html">ext</a></span><span class="op">(</span><span class="op">-</span><span class="fl">77.18</span>,<span class="op">-</span><span class="fl">77.11</span>, <span class="fl">7.800</span>, <span class="fl">7.89</span><span class="op">)</span> <span class="co"># make a box xmin, xmax, ymin, ymax</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster">raster</a></span><span class="op">)</span></span>
+<span><span class="va">per_tree_cov_cut</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/crop.html">crop</a></span><span class="op">(</span><span class="va">per_tree_cov</span>, <span class="va">box</span><span class="op">)</span><span class="op">)</span><span class="co"># cut raster using the box</span></span>
+<span><span class="co"># put correct name</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html">names</a></span><span class="op">(</span><span class="va">per_tree_cov_cut</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"per_tree_cov"</span></span>
+<span><span class="co"># predict</span></span>
+<span><span class="va">map_occupancy</span> <span class="op">&lt;-</span> <span class="fu">ubms</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">fit_j2</span>,</span>
+<span>                               submodel<span class="op">=</span><span class="st">"state"</span>,</span>
+<span>                               newdata<span class="op">=</span><span class="va">per_tree_cov_cut</span>,</span>
+<span>                               transform<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">katios_occu</span> <span class="op">&lt;-</span> <span class="va">map_occupancy</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="co"># assign just prediction</span></span>
+<span><span class="va">katios_occu</span><span class="op">[</span><span class="va">katios_occu</span> <span class="op">&gt;=</span> <span class="fl">0.9</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span> <span class="co"># convert river to NA</span></span>
+<span></span>
+<span><span class="co"># make a palette 9 colors yellow to green</span></span>
+<span><span class="va">pal</span> <span class="op">&lt;-</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html">colorRampPalette</a></span><span class="op">(</span><span class="fu">RColorBrewer</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html">brewer.pal</a></span><span class="op">(</span><span class="fl">9</span>, <span class="st">"YlGn"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># plot map</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/mapview/man/mapView.html">mapview</a></span><span class="op">(</span><span class="va">katios_occu</span>, col.regions<span class="op">=</span> <span class="va">pal</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/pkg/mapview/man/mapView.html">mapview</a></span><span class="op">(</span><span class="va">katios_sf</span>, cex<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-defcd78c05203d73a743" style="width:100%;height:487px;"></div>
+<script type="application/json" data-for="htmlwidget-defcd78c05203d73a743">{"x":{"options":{"minZoom":1,"maxZoom":52,"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}},"preferCanvas":false,"bounceAtZoomLimits":false,"maxBounds":[[[-90,-370]],[[90,370]]]},"calls":[{"method":"addProviderTiles","args":["CartoDB.Positron","CartoDB.Positron","CartoDB.Positron",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["CartoDB.DarkMatter","CartoDB.DarkMatter","CartoDB.DarkMatter",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenStreetMap","OpenStreetMap","OpenStreetMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["Esri.WorldImagery","Esri.WorldImagery","Esri.WorldImagery",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenTopoMap","OpenTopoMap","OpenTopoMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addRasterImage","args":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAvCAYAAACLx2hbAAANDElEQVRYha2YfWyU15XGf/edb3sGj814PDFMwAq2az6CwHZZWEzSENsl3hRHRFtZ1Alqsg0hURaqgoKCHKB0k6ba3WiXJbQiUVMSoUT5IEWmwoZ0I7OhFExFDXawQ4AMsY092OMPPN9z94933muPIWn+6JFeaWbeO/c+95znPPecKzzPr5IAjXXLMKzY7ebJ+dUAhGJf4TDZsGpuJFG2nzoKQLXfz3JfEYOREULRCMHwBK+2t7N3dTWvdZwHYHvFCkLRWwDk23MYjIwAcDxwjbkuFwBVhfMIJ6M4TDYOXvoLwgC0tLKIzeXltAYCFLvdHO7upjcQ5A9PPo7T7OBU/xUAHnrpLRaW5VPo97DA6wWgoaSUYHiC1kBAbchYcLmvCLvZQTAyBEA4EcNhtgLQEeynosDP2RsB5Qzz0S2PZUxW7ffTGgjQ0tKFJ9eO0+xQE1ft30/3L59jxcu/IcNKSjO+9oRCVHgLCIYnGIyM4Hc66Ls1ittmzwB1dWyMRZ44izw+bCYLLosL0R16S7pt2Tzw6wMU+j2cO3OF4HBETe7JtbN7fS0bvlPObz9rB2DT3o+oqSnj3JkrLK0sygCzwOultb1TebChpFQBcZithBMxnQrRyTXcNjuhaITFnkVo3ME8ufY7/fx3NQPkdDM7zFbO3gjwSn0tANsCQfr7xwAI/PvPcFudACRlih+XreTj6+dZWJYP6LybyiNjkYsDA7xeW6e8cbdzDoORvoyFHWar8lIoGsFtsyMwIwLj70oAp9nBeCKMVbPQPhAghURD8MDsJYzGg1iEGYd5Bh9f1zPo/lklXBi6ztmBGwA8MX8154MXAJjjmkksFSeciOG2ZQMQTcYBnT+zsz0kZUpll1mzkkjFsGhpDh0PXOPRefMVepfFyR+vdymiAzRVrgLAbrYzFh/n7I0AHkcWiz2LAEn5f/+cDzY0kG/PIS4TvHT2U+W5u7JnKG+91nGe7RUrmGHxAAm+HP+K44FrNJYuAUAMhD+UORYvJ66382p7O79fu4E3uj5VQPad0D+f2vQM6468Q28gSKHfQ31JCT2hEC8vf4SkHOX6rSBzXMUMhK/pHLE66ZsYwm3L5r3PO9VchX4P79Q9mt6cAykTOne0fEAgxmJHZVvv5wBKg3pCIYrdbgAaS5ew7sg7GfFf4PWyvWIFUsJI7JbiAIDf6SMw3o/f6SMYGeI//nJGzdUTClHt93P/rBI1lyayEWgIocuLuW9iiMf2vwfA7vW1yiOtwCv1tSRSSVpauvjz7p9wqPsSoGuVRZhB6Aqcb89RoYwkwjqwHbvZvb6War8fgIoCP06zAy29MKRIyWj6u5HsEvPsbA8AwcsjbNr9Lgv/cTaFfk+GRxaW5XOo+xIXBwYAPYu2BY4B8PFTTyqlrSjwk20pYDAygiG4q2dXcG38C3Is3jSMcJrA2ZjEDEAoMCAQW9q2SmMRQ9Reqa/NOAYaiu/lh826F4+sfSr99yQ/+OgAAJvLywFdzeMywQO/PsCFrkElqgAPFxXjseehkYUkmvaKhiayMwBpBpjeQJCLAwNUl8/n6tgYDSWlvLT8IR70zyEuEyzwelng9fL8qQ+RxDM8eHVsjHnuPMyaSQ9l2oLDEXpCIQ53d2MzWZAyQSwVQpJM88cxZRbdU+Zit5uDzacJDkd0QayEg82naaxbxo6BNjW8NxDklfpaPI4sBiM3WHPgTfr7x/D5XKxbU8+1sZu81vFHLg4MUOj3KA8dbD6tvJSUKUzC4EuKlLyFJpwZoMSWtq1ytX82//TS2wDU1JSp1wu8XhVKgz+v19ap91bNogTQsNc6ziuPA7xcX4PXkU1ZbqECI9JeNIkZSBlHCOMYEYgbEx/K9y93cri7m/oSPR33nfiU6vL5tLZ3Mt0K/R5er63DZrLgMNkACCejWISZ8XSGAcqDwcsjeO7JobFuGQ3pquDemfeQktG09kw1gSbSJK8vKeFwd/dtAL7Oosk44WT0W48/2HxaycY3meY0O+gJhdh34lOeK19KTygEQGt7J/39Y+qgNaw3EKQj2M+RKz2EorfUeQT6ebjmwJuqhgoORyDPRnA4QnA4Qmt7JztOtjEaD6W9KdPPpIktbVvlxYEB6ktKlCgaZO3vH8s40QFW+2dT4p7JXVl5LN/3P7zR8Ag/PvQhbRs3Mp4Is+bAm0rHetOVQ2PdMj1xLo9Ang2EYN8zP6AnFOKXKxoyQIl9Hb+QAHNdLqoK5wGoo8IgJqAKrt3LvkffxJAi756VVTz0n7/D53NlAJlqhpeDwxE8uXa1SUPF57nzmOvSk8k81+WiNRCgsXSJ4kRLS9fkbENRyLMpD/RNDPHsiVY2l5fzfPkKGv9wGJ9Pr5+NbDy16RkA+iaGuCsrj67hXgC+26SXvs+VL0VD4HFkce/MYlIyjCSBQOgeqvAWUJZbqAC993knm3a/m7FLZtpZ+B0PH2xoIMeajVWbFMAfNr9HbyBIdblewpTm6odp3dxiAJ441sy5M1fU+ODlEfY1/TMP+udwt3MWoCGJowkXYjhyJINVuZv3wE2djJ5cu3Lz7vW1ivBPL1oMgNuWzdXRm+w42TZ1CvasrFJ1cjA8gceRBcCh7ks8vWgxfmcBAjNfjn+lOpC+W6MEwxM6qX+6pBK31UkilST3X3+OJ9euSG0U/AY40MVz7+pqQtEIO062qTNw0+oVVHgLmDtjpqoQjcUMc9vsGWE8O3CDuS4Xy31FZJnz9IpxdrZHTWAzWXjhTydoqlxFLKUXT7GU/s7IoN5AkA82NLDi5d8o/hgdi8/nUqF7etFiVa52DfdSlltIKDaO2+rErFmQMkk0GSfLohdnseRNRM37j8u3HqrnR0cPA/DR2kakTGSoLuhCaNUs6nssFWfJnr0AKsOmZtcHGxq42zmHeGoMqykPKeNAije6TtJYugST0NQRImWCaDKOWTNhbmnpwtv6GUidSms5qM6rJ441AygdMqpJQJ1thhmaY4T6eOAaFd4IxTkFhGJf0hHsB3R5sZpmAjAQvobT7MBmshCXCRzaDAyIauKWli78rZ/x513/on4zStDD3d2KL9Xl8znHZOYYYNo2bmQwMsLxwDUOdV/iF/8wmyxLPg/65xnVjrICx7z0J4nbip76C1+tk9OFywiDwY2poTDU2zCj0zV6tU2rV2R0tj07t+K0+Pm2pl34v+tq8W9jPp8rQ1P+lhXv/BXj8cl2qu2ToV3Gc6fxgqe+KxeW5WfEv7FumTpc7wTW+P1C16DyDKCyy+CX0dvvONlGc/0WNU6Sui18hpmomLUzlUwRHI7gzc9m29rv8bMlq2ju+xyZ0kvNQr+HsdEJ9adH7ltCxCzp/OkLXEne5J1167maHOXfltew2n8PHcP97L1/DYVOO/fOLOVHZffR9snQrjlzHffrM6TS3hDT8egemqrIweEI0X3/BcDrnSdUsXaw+bTSmKbKVWRZvEgZIyVvkZT6AobYuW12/E4fIDGJmQg02j4Z2lV1X96LkhgyDUhKvdg3erO2T4Z2iZr3H5cGJ3p2bgX0s8kQuektEcCR+qeRMo4mbOkQSARChSIlowhhQcowQmShYbttjhQRUnIcgS3dKNoRmNB6A0F8Phc+n4uq/fs51X+FPSurFCeMbiNjMjmOJIpE6ruViTQoTQclrAgsaCLnjmD00FgxiTw0kYUQDgQmnUPrX6jf+f35xXyVCOPKyeJPfX3ciEQYGBvli75Bvugb5J7CfI797wX6ekP09YYIOiI8MHsuJuECZBqACSljCGFBwzplaXlHrpDegP5MvteK3W4eLipmgdfLuTNXqC8podjtVqEq9Huo9vv57cZ1+HwugpdHqPb702BEemITAk3fLWbFEZ28KfU9M9UlkiQy/d4YY256+xhNHOPolsdobe+k6W29RV5aWaRAXR0bU0cGeTZaAwEWeXy4rU4sWjaIb7px0+6Y4jqh9RNCTGkY1chgeII3Gh5RYAwzVPriwIBq/poqV5Fvv0t5QU57IJF+RNoXKaab4o6wZPxuXlpZRH1JCdsOH7vtT0fW/oRYaoRwMsrDRcU46x4l2zKLpBwCEthMvik7Dk/ZqQmm8OLrRFAPqZYxRlvg9apwFPo9t92qWk155FgK6Aj24zDrba9J5CGwktEtTOvTJwk7CabqvrwXDR5Nei0TrNZUuUqd5i0tXbS0dKnbDEmMifggtmc243Fk8debl5EyAka6p71wR45MI+t0E+nbj+n/1+IyoTzkybVTU1PGPHcee1ZWMRoPcajnr+x7di07Trbpt2TCBCSVKH59OL6tSXUbAtP9Nc2ujt7MuAz9e1jVfXkvGp/1zWRqlKh5/3H5+7UbEFhJyjF1gWTs/PzNLhZ7FiFlJH1Lkb7pwgSk0lzS7evCMxWAcaZNH2+sZ17g9bL91FFVMvQGgpx9dhvnb15SLYxApElrnnZZpaXdPcmlbwL1twAD/D9lY/C37UDBhwAAAABJRU5ErkJggg==",[[7.89007171383174,-77.17920683510759],[7.799450337097944,-77.10979576917813]],0.5,null,"katios_occu","katios_occu"]},{"method":"removeLayersControl","args":[]},{"method":"addControl","args":["","topright","imageValues-katios_occu","info legend "]},{"method":"addImageQuery","args":["katios_occu",[-77.17920683510759,7.799450337097944,-77.10979576917813,7.89007171383174],"mousemove",7,"Layer"]},{"method":"addLegend","args":[{"colors":["#FFFFE5 , #F7FCBB 11.6431399750961%, #D9F0A3 24.9750835386006%, #A9DB8C 38.3070271021051%, #70C275 51.6389706656096%, #3BA357 64.9709142291141%, #197C3F 78.3028577926187%, #005C32 91.6348013561232%, #004529 "],"labels":["0.1","0.2","0.3","0.4","0.5","0.6","0.7"],"na_color":"#BEBEBE","na_label":"NA","opacity":1,"position":"topright","type":"numeric","title":"katios_occu","extra":{"p_1":0.1164313997509607,"p_n":0.9163480135612316},"layerId":null,"className":"info legend","group":"katios_occu"}]},{"method":"addScaleBar","args":[{"maxWidth":100,"metric":true,"imperial":true,"updateWhenIdle":true,"position":"bottomleft"}]},{"method":"addHomeButton","args":[-77.17920683510759,7.799450337097944,-77.10979576917813,7.89007171383174,true,"katios_occu","Zoom to katios_occu","<strong> katios_occu <\/strong>","bottomright"]},{"method":"createMapPane","args":["point",440]},{"method":"addCircleMarkers","args":[[7.823889,7.849278,7.845251,7.841917,7.836417,7.84425,7.847111,7.85351,7.855806,7.860833,7.864556,7.826917,7.868833,7.872111,7.876694,7.833583,7.852639,7.853472,7.851861,7.852889,7.830972,7.831472,7.82981,7.833583,7.836778,7.840972,7.844639],[-77.154444,-77.143556,-77.137861,-77.134028,-77.149556,-77.1302,-77.133511,-77.134028,-77.135389,-77.134056,-77.13591700000001,-77.156722,-77.136444,-77.136222,-77.13711000000001,-77.148028,-77.15225,-77.156778,-77.160889,-77.165194,-77.155417,-77.151528,-77.146221,-77.14488900000001,-77.146306,-77.14272200000001,-77.141167],2,null,"katios_sf",{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}},"pane":"point","stroke":true,"color":"#333333","weight":1,"opacity":0.9,"fill":true,"fillColor":"#6666FF","fillOpacity":0.6},null,null,["<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>1&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam1&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>77&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>2&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam10&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>78&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>3&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam11&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>73&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>4&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam12&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>71&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>5&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam13&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>79&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>6&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam14&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>73&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>7&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam15&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>71&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>8&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam16&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>80&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>9&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam17&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>78&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>10&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam18&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>78&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>11&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam19&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>80&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>12&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam2&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>78&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>13&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam20&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>73&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>14&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam21&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>66&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>15&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam22&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>70&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>16&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam23&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>79&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>17&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam24&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>72&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>18&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam25&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>78&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>19&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam26&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>76&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>20&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam27&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>79&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>21&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam3&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>78&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>22&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam4&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>77&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>23&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam5&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>78&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>24&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam6&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>80&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>25&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam7&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>78&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>26&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam8&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>77&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>27&emsp;<\/td><\/tr><tr><td>1<\/td><th>camera&emsp;<\/th><td>cam9&emsp;<\/td><\/tr><tr><td>2<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><tr><td>3<\/td><th>per_tree_cov&emsp;<\/th><td>77&emsp;<\/td><\/tr><\/table><\/div>"],{"maxWidth":800,"minWidth":50,"autoPan":true,"keepInView":false,"closeButton":true,"closeOnClick":true,"className":""},["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addHomeButton","args":[-77.165194,7.823889,-77.1302,7.876694,true,"katios_sf","Zoom to katios_sf","<strong> katios_sf <\/strong>","bottomright"]},{"method":"addLayersControl","args":[["CartoDB.Positron","CartoDB.DarkMatter","OpenStreetMap","Esri.WorldImagery","OpenTopoMap"],["katios_occu","katios_sf"],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"addLegend","args":[{"colors":["#6666FF"],"labels":["katios_sf"],"na_color":null,"na_label":"NA","opacity":1,"position":"topright","type":"factor","title":"","extra":null,"layerId":null,"className":"info legend","group":"katios_sf"}]},{"method":"addHomeButton","args":[-77.17920683510759,7.799450337097944,-77.10979576917813,7.89007171383174,true,null,"Zoom to full extent","<strong>Zoom full<\/strong>","bottomleft"]}],"limits":{"lat":[7.799450337097944,7.89007171383174],"lng":[-77.17920683510759,-77.10979576917813]},"fitBounds":[7.799450337097944,-77.17920683510759,7.89007171383174,-77.10979576917813,[]]},"evals":[],"jsHooks":{"render":[{"code":"function(el, x, data) {\n  return (\n      function(el, x, data) {\n      // get the leaflet map\n      var map = this; //HTMLWidgets.find('#' + el.id);\n      // we need a new div element because we have to handle\n      // the mouseover output separately\n      // debugger;\n      function addElement () {\n      // generate new div Element\n      var newDiv = $(document.createElement('div'));\n      // append at end of leaflet htmlwidget container\n      $(el).append(newDiv);\n      //provide ID and style\n      newDiv.addClass('lnlt');\n      newDiv.css({\n      'position': 'relative',\n      'bottomleft':  '0px',\n      'background-color': 'rgba(255, 255, 255, 0.7)',\n      'box-shadow': '0 0 2px #bbb',\n      'background-clip': 'padding-box',\n      'margin': '0',\n      'padding-left': '5px',\n      'color': '#333',\n      'font': '9px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif',\n      'z-index': '700',\n      });\n      return newDiv;\n      }\n\n\n      // check for already existing lnlt class to not duplicate\n      var lnlt = $(el).find('.lnlt');\n\n      if(!lnlt.length) {\n      lnlt = addElement();\n\n      // grab the special div we generated in the beginning\n      // and put the mousmove output there\n\n      map.on('mousemove', function (e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                           ' lon: ' + (e.latlng.lng).toFixed(5) +\n                           ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                           ' | zoom: ' + map.getZoom() +\n                           ' | x: ' + L.CRS.EPSG3857.project(e.latlng).x.toFixed(0) +\n                           ' | y: ' + L.CRS.EPSG3857.project(e.latlng).y.toFixed(0) +\n                           ' | epsg: 3857 ' +\n                           ' | proj4: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs ');\n      } else {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      }\n      });\n\n      // remove the lnlt div when mouse leaves map\n      map.on('mouseout', function (e) {\n      var strip = document.querySelector('.lnlt');\n      if( strip !==null) strip.remove();\n      });\n\n      };\n\n      //$(el).keypress(67, function(e) {\n      map.on('preclick', function(e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      var txt = document.querySelector('.lnlt').textContent;\n      console.log(txt);\n      //txt.innerText.focus();\n      //txt.select();\n      setClipboardText('\"' + txt + '\"');\n      }\n      });\n\n      }\n      ).call(this.getMap(), el, x, data);\n}","data":null},{"code":"function(el, x, data) {\n  return (function(el,x,data){\n           var map = this;\n\n           map.on('keypress', function(e) {\n               console.log(e.originalEvent.code);\n               var key = e.originalEvent.code;\n               if (key === 'KeyE') {\n                   var bb = this.getBounds();\n                   var txt = JSON.stringify(bb);\n                   console.log(txt);\n\n                   setClipboardText('\\'' + txt + '\\'');\n               }\n           })\n        }).call(this.getMap(), el, x, data);\n}","data":null}]}}</script>
+</div>
+</div>
+</section><section id="package-citation" class="level2"><h2 class="anchored" data-anchor-id="package-citation">Package Citation</h2>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pakillo.github.io/grateful/reference/cite_packages.html">cite_packages</a></span><span class="op">(</span>output <span class="op">=</span> <span class="st">"paragraph"</span>, out.dir <span class="op">=</span> <span class="st">"."</span><span class="op">)</span> <span class="co">#knitr::kable(pkgs)</span></span>
+<span><span class="va">pkgs</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<p>We used R version 4.3.2 <span class="citation" data-cites="base">(<a href="#ref-base" role="doc-biblioref">R Core Team 2023</a>)</span> and the following R packages: camtrapR v. 2.3.0 <span class="citation" data-cites="camtrapR">(<a href="#ref-camtrapR" role="doc-biblioref">Niedballa et al. 2016</a>)</span>, devtools v. 2.4.5 <span class="citation" data-cites="devtools">(<a href="#ref-devtools" role="doc-biblioref">Wickham et al. 2022</a>)</span>, DT v. 0.32 <span class="citation" data-cites="DT">(<a href="#ref-DT" role="doc-biblioref">Xie, Cheng, and Tan 2024</a>)</span>, elevatr v. 0.99.0 <span class="citation" data-cites="elevatr">(<a href="#ref-elevatr" role="doc-biblioref">Hollister et al. 2023</a>)</span>, kableExtra v. 1.4.0 <span class="citation" data-cites="kableExtra">(<a href="#ref-kableExtra" role="doc-biblioref">Zhu 2024</a>)</span>, mapview v. 2.11.2 <span class="citation" data-cites="mapview">(<a href="#ref-mapview" role="doc-biblioref">Appelhans et al. 2023</a>)</span>, patchwork v. 1.2.0 <span class="citation" data-cites="patchwork">(<a href="#ref-patchwork" role="doc-biblioref">Pedersen 2024</a>)</span>, quarto v. 1.4 <span class="citation" data-cites="quarto">(<a href="#ref-quarto" role="doc-biblioref">Allaire and Dervieux 2024</a>)</span>, raster v. 3.6.26 <span class="citation" data-cites="raster">(<a href="#ref-raster" role="doc-biblioref">Hijmans 2023</a>)</span>, RColorBrewer v. 1.1.3 <span class="citation" data-cites="RColorBrewer">(<a href="#ref-RColorBrewer" role="doc-biblioref">Neuwirth 2022</a>)</span>, rmarkdown v. 2.27 <span class="citation" data-cites="rmarkdown2018 rmarkdown2020 rmarkdown2024">(<a href="#ref-rmarkdown2018" role="doc-biblioref">Xie, Allaire, and Grolemund 2018</a>; <a href="#ref-rmarkdown2020" role="doc-biblioref">Xie, Dervieux, and Riederer 2020</a>; <a href="#ref-rmarkdown2024" role="doc-biblioref">Allaire et al. 2024</a>)</span>, sf v. 1.0.15 <span class="citation" data-cites="sf2018 sf2023">(<a href="#ref-sf2018" role="doc-biblioref">Pebesma 2018</a>; <a href="#ref-sf2023" role="doc-biblioref">Pebesma and Bivand 2023</a>)</span>, styler v. 1.10.3 <span class="citation" data-cites="styler">(<a href="#ref-styler" role="doc-biblioref">Müller and Walthert 2024</a>)</span>, terra v. 1.7.71 <span class="citation" data-cites="terra">(<a href="#ref-terra" role="doc-biblioref">Hijmans 2024</a>)</span>, tidyverse v. 2.0.0 <span class="citation" data-cites="tidyverse">(<a href="#ref-tidyverse" role="doc-biblioref">Wickham et al. 2019</a>)</span>, ubms v. 1.2.6 <span class="citation" data-cites="ubms">(<a href="#ref-ubms" role="doc-biblioref">Kellner et al. 2021</a>)</span>, unmarked v. 1.4.1 <span class="citation" data-cites="unmarked2011 unmarked2023">(<a href="#ref-unmarked2011" role="doc-biblioref">Fiske and Chandler 2011</a>; <a href="#ref-unmarked2023" role="doc-biblioref">Kellner et al. 2023</a>)</span>.</p>
+</div>
+</div>
+</section><section id="sesion-info" class="level2"><h2 class="anchored" data-anchor-id="sesion-info">Sesion info</h2>
+<details><summary>
+Session info
+</summary><div class="cell">
+<pre><code>#&gt; ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+#&gt;  setting  value
+#&gt;  version  R version 4.3.2 (2023-10-31 ucrt)
+#&gt;  os       Windows 10 x64 (build 19042)
+#&gt;  system   x86_64, mingw32
+#&gt;  ui       RTerm
+#&gt;  language (EN)
+#&gt;  collate  Spanish_Colombia.utf8
+#&gt;  ctype    Spanish_Colombia.utf8
+#&gt;  tz       America/Bogota
+#&gt;  date     2024-07-31
+#&gt;  pandoc   3.1.11 @ C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
+#&gt; 
+#&gt; ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+#&gt;  ! package           * version  date (UTC) lib source
+#&gt;    abind               1.4-5    2016-07-21 [1] CRAN (R 4.3.1)
+#&gt;    backports           1.4.1    2021-12-13 [1] CRAN (R 4.3.1)
+#&gt;    base64enc           0.1-3    2015-07-28 [1] CRAN (R 4.3.1)
+#&gt;    boot                1.3-28.1 2022-11-22 [2] CRAN (R 4.3.2)
+#&gt;    brew                1.0-10   2023-12-16 [1] CRAN (R 4.3.2)
+#&gt;    bslib               0.6.1    2023-11-28 [1] CRAN (R 4.3.2)
+#&gt;    cachem              1.0.8    2023-05-01 [1] CRAN (R 4.3.2)
+#&gt;    camtrapR          * 2.3.0    2024-02-26 [1] CRAN (R 4.3.3)
+#&gt;    cellranger          1.1.0    2016-07-27 [1] CRAN (R 4.3.2)
+#&gt;    checkmate           2.3.1    2023-12-04 [1] CRAN (R 4.3.2)
+#&gt;    class               7.3-22   2023-05-03 [2] CRAN (R 4.3.2)
+#&gt;    classInt            0.4-10   2023-09-05 [1] CRAN (R 4.3.2)
+#&gt;    cli                 3.6.2    2023-12-11 [1] CRAN (R 4.3.2)
+#&gt;    codetools           0.2-19   2023-02-01 [2] CRAN (R 4.3.2)
+#&gt;    colorspace          2.1-0    2023-01-23 [1] CRAN (R 4.3.2)
+#&gt;    crosstalk           1.2.1    2023-11-23 [1] CRAN (R 4.3.2)
+#&gt;    curl                5.2.0    2023-12-08 [1] CRAN (R 4.3.2)
+#&gt;    data.table          1.15.0   2024-01-30 [1] CRAN (R 4.3.2)
+#&gt;    DBI                 1.2.2    2024-02-16 [1] CRAN (R 4.3.2)
+#&gt;    devtools            2.4.5    2022-10-11 [1] CRAN (R 4.3.2)
+#&gt;    digest              0.6.34   2024-01-11 [1] CRAN (R 4.3.2)
+#&gt;    distributional      0.4.0    2024-02-07 [1] CRAN (R 4.3.2)
+#&gt;    dplyr             * 1.1.4    2023-11-17 [1] CRAN (R 4.3.2)
+#&gt;    DT                * 0.32     2024-02-19 [1] CRAN (R 4.3.3)
+#&gt;    e1071               1.7-14   2023-12-06 [1] CRAN (R 4.3.2)
+#&gt;    elevatr           * 0.99.0   2023-09-12 [1] CRAN (R 4.3.2)
+#&gt;    ellipsis            0.3.2    2021-04-29 [1] CRAN (R 4.3.2)
+#&gt;    evaluate            0.23     2023-11-01 [1] CRAN (R 4.3.2)
+#&gt;    fansi               1.0.6    2023-12-08 [1] CRAN (R 4.3.2)
+#&gt;    farver              2.1.1    2022-07-06 [1] CRAN (R 4.3.2)
+#&gt;    fastmap             1.1.1    2023-02-24 [1] CRAN (R 4.3.2)
+#&gt;    forcats           * 1.0.0    2023-01-29 [1] CRAN (R 4.3.2)
+#&gt;    fs                  1.6.3    2023-07-20 [1] CRAN (R 4.3.2)
+#&gt;    generics            0.1.3    2022-07-05 [1] CRAN (R 4.3.2)
+#&gt;    ggplot2           * 3.5.1    2024-04-23 [1] CRAN (R 4.3.3)
+#&gt;    glue                1.7.0    2024-01-09 [1] CRAN (R 4.3.2)
+#&gt;    grateful          * 0.2.4    2023-10-22 [1] CRAN (R 4.3.3)
+#&gt;    gridExtra           2.3      2017-09-09 [1] CRAN (R 4.3.2)
+#&gt;    gtable              0.3.4    2023-08-21 [1] CRAN (R 4.3.2)
+#&gt;    hms                 1.1.3    2023-03-21 [1] CRAN (R 4.3.2)
+#&gt;    htmltools           0.5.7    2023-11-03 [1] CRAN (R 4.3.2)
+#&gt;    htmlwidgets         1.6.4    2023-12-06 [1] CRAN (R 4.3.2)
+#&gt;    httpuv              1.6.14   2024-01-26 [1] CRAN (R 4.3.2)
+#&gt;    inline              0.3.19   2021-05-31 [1] CRAN (R 4.3.2)
+#&gt;    jquerylib           0.1.4    2021-04-26 [1] CRAN (R 4.3.2)
+#&gt;    jsonlite            1.8.8    2023-12-04 [1] CRAN (R 4.3.2)
+#&gt;    kableExtra        * 1.4.0    2024-01-24 [1] CRAN (R 4.3.3)
+#&gt;    KernSmooth          2.23-22  2023-07-10 [2] CRAN (R 4.3.2)
+#&gt;    knitr               1.46     2024-04-06 [1] CRAN (R 4.3.3)
+#&gt;    labeling            0.4.3    2023-08-29 [1] CRAN (R 4.3.1)
+#&gt;    later               1.3.2    2023-12-06 [1] CRAN (R 4.3.2)
+#&gt;    lattice             0.22-5   2023-10-24 [1] CRAN (R 4.3.2)
+#&gt;    leafem              0.2.3    2023-09-17 [1] CRAN (R 4.3.2)
+#&gt;    leaflet             2.2.1    2023-11-13 [1] CRAN (R 4.3.2)
+#&gt;    leaflet.providers   2.0.0    2023-10-17 [1] CRAN (R 4.3.2)
+#&gt;    leafpop             0.1.0    2021-05-22 [1] CRAN (R 4.3.2)
+#&gt;    lifecycle           1.0.4    2023-11-07 [1] CRAN (R 4.3.2)
+#&gt;    lme4                1.1-35.3 2024-04-16 [1] CRAN (R 4.3.2)
+#&gt;    loo                 2.7.0    2024-02-24 [1] CRAN (R 4.3.2)
+#&gt;    lubridate         * 1.9.3    2023-09-27 [1] CRAN (R 4.3.2)
+#&gt;    magrittr            2.0.3    2022-03-30 [1] CRAN (R 4.3.2)
+#&gt;    mapview           * 2.11.2   2023-10-13 [1] CRAN (R 4.3.2)
+#&gt;    MASS                7.3-60   2023-05-04 [2] CRAN (R 4.3.2)
+#&gt;    Matrix              1.6-1.1  2023-09-18 [2] CRAN (R 4.3.2)
+#&gt;    matrixStats         1.2.0    2023-12-11 [1] CRAN (R 4.3.2)
+#&gt;    memoise             2.0.1    2021-11-26 [1] CRAN (R 4.3.2)
+#&gt;    mgcv                1.9-1    2023-12-21 [1] CRAN (R 4.3.3)
+#&gt;    mime                0.12     2021-09-28 [1] CRAN (R 4.3.1)
+#&gt;    miniUI              0.1.1.1  2018-05-18 [1] CRAN (R 4.3.2)
+#&gt;    minqa               1.2.6    2023-09-11 [1] CRAN (R 4.3.2)
+#&gt;    munsell             0.5.0    2018-06-12 [1] CRAN (R 4.3.2)
+#&gt;    nlme                3.1-163  2023-08-09 [2] CRAN (R 4.3.2)
+#&gt;    nloptr              2.0.3    2022-05-26 [1] CRAN (R 4.3.2)
+#&gt;    patchwork         * 1.2.0    2024-01-08 [1] CRAN (R 4.3.3)
+#&gt;    pbapply             1.7-2    2023-06-27 [1] CRAN (R 4.3.2)
+#&gt;    pillar              1.9.0    2023-03-22 [1] CRAN (R 4.3.2)
+#&gt;    pkgbuild            1.4.4    2024-03-17 [1] CRAN (R 4.3.3)
+#&gt;    pkgconfig           2.0.3    2019-09-22 [1] CRAN (R 4.3.2)
+#&gt;    pkgload             1.3.4    2024-01-16 [1] CRAN (R 4.3.2)
+#&gt;    png                 0.1-8    2022-11-29 [1] CRAN (R 4.3.1)
+#&gt;    posterior           1.5.0    2023-10-31 [1] CRAN (R 4.3.2)
+#&gt;    processx            3.8.3    2023-12-10 [1] CRAN (R 4.3.2)
+#&gt;    profvis             0.3.8    2023-05-02 [1] CRAN (R 4.3.2)
+#&gt;    progressr           0.14.0   2023-08-10 [1] CRAN (R 4.3.2)
+#&gt;    promises            1.2.1    2023-08-10 [1] CRAN (R 4.3.2)
+#&gt;    proxy               0.4-27   2022-06-09 [1] CRAN (R 4.3.2)
+#&gt;    ps                  1.7.6    2024-01-18 [1] CRAN (R 4.3.2)
+#&gt;    purrr             * 1.0.2    2023-08-10 [1] CRAN (R 4.3.2)
+#&gt;    quarto            * 1.4      2024-03-06 [1] CRAN (R 4.3.3)
+#&gt;    QuickJSR            1.1.3    2024-01-31 [1] CRAN (R 4.3.2)
+#&gt;    R.cache             0.16.0   2022-07-21 [1] CRAN (R 4.3.3)
+#&gt;    R.methodsS3         1.8.2    2022-06-13 [1] CRAN (R 4.3.3)
+#&gt;    R.oo                1.26.0   2024-01-24 [1] CRAN (R 4.3.3)
+#&gt;    R.utils             2.12.3   2023-11-18 [1] CRAN (R 4.3.3)
+#&gt;    R6                  2.5.1    2021-08-19 [1] CRAN (R 4.3.2)
+#&gt;    raster            * 3.6-26   2023-10-14 [1] CRAN (R 4.3.2)
+#&gt;    RColorBrewer        1.1-3    2022-04-03 [1] CRAN (R 4.3.1)
+#&gt;    Rcpp                1.0.12   2024-01-09 [1] CRAN (R 4.3.2)
+#&gt;    RcppNumerical       0.6-0    2023-09-06 [1] CRAN (R 4.3.3)
+#&gt;  D RcppParallel        5.1.7    2023-02-27 [1] CRAN (R 4.3.2)
+#&gt;    readr             * 2.1.5    2024-01-10 [1] CRAN (R 4.3.2)
+#&gt;    readxl            * 1.4.3    2023-07-06 [1] CRAN (R 4.3.2)
+#&gt;    remotes             2.5.0    2024-03-17 [1] CRAN (R 4.3.3)
+#&gt;    renv                1.0.7    2024-04-11 [1] CRAN (R 4.3.3)
+#&gt;    rlang               1.1.3    2024-01-10 [1] CRAN (R 4.3.2)
+#&gt;    rmarkdown           2.27     2024-05-17 [1] CRAN (R 4.3.3)
+#&gt;    RSpectra            0.16-1   2022-04-24 [1] CRAN (R 4.3.2)
+#&gt;    rstan               2.32.6   2024-03-05 [1] CRAN (R 4.3.3)
+#&gt;    rstantools          2.4.0    2024-01-31 [1] CRAN (R 4.3.2)
+#&gt;    rstudioapi          0.16.0   2024-03-24 [1] CRAN (R 4.3.3)
+#&gt;    sass                0.4.8    2023-12-06 [1] CRAN (R 4.3.2)
+#&gt;    satellite           1.0.5    2024-02-10 [1] CRAN (R 4.3.2)
+#&gt;    scales              1.3.0    2023-11-28 [1] CRAN (R 4.3.3)
+#&gt;    secr                4.6.6    2024-02-29 [1] CRAN (R 4.3.3)
+#&gt;    sessioninfo         1.2.2    2021-12-06 [1] CRAN (R 4.3.2)
+#&gt;    sf                * 1.0-15   2023-12-18 [1] CRAN (R 4.3.2)
+#&gt;    shiny               1.8.0    2023-11-17 [1] CRAN (R 4.3.2)
+#&gt;    sp                * 2.1-3    2024-01-30 [1] CRAN (R 4.3.2)
+#&gt;    StanHeaders         2.32.5   2024-01-10 [1] CRAN (R 4.3.2)
+#&gt;    stringi             1.8.3    2023-12-11 [1] CRAN (R 4.3.2)
+#&gt;    stringr           * 1.5.1    2023-11-14 [1] CRAN (R 4.3.2)
+#&gt;    styler            * 1.10.3   2024-04-07 [1] CRAN (R 4.3.3)
+#&gt;    svglite             2.1.3    2023-12-08 [1] CRAN (R 4.3.2)
+#&gt;    systemfonts         1.0.5    2023-10-09 [1] CRAN (R 4.3.2)
+#&gt;    tensorA             0.36.2.1 2023-12-13 [1] CRAN (R 4.3.2)
+#&gt;    terra             * 1.7-71   2024-01-31 [1] CRAN (R 4.3.2)
+#&gt;    tibble            * 3.2.1    2023-03-20 [1] CRAN (R 4.3.2)
+#&gt;    tidyr             * 1.3.1    2024-01-24 [1] CRAN (R 4.3.2)
+#&gt;    tidyselect          1.2.1    2024-03-11 [1] CRAN (R 4.3.3)
+#&gt;    tidyverse         * 2.0.0    2023-02-22 [1] CRAN (R 4.3.2)
+#&gt;    timechange          0.3.0    2024-01-18 [1] CRAN (R 4.3.2)
+#&gt;    tzdb                0.4.0    2023-05-12 [1] CRAN (R 4.3.2)
+#&gt;    ubms              * 1.2.6    2023-09-11 [1] CRAN (R 4.3.2)
+#&gt;    units               0.8-5    2023-11-28 [1] CRAN (R 4.3.2)
+#&gt;    unmarked          * 1.4.1    2024-01-09 [1] CRAN (R 4.3.2)
+#&gt;    urlchecker          1.0.1    2021-11-30 [1] CRAN (R 4.3.2)
+#&gt;    usethis             2.2.3    2024-02-19 [1] CRAN (R 4.3.2)
+#&gt;    utf8                1.2.4    2023-10-22 [1] CRAN (R 4.3.2)
+#&gt;    uuid                1.2-0    2024-01-14 [1] CRAN (R 4.3.2)
+#&gt;    V8                  4.4.2    2024-02-15 [1] CRAN (R 4.3.3)
+#&gt;    vctrs               0.6.5    2023-12-01 [1] CRAN (R 4.3.2)
+#&gt;    viridisLite         0.4.2    2023-05-02 [1] CRAN (R 4.3.2)
+#&gt;    withr               3.0.0    2024-01-16 [1] CRAN (R 4.3.2)
+#&gt;    xfun                0.44     2024-05-15 [1] CRAN (R 4.3.3)
+#&gt;    xml2                1.3.6    2023-12-04 [1] CRAN (R 4.3.2)
+#&gt;    xtable              1.8-4    2019-04-21 [1] CRAN (R 4.3.2)
+#&gt;    yaml                2.3.8    2023-12-11 [1] CRAN (R 4.3.2)
+#&gt; 
+#&gt;  [1] C:/Users/usuario/AppData/Local/R/win-library/4.3
+#&gt;  [2] C:/Program Files/R/R-4.3.2/library
+#&gt; 
+#&gt;  D ── DLL MD5 mismatch, broken installation.
+#&gt; 
+#&gt; ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</code></pre>
+</div>
+</details>
+
+
+</section><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-quarto" class="csl-entry" role="listitem">
+Allaire, JJ, and Christophe Dervieux. 2024. <em><span class="nocase">quarto</span>: R Interface to <span>“<span>Quarto</span>”</span> Markdown Publishing System</em>. <a href="https://CRAN.R-project.org/package=quarto">https://CRAN.R-project.org/package=quarto</a>.
+</div>
+<div id="ref-rmarkdown2024" class="csl-entry" role="listitem">
+Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier Luraschi, Kevin Ushey, Aron Atkins, et al. 2024. <em><span class="nocase">rmarkdown</span>: Dynamic Documents for r</em>. <a href="https://github.com/rstudio/rmarkdown">https://github.com/rstudio/rmarkdown</a>.
+</div>
+<div id="ref-mapview" class="csl-entry" role="listitem">
+Appelhans, Tim, Florian Detsch, Christoph Reudenbach, and Stefan Woellauer. 2023. <em><span class="nocase">mapview</span>: Interactive Viewing of Spatial Data in r</em>. <a href="https://CRAN.R-project.org/package=mapview">https://CRAN.R-project.org/package=mapview</a>.
+</div>
+<div id="ref-unmarked2011" class="csl-entry" role="listitem">
+Fiske, Ian, and Richard Chandler. 2011. <span>“<span class="nocase">unmarked</span>: An <span>R</span> Package for Fitting Hierarchical Models of Wildlife Occurrence and Abundance.”</span> <em>Journal of Statistical Software</em> 43 (10): 1–23. <a href="https://www.jstatsoft.org/v43/i10/">https://www.jstatsoft.org/v43/i10/</a>.
+</div>
+<div id="ref-raster" class="csl-entry" role="listitem">
+Hijmans, Robert J. 2023. <em><span class="nocase">raster</span>: Geographic Data Analysis and Modeling</em>. <a href="https://CRAN.R-project.org/package=raster">https://CRAN.R-project.org/package=raster</a>.
+</div>
+<div id="ref-terra" class="csl-entry" role="listitem">
+———. 2024. <em><span class="nocase">terra</span>: Spatial Data Analysis</em>. <a href="https://CRAN.R-project.org/package=terra">https://CRAN.R-project.org/package=terra</a>.
+</div>
+<div id="ref-elevatr" class="csl-entry" role="listitem">
+Hollister, Jeffrey, Tarak Shah, Jakub Nowosad, Alec L. Robitaille, Marcus W. Beck, and Mike Johnson. 2023. <em><span class="nocase">elevatr</span>: Access Elevation Data from Various APIs</em>. <a href="https://doi.org/10.5281/zenodo.8335450">https://doi.org/10.5281/zenodo.8335450</a>.
+</div>
+<div id="ref-ubms" class="csl-entry" role="listitem">
+Kellner, Kenneth F., Nicholas L. Fowler, Tyler R. Petroelje, Todd M. Kautz, Dean E. Beyer, and Jerrold L. Belant. 2021. <span>“<span class="nocase">ubms</span>: An <span>R</span> Package for Fitting Hierarchical Occupancy and n-Mixture Abundance Models in a Bayesian Framework.”</span> <em>Methods in Ecology and Evolution</em> 13: 577–84. <a href="https://doi.org/10.1111/2041-210X.13777">https://doi.org/10.1111/2041-210X.13777</a>.
+</div>
+<div id="ref-unmarked2023" class="csl-entry" role="listitem">
+Kellner, Kenneth F., Adam D. Smith, J. Andrew Royle, Marc Kery, Jerrold L. Belant, and Richard B. Chandler. 2023. <span>“The <span class="nocase">unmarked</span> <span>R</span> Package: Twelve Years of Advances in Occurrence and Abundance Modelling in Ecology.”</span> <em>Methods in Ecology and Evolution</em> 14 (6): 1408–15. <a href="https://www.jstatsoft.org/v43/i10/">https://www.jstatsoft.org/v43/i10/</a>.
+</div>
+<div id="ref-styler" class="csl-entry" role="listitem">
+Müller, Kirill, and Lorenz Walthert. 2024. <em><span class="nocase">styler</span>: Non-Invasive Pretty Printing of r Code</em>. <a href="https://CRAN.R-project.org/package=styler">https://CRAN.R-project.org/package=styler</a>.
+</div>
+<div id="ref-RColorBrewer" class="csl-entry" role="listitem">
+Neuwirth, Erich. 2022. <em><span>RColorBrewer</span>: ColorBrewer Palettes</em>. <a href="https://CRAN.R-project.org/package=RColorBrewer">https://CRAN.R-project.org/package=RColorBrewer</a>.
+</div>
+<div id="ref-camtrapR" class="csl-entry" role="listitem">
+Niedballa, Jürgen, Rahel Sollmann, Alexandre Courtiol, and Andreas Wilting. 2016. <span>“<span class="nocase">camtrapR</span>: An r Package for Efficient Camera Trap Data Management.”</span> <em>Methods in Ecology and Evolution</em> 7 (12): 1457–62. <a href="https://doi.org/10.1111/2041-210X.12600">https://doi.org/10.1111/2041-210X.12600</a>.
+</div>
+<div id="ref-sf2018" class="csl-entry" role="listitem">
+Pebesma, Edzer. 2018. <span>“<span class="nocase">Simple Features for R: Standardized Support for Spatial Vector Data</span>.”</span> <em><span>The R Journal</span></em> 10 (1): 439–46. <a href="https://doi.org/10.32614/RJ-2018-009">https://doi.org/10.32614/RJ-2018-009</a>.
+</div>
+<div id="ref-sf2023" class="csl-entry" role="listitem">
+Pebesma, Edzer, and Roger Bivand. 2023. <em><span class="nocase">Spatial Data Science: With applications in R</span></em>. <span>Chapman and Hall/CRC</span>. <a href="https://doi.org/10.1201/9780429459016">https://doi.org/10.1201/9780429459016</a>.
+</div>
+<div id="ref-patchwork" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin. 2024. <em><span class="nocase">patchwork</span>: The Composer of Plots</em>. <a href="https://CRAN.R-project.org/package=patchwork">https://CRAN.R-project.org/package=patchwork</a>.
+</div>
+<div id="ref-base" class="csl-entry" role="listitem">
+R Core Team. 2023. <em><span>R</span>: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-tidyverse" class="csl-entry" role="listitem">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019. <span>“Welcome to the <span class="nocase">tidyverse</span>.”</span> <em>Journal of Open Source Software</em> 4 (43): 1686. <a href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-devtools" class="csl-entry" role="listitem">
+Wickham, Hadley, Jim Hester, Winston Chang, and Jennifer Bryan. 2022. <em><span class="nocase">devtools</span>: Tools to Make Developing r Packages Easier</em>. <a href="https://CRAN.R-project.org/package=devtools">https://CRAN.R-project.org/package=devtools</a>.
+</div>
+<div id="ref-rmarkdown2018" class="csl-entry" role="listitem">
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. <em>R Markdown: The Definitive Guide</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a href="https://bookdown.org/yihui/rmarkdown">https://bookdown.org/yihui/rmarkdown</a>.
+</div>
+<div id="ref-DT" class="csl-entry" role="listitem">
+Xie, Yihui, Joe Cheng, and Xianying Tan. 2024. <em><span>DT</span>: A Wrapper of the JavaScript Library <span>“<span>DataTables</span>”</span></em>. <a href="https://CRAN.R-project.org/package=DT">https://CRAN.R-project.org/package=DT</a>.
+</div>
+<div id="ref-rmarkdown2020" class="csl-entry" role="listitem">
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R Markdown Cookbook</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a href="https://bookdown.org/yihui/rmarkdown-cookbook">https://bookdown.org/yihui/rmarkdown-cookbook</a>.
+</div>
+<div id="ref-kableExtra" class="csl-entry" role="listitem">
+Zhu, Hao. 2024. <em><span class="nocase">kableExtra</span>: Construct Complex Table with <span>“<span class="nocase">kable</span>”</span> and Pipe Syntax</em>. <a href="https://CRAN.R-project.org/package=kableExtra">https://CRAN.R-project.org/package=kableExtra</a>.
+</div>
+</div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{j._lizcano2024,
+  author = {J. Lizcano, Diego},
+  title = {Single {Season} {Occupancy} {Model}},
+  date = {2024-07-17},
+  url = {https://dlizcano.github.io/cametrapcesar/posts/2024-07-29-sigle-season-occupancy/},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-j._lizcano2024" class="csl-entry quarto-appendix-citeas" role="listitem">
+J. Lizcano, Diego. 2024. <span>“Single Season Occupancy Model.”</span>
+July 17, 2024. <a href="https://dlizcano.github.io/cametrapcesar/posts/2024-07-29-sigle-season-occupancy/">https://dlizcano.github.io/cametrapcesar/posts/2024-07-29-sigle-season-occupancy/</a>.
+</div></div></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/dlizcano\.github\.io\/cametrapcesar");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><script src="https://utteranc.es/client.js" repo="dlizcano/dlizcano.github.io" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","selector":".lightbox","closeEffect":"zoom","loop":false,"openEffect":"zoom"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+</body></html>
