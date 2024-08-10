@@ -1,0 +1,333 @@
+---
+title: '“Stacked” Models'
+subtitle: "A new extension of the `ubms` package"
+description: "Suppose you have a dataset of repeated detections/non detections or counts that are collected over several years, but do not want to fit a dynamic model"
+author: 
+  - name: 'Diego J. Lizcano'
+    orcid: 0000-0002-9648-0576
+    affiliation: "WildMon"
+date: '2024-07-17'
+file-modified: Sys.Date()
+categories: [R, occupancy, ubms]
+image: 'img/preview.jpg'
+draft: false
+citation: true
+bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-07-17-stackmodel/grateful-refs.bib
+---
+
+## Using random effects with `ubms`
+
+One of the advantages of `ubms` is that it is possible to include random effects in your models, using the same syntax as `lme4` (Bates et al. 2015). For example, if you have a group site covariate, you can fit a model with random intercepts by group by including + (1\|group) in your parameter formula. Random slopes, or a combination of random slopes and intercepts, are also possible.
+
+To illustrate the use of random effects of `ubms`, in this post fits we fit a model using a “stacked” model approach. Aditionally in `ubms` you can instead include, for example, random site intercepts to account for possible pseudoreplication.
+
+### The "stacked" model
+
+An alternative approach is to fit multiple years of data into a single-season model is using the “stacked” approach. Essentially, you treat unique site-year combinations as sites.
+
+There are several potential reasons for this:
+
+-   
+
+    1.  You don’t have enough data (Dail-Madsen type models are particularly data hungry).
+
+-   
+
+    2.  You aren’t interested in the transition probabilities.
+
+-   
+
+    3.  You have very few years (or seasons) and the occupancy did not changed.
+
+```{r}
+#| label: renv
+#| include: false
+# https://www.joelnitta.com/posts/2024-01-11_using_renv_with_blog/
+# library(renv)
+# renv::use(lockfile = "renv.lock")
+
+library(quarto) # R Interface to 'Quarto' Markdown Publishing System
+library(styler) # Non-Invasive Pretty Printing of R Code
+```
+
+## Load packages
+
+First we load some packages
+
+```{r setup, include=TRUE}
+
+library(grateful) # Facilitate Citation of R Packages
+library(patchwork) # The Composer of Plots
+library(readxl) # Read Excel Files
+library(sf) # Simple Features for R
+library(mapview) # Interactive Viewing of Spatial Data in R
+library(terra) # Spatial Data Analysis
+library(elevatr) # Access Elevation Data from Various APIs
+library(readr)
+
+library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses 
+library(ubms) 
+library(lme4) 
+library(DT)
+
+library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
+library(tidyverse) # Easily Install and Load the 'Tidyverse'
+
+
+```
+
+## Load data
+
+The data set is [downloaded from Wildlife insights](https://app.wildlifeinsights.org/initiatives/2000172/Monitoreo-Katios)
+
+![image](img/initiative.jpg)
+
+```{r warning=FALSE}
+
+path <- "C:/CodigoR/CameraTrapCesar/data/katios/"
+cameras <- read_csv(paste(path, "cameras.csv", sep=""))
+deployment <- read_csv(paste(path, "deployments.csv", sep=""))
+images <- read_csv(paste(path, "images.csv", sep=""))
+project <- read_csv(paste(path, "projects.csv", sep=""))
+
+# join_by(project_id, camera_id, camera_name)`
+cam_deploy <- cameras |> left_join(deployment) |> 
+  dplyr::mutate(year=lubridate::year(start_date)) #|> filter(year== 2023)
+cam_deploy_image <- images  |> 
+  left_join(cam_deploy) |> 
+  mutate(scientificName= paste(genus, species, sep = " ")) |> 
+   mutate(deployment_id_cam=paste(deployment_id, camera_id, sep = "-")) #|> 
+  # filter(year==2022)
+
+
+```
+
+## Select years and convert to stacked format
+
+To do this we use the `camtrapR` package.
+
+```{r}
+
+# filter firs year and make uniques
+
+CToperation  <- cam_deploy_image |> #multi-season data
+  # filter(samp_year==2022) |> 
+  group_by(deployment_id) |> 
+  mutate(minStart=min(start_date), maxEnd=max(end_date)) |> 
+  distinct(longitude, latitude, minStart, maxEnd, samp_year) |> 
+  ungroup()
+
+
+# camera operation matrix
+# multi-season data
+camop <- cameraOperation(CTtable= CToperation, # Tabla de operación
+                         stationCol= "deployment_id", # Columna que define la estación
+                         setupCol= "minStart", #Columna fecha de colocación
+                         retrievalCol= "maxEnd", #Columna fecha de retiro
+                         sessionCol = "samp_year", # multi-season column
+                         #hasProblems= T, # Hubo fallos de cámaras
+                         dateFormat= "%Y-%m-%d") #, # Formato de las fechas
+                         #cameraCol="CT")
+                         # sessionCol= "Year")
+
+# Generar las historias de detección ---------------------------------------
+## remove plroblem species
+# ind <- which(datos_PCF$Species=="Marmosa sp.")
+# datos_PCF <- datos_PCF[-ind,]
+
+# filter y1
+datay <- cam_deploy_image # |> 
+  # filter(samp_year==2022) 
+
+DetHist_list <- lapply(unique(datay$scientificName), FUN = function(x) {
+  detectionHistory(
+    recordTable         = datay, # Tabla de registros
+    camOp                = camop, # Matriz de operación de cámaras
+    stationCol           = "deployment_id",
+    speciesCol           = "scientificName",
+    recordDateTimeCol    = "timestamp",
+    recordDateTimeFormat  = "%Y-%m-%d",
+    species              = x,     # la función reemplaza x por cada una de las especies
+    occasionLength       = 15, # Colapso de las historias a días
+    day1                 = "station", #inicie en la fecha de cada survey
+    datesAsOccasionNames = FALSE,
+    includeEffort        = TRUE,
+    scaleEffort          = FALSE,
+    unmarkedMultFrameInput=TRUE,
+    timeZone             = "America/Bogota" 
+    )
+  }
+)
+
+# names
+names(DetHist_list) <- unique(datay$scientificName)
+
+# Finalmente creamos una lista nueva donde estén solo las historias de detección
+ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
+effortlist <- lapply(DetHist_list, FUN = function(x) x$effort)
+
+### Danta, Jaguar
+which(unique(datay$scientificName)=="Tapirus bairdii")
+which(unique(datay$scientificName)=="Panthera onca")
+
+
+```
+
+## Convert to sf and map
+
+```{r}
+
+datos_distinct <- cam_deploy_image |> distinct(longitude, latitude, deployment_id, samp_year)
+
+projlatlon <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+datos_sf <-  st_as_sf(x = datos_distinct,
+                         coords = c("longitude", 
+                                    "latitude"),
+                         crs = projlatlon)
+
+mapview(datos_sf, zcol="samp_year")
+
+```
+
+```{r}
+#load rasters
+per_tree_cov <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/Veg_Cont_Fields_Yearly_250m_v61/Perc_TreeCov/MOD44B_Perc_TreeCov_2021_065.tif")
+road_den <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/RoadDensity/grip4_total_dens_m_km2.asc")
+# elev <- rast("D:/CORREGIDAS/elevation_z7.tif")
+landcov <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/LandCover_Type_Yearly_500m_v61/LC1/MCD12Q1_LC1_2021_001.tif") 
+cattle <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/Global cattle distribution/5_Ct_2010_Da.tif")
+#river <- st_read("F:/WCS-CameraTrap/shp/DensidadRios/MCD12Q1_LC1_2001_001_RECLASS_MASK_GRID_3600m_DensDrenSouthAmer.shp")
+
+# get elevation map
+# elevation_detailed <- rast(get_elev_raster(sites, z = 10, clip="bbox", neg_to_na=TRUE))
+# elevation_detailed <- get_elev_point (datos_sf, src="aws", overwrite=TRUE)
+
+
+# extract covs using points and add to sites
+# covs <- cbind(sites, terra::extract(SiteCovsRast, sites))
+per_tre <- terra::extract(per_tree_cov, datos_sf)
+roads <- terra::extract(road_den, datos_sf)
+# eleva <- terra::extract(elevation_detailed, sites)
+land_cov <- terra::extract(landcov, datos_sf)
+cattle_den <-  terra::extract(cattle, datos_sf)
+
+sites <- as.data.frame(datos_sf)
+
+# remove decimals convert to factor
+sites$land_cover <-  factor(land_cov$MCD12Q1_LC1_2021_001)
+# sites$elevation <-  eleva$file3be898018c3
+sites$per_tree_cov <- per_tre$MOD44B_Perc_TreeCov_2021_065 
+#  fix 200 isue
+ind <- which(sites$per_tree_cov== 200)
+sites$per_tree_cov[ind] <- 0
+
+# sites$elevation <- elevation_detailed$elevation
+sites$roads <- roads$grip4_total_dens_m_km2
+sites$cattle <- cattle_den[,2]
+
+
+
+```
+
+## A simple occupancy model for jaguar
+
+Lets use the `ubms` package to make an occupancy model pooling 2021 and 2022 data together and use the forest cover as covariate.
+
+### Create unmarked frame
+
+```{r}
+
+# fix NA spread
+yj <- rbind(ylist[[4]][1:30,1:8],
+            ylist[[4]][31:50,12:19])
+
+ej <- rbind(effortlist[[4]][1:30,1:8],
+            effortlist[[4]][31:50,12:19])
+    
+  
+umf <- unmarkedFrameOccu(y=yj, 
+                         siteCovs=data.frame(
+                           per_tree_cov=sites$per_tree_cov,
+                           road_den=sites$roads),
+                         obsCovs=list(effort=ej)
+                      )
+
+plot(umf)
+
+```
+
+### Fit models 
+
+and perform model selection.
+
+```{r}
+# fit_0 <- occu(~1~1, data=umf) # unmarked
+
+fit_j0 <- stan_occu(~1~1, data=umf, chains=3, iter=1000, cores=3)
+fit_j1 <- stan_occu(~scale(effort)~1, data=umf, chains=3, iter=1000, cores=3)
+fit_j2 <- stan_occu(~scale(effort)~scale(per_tree_cov), data=umf, chains=3, iter=1000, cores=3)
+fit_j3 <- stan_occu(~scale(effort)~scale(road_den), data=umf, chains=3, iter=1000, cores=3)
+
+# compare
+models <- list(Null = fit_j0,
+                effort = fit_j1,
+                effort_treecov = fit_j2,
+                effort_road = fit_j3)
+
+mods <- fitList(fits = models)
+
+
+## see model selection as a table
+datatable( 
+  round(modSel(mods), 3)
+  )
+
+```
+
+Best model is fit_j2 which has effort on detection and percent tree cover on occupancy.
+
+### Evaluate model fit
+
+Statistic should be near 0.5 if the model fits well
+
+```{r}
+# eval
+fit_top_gof <- gof(fit_j2, draws=100, quiet=TRUE)
+fit_top_gof
+
+plot(fit_top_gof)
+
+```
+
+### Model inference
+
+Effort in detection and forest tree cover in occupancy
+
+```{r}
+ubms::plot_effects(fit_j2, "det")
+ubms::plot_effects(fit_j2, "state")
+
+```
+
+## Package Citation
+
+```{r }
+pkgs <- cite_packages(output = "paragraph", out.dir = ".") #knitr::kable(pkgs)
+pkgs
+
+```
+
+## Sesion info
+
+<details>
+
+<summary>Session info</summary>
+
+```{r sessioninfo, echo = FALSE}
+#| label: sessioninfo
+options(width = 120)
+devtools::session_info()
+```
+
+</details>
