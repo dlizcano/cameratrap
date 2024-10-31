@@ -6,4 +6,4 @@
 
 <!-- badges: end -->
 
-This is the git repository for my [R analysis website](https://dlizcano.github.io/cametrapcesar).
+This is the git repository for my [Camera trap blog site](https://dlizcano.github.io/cameratrap/).
