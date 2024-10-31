@@ -1,25 +1,32 @@
 ---
 title: '“Stacked” Models'
 subtitle: "A new extension of the `ubms` package"
-description: "Suppose you have a dataset of repeated detections/non detections or counts that are collected over several years, but do not want to fit a dynamic model"
+description: "Suppose you have a dataset of repeated detections/non detections or counts that are collected over several years, but do not want to fit a dynamic model."
 author: 
   - name: 'Diego J. Lizcano'
     orcid: 0000-0002-9648-0576
     affiliation: "WildMon"
+    affiliation-url: "https://wildmon.ai/team"
+  - name: 'José F. González-Maya'
+    orcid: 0000-0002-8942-5157
+    affiliation: "ProCat"
+    affiliation-url: "https://procat-conservation.org/"
 date: '2024-07-17'
 file-modified: Sys.Date()
 categories: [R, occupancy, ubms]
 image: 'img/preview.jpg'
 draft: false
 citation: true
-bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-07-17-stackmodel/grateful-refs.bib
+bibliography: 
+ - C:/CodigoR/CameraTrapCesar/posts/2024-07-17-stackmodel/grateful-refs.bib
+ - C:/CodigoR/CameraTrapCesar/posts/2024-07-17-stackmodel/doc_citations.bib
 ---
 
 ## Using random effects with `ubms`
 
 One of the advantages of `ubms` is that it is possible to include random effects in your models, using the same syntax as `lme4` (Bates et al. 2015). For example, if you have a group site covariate, you can fit a model with random intercepts by group by including + (1\|group) in your parameter formula. Random slopes, or a combination of random slopes and intercepts, are also possible.
 
-To illustrate the use of random effects of `ubms`, in this post fits we fit a model using a “stacked” model approach. Aditionally in `ubms` you can instead include, for example, random site intercepts to account for possible pseudoreplication.
+To illustrate the use of random effects of `ubms`, in this post fits we fit a model using a “stacked” model approach. Additionally in `ubms` you can instead include, for example, random site intercepts to account for possible pseudoreplication.
 
 ### The "stacked" model
 
@@ -29,15 +36,15 @@ There are several potential reasons for this:
 
 -   
 
-    1.  You don’t have enough data (Dail-Madsen type models are particularly data hungry).
+    1.  You don’t have enough data. Take in to account, Dail-Madsen type models are particularly data hungry.
 
 -   
 
-    2.  You aren’t interested in the transition probabilities.
+    2.  You are not interested in the transition probabilities.
 
 -   
 
-    3.  You have very few years (or seasons) and the occupancy did not changed.
+    3.  You have very few years or seasons (less than five) and the occupancy did not changed.
 
 ```{r}
 #| label: renv
@@ -78,9 +85,9 @@ library(tidyverse) # Easily Install and Load the 'Tidyverse'
 
 ## Load data
 
-The data set is [downloaded from Wildlife insights](https://app.wildlifeinsights.org/initiatives/2000172/Monitoreo-Katios)
+The data set is [downloaded from Initiative Monitoreo Katios in Wildlife insights](https://app.wildlifeinsights.org/initiatives/2000172/Monitoreo-Katios)
 
-![image](img/initiative.jpg)
+[![Initiative Monitoreo Katios](img/initiative.jpg)](https://app.wildlifeinsights.org/initiatives/2000172/Monitoreo-Katios)
 
 ```{r warning=FALSE}
 
@@ -102,82 +109,21 @@ cam_deploy_image <- images  |>
 
 ```
 
-## Select years and convert to stacked format
-
-To do this we use the `camtrapR` package.
-
-```{r}
-
-# filter firs year and make uniques
-
-CToperation  <- cam_deploy_image |> #multi-season data
-  # filter(samp_year==2022) |> 
-  group_by(deployment_id) |> 
-  mutate(minStart=min(start_date), maxEnd=max(end_date)) |> 
-  distinct(longitude, latitude, minStart, maxEnd, samp_year) |> 
-  ungroup()
 
 
-# camera operation matrix
-# multi-season data
-camop <- cameraOperation(CTtable= CToperation, # Tabla de operación
-                         stationCol= "deployment_id", # Columna que define la estación
-                         setupCol= "minStart", #Columna fecha de colocación
-                         retrievalCol= "maxEnd", #Columna fecha de retiro
-                         sessionCol = "samp_year", # multi-season column
-                         #hasProblems= T, # Hubo fallos de cámaras
-                         dateFormat= "%Y-%m-%d") #, # Formato de las fechas
-                         #cameraCol="CT")
-                         # sessionCol= "Year")
-
-# Generar las historias de detección ---------------------------------------
-## remove plroblem species
-# ind <- which(datos_PCF$Species=="Marmosa sp.")
-# datos_PCF <- datos_PCF[-ind,]
-
-# filter y1
-datay <- cam_deploy_image # |> 
-  # filter(samp_year==2022) 
-
-DetHist_list <- lapply(unique(datay$scientificName), FUN = function(x) {
-  detectionHistory(
-    recordTable         = datay, # Tabla de registros
-    camOp                = camop, # Matriz de operación de cámaras
-    stationCol           = "deployment_id",
-    speciesCol           = "scientificName",
-    recordDateTimeCol    = "timestamp",
-    recordDateTimeFormat  = "%Y-%m-%d",
-    species              = x,     # la función reemplaza x por cada una de las especies
-    occasionLength       = 15, # Colapso de las historias a días
-    day1                 = "station", #inicie en la fecha de cada survey
-    datesAsOccasionNames = FALSE,
-    includeEffort        = TRUE,
-    scaleEffort          = FALSE,
-    unmarkedMultFrameInput=TRUE,
-    timeZone             = "America/Bogota" 
-    )
-  }
-)
-
-# names
-names(DetHist_list) <- unique(datay$scientificName)
-
-# Finalmente creamos una lista nueva donde estén solo las historias de detección
-ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
-effortlist <- lapply(DetHist_list, FUN = function(x) x$effort)
-
-### Danta, Jaguar
-which(unique(datay$scientificName)=="Tapirus bairdii")
-which(unique(datay$scientificName)=="Panthera onca")
 
 
-```
-
-## Convert to sf and map
+## Convert to sf and map 
 
 ```{r}
 
-datos_distinct <- cam_deploy_image |> distinct(longitude, latitude, deployment_id, samp_year)
+
+datos_distinct <- cam_deploy_image |> distinct(longitude, latitude, deployment_id, samp_year) |> as.data.frame()
+
+# Fix NA camera 16
+datos_distinct[16,] <- c( -77.2787,	7.73855, 
+                      "CT-K1-31-124", 2021)
+
 
 projlatlon <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
@@ -186,9 +132,24 @@ datos_sf <-  st_as_sf(x = datos_distinct,
                                     "latitude"),
                          crs = projlatlon)
 
-mapview(datos_sf, zcol="samp_year")
+mapview(st_jitter(datos_sf, 0.0005) , zcol="samp_year")
 
 ```
+
+Notice we used the function `st_jitter()` because the points are on top of the previous year.
+
+
+## Extract site covariates
+
+Using the coordinates of the `sf` object (datos_sf) and the function `extract` we get the covariates. 
+
+In this case we use: 
+
+- Cattle distribution as number of cows per 10 square kilometer [@Gilbert2018].
+- Percent of tree cover from [MODIS product 44B](https://lpdaac.usgs.gov/products/mod44bv006/).
+- Road density from [@Meijer2018]. 
+- Land cover types from [MODIS](https://lpdaac.usgs.gov/products/mcd12q1v006/).
+
 
 ```{r}
 #load rasters
@@ -212,7 +173,11 @@ roads <- terra::extract(road_den, datos_sf)
 land_cov <- terra::extract(landcov, datos_sf)
 cattle_den <-  terra::extract(cattle, datos_sf)
 
-sites <- as.data.frame(datos_sf)
+#### drop geometry 
+sites <- datos_sf %>%
+  mutate(lat = st_coordinates(.)[,1],
+         lon = st_coordinates(.)[,2]) %>%
+  st_drop_geometry() |> as.data.frame()
 
 # remove decimals convert to factor
 sites$land_cover <-  factor(land_cov$MCD12Q1_LC1_2021_001)
@@ -227,53 +192,283 @@ sites$roads <- roads$grip4_total_dens_m_km2
 sites$cattle <- cattle_den[,2]
 
 
+write.csv(sites, "C:/CodigoR/CameraTrapCesar/data/katios/stacked/site_covs.csv")
+
+
+  
+
 
 ```
 
-## A simple occupancy model for jaguar
 
-Lets use the `ubms` package to make an occupancy model pooling 2021 and 2022 data together and use the forest cover as covariate.
+## Select by years and convert to stacked format
 
-### Create unmarked frame
+To get the detection history we use the function detectionHistory of the `camtrapR` package.
+
+> But take in to account, at the end we need to stack the data in this format:
+
+
+| obs1 | obs2 | obs3 | site | year |
+| ---- | ---- | ---- | ---- | ---- |
+|   0  |  0   | 0    |  1   |  1   |
+|   0  |  0   | 0    |  2   |  1   |
+|  NA  |  NA  | NA   |  3   |  1   |
+|   0  |  0   | 0    |  4   |  1   |
+|   0  |  0   | 0    |  5   |  2   |
+|  NA  |  NA  | NA   |  6   |  2   | 
+
+So we need to go by years and then stack de two tables.
+
+### First year 2021
+
+Here we use the function `detectionHistory` to generate species detection histories that can be used in occupancy analyses, with package `unmarked` and `ubms`. It generates detection histories in different formats, with adjustable occasion length and occasion start time. Notice we firs neet to get the camera operation dates using the function `cameraOperation`.
+
+
+```{r}
+
+# filter first year and make uniques
+
+CToperation_2021  <- cam_deploy_image |> #multi-season data
+  filter(samp_year==2021) |> 
+  group_by(deployment_id) |> 
+  mutate(minStart=min(start_date), maxEnd=max(end_date)) |> 
+  distinct(longitude, latitude, minStart, maxEnd, samp_year) |> 
+  ungroup() |> as.data.frame()
+
+
+# Fix NA camera 16
+CToperation_2021[16,] <- c("CT-K1-31-124", -77.2787,	7.73855, 
+                      "2021-10-10", "2021-12-31", 2021)
+
+# make numeric sampling year
+CToperation_2021$samp_year <- as.numeric(CToperation_2021$samp_year)
+
+# camera operation matrix for _2021
+# multi-season data. Season1
+camop_2021 <- cameraOperation(CTtable= CToperation_2021, # Tabla de operación
+                         stationCol= "deployment_id", # Columna que define la estación
+                         setupCol= "minStart", #Columna fecha de colocación
+                         retrievalCol= "maxEnd", #Columna fecha de retiro
+                         sessionCol = "samp_year", # multi-season column
+                         #hasProblems= T, # Hubo fallos de cámaras
+                         dateFormat= "%Y-%m-%d")#, #, # Formato de las fechas
+                         #cameraCol="CT")
+                         #sessionCol= "samp_year")
+
+# Generar las historias de detección ---------------------------------------
+## remove plroblem species
+# ind <- which(datos_PCF$Species=="Marmosa sp.")
+# datos_PCF <- datos_PCF[-ind,]
+
+# filter y1
+datay_2021 <- cam_deploy_image |> filter(samp_year ==2021) # |> 
+  # filter(samp_year==2022) 
+
+DetHist_list_2021 <- lapply(unique(datay_2021$scientificName), FUN = function(x) {
+  detectionHistory(
+    recordTable         = datay_2021, # Tabla de registros
+    camOp                = camop_2021, # Matriz de operación de cámaras
+    stationCol           = "deployment_id",
+    speciesCol           = "scientificName",
+    recordDateTimeCol    = "timestamp",
+    recordDateTimeFormat  = "%Y-%m-%d %H:%M:%S",
+    species              = x,     # la función reemplaza x por cada una de las especies
+    occasionLength       = 15, # Colapso de las historias a días
+    day1                 = "station", #inicie en la fecha de cada survey
+    datesAsOccasionNames = FALSE,
+    includeEffort        = TRUE,
+    scaleEffort          = FALSE,
+    unmarkedMultFrameInput=TRUE,
+    timeZone             = "America/Bogota" 
+    )
+  }
+)
+
+# names
+names(DetHist_list_2021) <- unique(datay_2021$scientificName)
+
+# Finalmente creamos una lista nueva donde estén solo las historias de detección
+ylist_2021 <- lapply(DetHist_list_2021, FUN = function(x) x$detection_history)
+# y el esfuerzo
+effortlist_2021 <- lapply(DetHist_list_2021, FUN = function(x) x$effort)
+
+### Danta, Jaguar
+which(names(ylist_2021) =="Tapirus bairdii")
+which(names(ylist_2021) =="Panthera onca") 
+
+
+```
+
+
+### Next, the year 2022
+
+```{r}
+
+# filter firs year and make uniques
+
+CToperation_2022  <- cam_deploy_image |> #multi-season data
+  filter(samp_year==2022) |> 
+  group_by(deployment_id) |> 
+  mutate(minStart=min(start_date), maxEnd=max(end_date)) |> 
+  distinct(longitude, latitude, minStart, maxEnd, samp_year) |> 
+  ungroup() |> as.data.frame()
+
+
+# Fix NA camera 16
+# CToperation_2022[16,] <- c("CT-K1-31-124", -77.2787,	7.73855, 
+#                       "2022-10-10", "2022-12-31", 2022)
+
+# make numeric sampling year
+CToperation_2022$samp_year <- as.numeric(CToperation_2022$samp_year)
+
+# camera operation matrix for _2022
+# multi-season data. Season1
+camop_2022 <- cameraOperation(CTtable= CToperation_2022, # Tabla de operación
+                         stationCol= "deployment_id", # Columna que define la estación
+                         setupCol= "minStart", #Columna fecha de colocación
+                         retrievalCol= "maxEnd", #Columna fecha de retiro
+                         sessionCol = "samp_year", # multi-season column
+                         #hasProblems= T, # Hubo fallos de cámaras
+                         dateFormat= "%Y-%m-%d")#, #, # Formato de las fechas
+                         #cameraCol="CT")
+                         #sessionCol= "samp_year")
+
+# Generar las historias de detección ---------------------------------------
+## remove plroblem species
+# ind <- which(datos_PCF$Species=="Marmosa sp.")
+# datos_PCF <- datos_PCF[-ind,]
+
+# filter y1
+datay_2022 <- cam_deploy_image |> filter(samp_year ==2022) # |> 
+  # filter(samp_year==2022) 
+
+DetHist_list_2022 <- lapply(unique(datay_2022$scientificName), FUN = function(x) {
+  detectionHistory(
+    recordTable         = datay_2022, # Tabla de registros
+    camOp                = camop_2022, # Matriz de operación de cámaras
+    stationCol           = "deployment_id",
+    speciesCol           = "scientificName",
+    recordDateTimeCol    = "timestamp",
+    recordDateTimeFormat  = "%Y-%m-%d %H:%M:%S",
+    species              = x,     # la función reemplaza x por cada una de las especies
+    occasionLength       = 25, # Colapso de las historias a días
+    day1                 = "station", #inicie en la fecha de cada survey
+    datesAsOccasionNames = FALSE,
+    includeEffort        = TRUE,
+    scaleEffort          = FALSE,
+    unmarkedMultFrameInput=TRUE,
+    timeZone             = "America/Bogota" 
+    )
+  }
+)
+
+# names
+names(DetHist_list_2022) <- unique(datay_2022$scientificName)
+
+# Finalmente creamos una lista nueva donde estén solo las historias de detección
+ylist_2022 <- lapply(DetHist_list_2022, FUN = function(x) x$detection_history)
+effortlist_2022 <- lapply(DetHist_list_2022, FUN = function(x) x$effort)
+
+### Danta, Jaguar
+### Danta, Jaguar
+which(names(ylist_2022) =="Tapirus bairdii")
+which(names(ylist_2022) =="Panthera onca") 
+
+
+
+```
+
+## Save and fix in excel
+
+### Jaguar
+```{r}
+# Jaguar
+# datatable (ylist_2021[[5]], caption = 'Jaguar 2021')
+# datatable (ylist_2022[[19]], caption = 'Jaguar 2022')
+
+# y obs
+write.csv(ylist_2021[[5]], "C:/CodigoR/CameraTrapCesar/data/katios/stacked/y_jaguar2021.csv")
+# effort
+write.csv(effortlist_2021[[5]], "C:/CodigoR/CameraTrapCesar/data/katios/stacked/effort_jaguar2021.csv")
+# y obs
+write.csv(ylist_2022[[19]], "C:/CodigoR/CameraTrapCesar/data/katios/stacked/y_jaguar2022.csv")
+# effort
+write.csv(effortlist_2022[[5]], "C:/CodigoR/CameraTrapCesar/data/katios/stacked/effort_jaguar2022.csv")
+
+
+
+```
+
+
+
+## Fitting a stacked model for jaguar
+
+Lets use the `ubms` package to make a stacked occupancy model pooling 2021 and 2022 data together and use the percent tree cover, the road density and the cattle density as covariates for the occupancy and the effort as the number of sampling days as covariate for detection.
+
+### Load the data
+
+```{r}
+jaguar <- read.csv("C:/CodigoR/CameraTrapCesar/data/katios/stacked/y_jaguar_stacked.csv")
+```
+
+#### Look at the data
+
+```{r}
+datatable(head(jaguar))
+```
+
+Notice we collapsed the events to 15 days in the 2021 sampling season, and to 25 days in the 2022 sampling season, to end with 6 repeated observations in de matrix. In the matrix o1 to o6 are observations and e1 to e6 are sampling effort(observation covariates). Land_cover, per_tree_cov and roads are site covariates.
+
+### Create an unmarked frame
+
+With our stacked dataset constructed, we build the `unmarkedFrame` object.
 
 ```{r}
 
 # fix NA spread
-yj <- rbind(ylist[[4]][1:30,1:8],
-            ylist[[4]][31:50,12:19])
+# yj <- rbind(ylist[[62]][1:30,1:8], # 62 is Jaguar
+#             ylist[[62]][31:50,12:19])
 
-ej <- rbind(effortlist[[4]][1:30,1:8],
-            effortlist[[4]][31:50,12:19])
+# ej <- rbind(effortlist[[4]][1:30,1:8],
+#             effortlist[[4]][31:50,12:19])
     
   
-umf <- unmarkedFrameOccu(y=yj, 
-                         siteCovs=data.frame(
-                           per_tree_cov=sites$per_tree_cov,
-                           road_den=sites$roads),
-                         obsCovs=list(effort=ej)
+umf <- unmarkedFrameOccu(y=jaguar[,2:7], 
+                         siteCovs=jaguar[,c(8,9,16:19)],
+                         obsCovs=list(effort=jaguar[10:15])
                       )
 
 plot(umf)
 
 ```
 
-### Fit models 
+### Fit models
 
-and perform model selection.
+#### Fit the Stacked Model
+
+We’ll now we fit a model with fixed effects of percent tree cover road density and cattle density (per_tree_cov, roads and cattle) on occupancy and a effort affecting the detection. In addition, we will include random intercepts by site, since in stacking the data we have pseudoreplication by site. To review, random effects are specified using the approach used in with the `lme4` package. For example, a random intercept for each level of the covariate site is specified with the formula component (1|site). Including random effects in a model in `ubms` usually significantly increases the run time, but at the end is worth the waiting time.
+
+Next we perform model selection.
 
 ```{r}
 # fit_0 <- occu(~1~1, data=umf) # unmarked
 
-fit_j0 <- stan_occu(~1~1, data=umf, chains=3, iter=1000, cores=3)
-fit_j1 <- stan_occu(~scale(effort)~1, data=umf, chains=3, iter=1000, cores=3)
-fit_j2 <- stan_occu(~scale(effort)~scale(per_tree_cov), data=umf, chains=3, iter=1000, cores=3)
-fit_j3 <- stan_occu(~scale(effort)~scale(road_den), data=umf, chains=3, iter=1000, cores=3)
-
+fit_j0 <- stan_occu(~1~1 + (1|site),
+                       data=umf, chains=3, iter=10000, cores=3)
+fit_j1 <- stan_occu(~scale(effort) ~1 + (1|site), 
+                       data=umf, chains=3, iter=10000)
+fit_j2 <- stan_occu(~scale(effort) ~scale(per_tree_cov) + (1|site), 
+                       data=umf, chains=3, iter=10000)
+fit_j3 <- stan_occu(~scale(effort) ~scale(roads) + (1|site), 
+                       data=umf, chains=3, iter=10000)
+fit_j4 <- stan_occu(~scale(effort) ~scale(cattle) + (1|site), 
+                       data=umf, chains=3, iter=10000)
 # compare
 models <- list(Null = fit_j0,
                 effort = fit_j1,
                 effort_treecov = fit_j2,
-                effort_road = fit_j3)
+                effort_road = fit_j3,
+                effort_cattle = fit_j4)
 
 mods <- fitList(fits = models)
 
@@ -285,15 +480,36 @@ datatable(
 
 ```
 
-Best model is fit_j2 which has effort on detection and percent tree cover on occupancy.
+Instead of AIC, models are compared using leave-one-out cross-validation (LOO) (Vehtari, Gelman, and Gabry 2017) via the loo package. Based on this cross-validation, the expected predictive accuracy (elpd) for each model is calculated. The model with the largest elpd (effort_cattle) performed best. The looic value is analogous to AIC.
+
+```{r}
+loo(fit_j4)
+```
+
+
+> Best model is effort_cattle (fit_j4) which has effort on detection and percent tree cover on occupancy.
+
+
+```{r}
+fit_j4
+
+```
+
+Looking at the summary of fit_j4, we conclude MCMC chains have converged if all R^>1.05 To visualize convergence, look at the traceplots:
+
+```{r}
+traceplot(fit_j4, pars=c("beta_state", "beta_det"))
+
+```
+
 
 ### Evaluate model fit
 
-Statistic should be near 0.5 if the model fits well
+Statistic should be near 0.5 if the model fits well.
 
 ```{r}
 # eval
-fit_top_gof <- gof(fit_j2, draws=100, quiet=TRUE)
+fit_top_gof <- gof(fit_j4, draws=300, quiet=TRUE)
 fit_top_gof
 
 plot(fit_top_gof)
@@ -302,13 +518,48 @@ plot(fit_top_gof)
 
 ### Model inference
 
-Effort in detection and forest tree cover in occupancy
+Effort in detection and cattle density in occupancy
 
 ```{r}
-ubms::plot_effects(fit_j2, "det")
-ubms::plot_effects(fit_j2, "state")
+ubms::plot_effects(fit_j4, "det")
+ubms::plot_effects(fit_j4, "state")
 
 ```
+
+## Comparing occupancy between years
+
+Using the posterior_predict function in ubms, you can generate an equivalent posterior distribution of z, and latter to do a post-hoc analyses to test for a difference in mean occupancy probability between sites 2021 and sites 2022.
+
+
+```{r}
+zpost <- posterior_predict(fit_j4, "z", draws=1000)
+dim(zpost)
+
+year_2021 <- rowMeans(zpost[,1:32], na.rm=TRUE)
+year_2022 <- rowMeans(zpost[,33:55], na.rm=TRUE)
+
+plot_dat <- rbind(data.frame(group="year_2021", occ=mean(year_2021),
+                             lower=quantile(year_2021, 0.025),
+                             upper=quantile(year_2021, 0.975)),
+                  data.frame(group="year_2022", occ=mean(year_2022),
+                             lower=quantile(year_2022, 0.025),
+                             upper=quantile(year_2022, 0.975)))
+
+# Now plot the posterior distributions of the two means:
+
+
+ggplot(plot_dat, aes(x=group, y=occ)) +
+  geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2) +
+  geom_point(size=3) +
+  ylim(0,1) +
+  labs(x="Year", y="Occupancy + 95% UI") +
+  theme_bw() +
+  theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
+        axis.text=element_text(size=12), axis.title=element_text(size=14))
+
+
+```
+It seems the difference in mean occupancy probability is not significant.
 
 ## Package Citation
 
