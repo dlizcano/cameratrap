@@ -1,0 +1,439 @@
+---
+title: 'Single Season Occupancy Model'
+subtitle: "The simplest model using the `ubms` package"
+description: "Fits the single season occupancy model of MacKenzie et al (2002) using camera trap data, `unmarked` and `ubms`"
+author: 
+  - name: 'Diego J. Lizcano'
+    orcid: 0000-0002-9648-0576
+    affiliation: "WildMon"
+date: '2024-07-27'
+file-modified: Sys.Date()
+categories: [R, occupancy, ubms]
+image: 'img/preview.jpg'
+draft: false
+citation: true
+bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-07-29-sigle-season-occupancy/grateful-refs.bib
+---
+
+## Load packages
+
+First we load some packages
+
+```{r setup, include=TRUE}
+
+library(grateful) # Facilitate Citation of R Packages
+library(patchwork) # The Composer of Plots
+library(readxl) # Read Excel Files
+library(sf) # Simple Features for R
+library(mapview) # Interactive Viewing of Spatial Data in R
+library(terra) # Spatial Data Analysis
+library(elevatr) # Access Elevation Data from Various APIs
+library(readr)
+
+library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses 
+library(unmarked) 
+library(ubms) 
+library(DT)
+
+library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
+library(tidyverse) # Easily Install and Load the 'Tidyverse'
+
+# source("C:/CodigoR/CameraTrapCesar/R/organiza_datos.R")
+
+```
+
+## Organize the data
+
+The workflow starts with package `unmarked` and continue with the package `ubms` for model building, selection and prediction. The first step to perform the analysis is to organize data following the `unmarked` package. The data should have detection, non-detection records along with the covariates.
+
+See the `unmarkedFrameOccu` function for details typing:  ?unmarkedFrameOccu in your R console.
+
+```{r}
+#| label: renv
+#| include: false
+# https://www.joelnitta.com/posts/2024-01-11_using_renv_with_blog/
+# library(renv)
+# renv::use(lockfile = "renv.lock")
+
+library(quarto) # R Interface to 'Quarto' Markdown Publishing System
+library(styler) # Non-Invasive Pretty Printing of R Code
+```
+
+## Load data
+
+The data set was collected by Sebastián Mejía-Correa and is part of the study: [Mejia-Correa S, Diaz-Martinez A. 2014. Densidad y hábitos alimentarios de la danta Tapirus bairdii en el Parque Nacional Natural Los Katios, Colombia. Tapir Conservation. 23:16–23.](https://tapirconservation.github.io/2014/06/30/volume-23-number-32/).
+
+```{r warning=FALSE}
+
+
+katios1 <- read_excel("C:/CodigoR/CameraTrapCesar/data/katios/Tbairdii_sebastian.xlsx", sheet = "danta")
+
+
+```
+
+### View the data
+
+```{r}
+datatable(head(katios1))
+```
+
+### View as map
+
+```{r}
+
+projlatlon <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+katios_sf <-  st_as_sf(x = katios1 |> distinct(Longitude, Latitude, camera),
+                         coords = c("Longitude", 
+                                    "Latitude"),
+                         crs = projlatlon)
+
+mapview(katios_sf)#, zcol="species")
+
+```
+
+### Function to make detection history matrix
+
+```{r}
+
+
+f.matrix.creator<-function(data){
+  #results object
+  res<-list()
+  
+  #get the dimensions of the matrix
+  
+  #list if sanpling units
+  cams<-unique(data$camera)
+  cams<-sort(cams)
+  rows<-length(cams)
+  species<-unique(data$species)
+  #start and end dates of sampling periods
+  # data<-data[data$Sampling.Period==year,]
+  min<-min(as.Date(as.character(data$start), "%Y-%m-%d"))
+  max<-max(as.Date(as.character(data$end), "%Y-%m-%d"))
+  cols<-max-min+1
+  
+  #sampling period
+  date.header<-seq(from=min,to=max, by="days")
+  mat<-matrix(NA,rows,cols,dimnames=list(cams,as.character(date.header)))
+  
+  #for all cameras, determine the open and close date and mark in the matrix
+  start.dates<-tapply(as.character(data$start),data$camera,unique)
+  nms<-names(start.dates)
+  # start.dates<-ymd(start.dates)
+  names(start.dates)<-nms
+  end.dates<-tapply(as.character(data$end),data$camera,unique)
+  # end.dates<-ymd(end.dates)
+  names(end.dates)<-nms
+  
+  #outline the sampling periods for each camera j
+  for(j in 1:length(start.dates)){
+    #for each camera beginning and end of sampling
+    low<-which(date.header==as.Date(as.character(start.dates[j]), format = "%Y-%m-%d"))
+    hi<-which(date.header==as.Date(as.character(end.dates[j]), format = "%Y-%m-%d"))
+    if(length(low)+length(hi)>0){
+      indx<-seq(from=low,to=hi)
+      mat[names(start.dates)[j],indx]<- 0
+    } else next
+  }
+  mat.template<-mat
+  #get the species
+  #species<-unique(data$bin)
+  #construct the matrix for each species i
+  for(i in 1:length(species)){
+    indx<-which(data$species==species[i])
+    #dates and cameras when/where the species was photographed
+    dates<-data$date[indx]
+    cameras<-data$camera[indx]
+    dates.cameras<-data.frame(dates,cameras)
+    #unique combination of dates and cameras 
+    dates.cameras<-unique(dates.cameras)
+    #fill in the matrix
+    for(j in 1:length(dates.cameras[,1])){
+      col<-which(date.header==as.character( dates.cameras[j,1]))
+      row<-which(cams==as.character( dates.cameras[j,2]))
+      mat[row,col]<-1
+    }
+    mat.nas<-is.na(mat)
+    sum.nas<-apply(mat.nas,2,sum)
+    indx.nas<-which(sum.nas==rows)
+    if(length(indx.nas)>0){
+      mat<-mat[,-indx.nas]
+    }
+    
+    res<-c(res,list(mat))
+    #return the matrix to its original form
+    mat<-mat.template
+  }
+  
+  names(res)<-species
+  #res<-lapply(res,f.dum)
+  res #object to return
+}
+```
+
+### Apply the function to get _Tapirus bairdii_ detection matrix
+
+```{r}
+
+# filter firs year and make uniques
+
+tbairdi <- f.matrix.creator(katios1)[[1]]
+
+
+```
+
+```{r}
+#| include: false
+#| eval: false
+#| 
+
+#load rasters
+per_tree_cov <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/Veg_Cont_Fields_Yearly_250m_v61/Perc_TreeCov/MOD44B_Perc_TreeCov_2012_065.tif")
+road_den <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/RoadDensity/grip4_total_dens_m_km2.asc")
+# elev <- rast("D:/CORREGIDAS/elevation_z7.tif")
+landcov <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/LandCover_Type_Yearly_500m_v61/LC1/MCD12Q1_LC1_2012_001.tif") 
+cattle <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/Global cattle distribution/5_Ct_2010_Da.tif")
+#river <- st_read("F:/WCS-CameraTrap/shp/DensidadRios/MCD12Q1_LC1_2001_001_RECLASS_MASK_GRID_3600m_DensDrenSouthAmer.shp")
+
+# get elevation map
+# elevation_detailed <- rast(get_elev_raster(sites, z = 10, clip="bbox", neg_to_na=TRUE))
+# elevation_detailed <- get_elev_point (datos_sf, src="aws", overwrite=TRUE)
+
+
+# extract covs using points and add to sites
+# covs <- cbind(sites, terra::extract(SiteCovsRast, sites))
+per_tre <- terra::extract(per_tree_cov, datos_sf)
+roads <- terra::extract(road_den, datos_sf)
+# eleva <- terra::extract(elevation_detailed, sites)
+land_cov <- terra::extract(landcov, datos_sf)
+cattle_den <-  terra::extract(cattle, datos_sf)
+
+sites <- as.data.frame(datos_sf)
+
+# remove decimals convert to factor
+sites$land_cover <-  factor(land_cov$MCD12Q1_LC1_2021_001)
+# sites$elevation <-  eleva$file3be898018c3
+sites$per_tree_cov <- per_tre$MOD44B_Perc_TreeCov_2021_065 
+#  fix 200 isue
+ind <- which(sites$per_tree_cov== 200)
+sites$per_tree_cov[ind] <- 0
+
+# sites$elevation <- elevation_detailed$elevation
+sites$roads <- roads$grip4_total_dens_m_km2
+sites$cattle <- cattle_den[,2]
+
+
+
+```
+
+### Lets extract percent tree cover 2012 to be used as site covariate
+
+The covariate is coming from MODIS. MOD44B Version 6 Vegetation Continuous Fields (VCF).
+[https://lpdaac.usgs.gov/products/mod44bv006/](https://lpdaac.usgs.gov/products/mod44bv006/)
+
+We plot the cameras as sf object on top the map and extract the values using the function `terra::extract` 
+
+```{r}
+# load the raster map
+per_tree_cov <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/Veg_Cont_Fields_Yearly_250m_v61/Perc_TreeCov/MOD44B_Perc_TreeCov_2012_065.tif")
+
+# extract values per camera
+per_tre <- terra::extract(per_tree_cov, katios_sf)
+
+# assign values to the sf object
+katios_sf$per_tree_cov <- per_tre$MOD44B_Perc_TreeCov_2012_065 
+#  fix 200 issue
+# ind <- which(sites$per_tree_cov== 200)
+# sites$per_tree_cov[ind] <- 0
+
+
+```
+
+
+
+## Create unmarked frame object
+
+Lets use the `unmarked` package to make an unmarkedFrameOccu object.
+
+
+```{r}
+#| fig-cap: "Sites against days (observation)"
+
+umf <- unmarkedFrameOccu(y=tbairdi, 
+                         siteCovs=data.frame(
+                           per_tree_cov=katios_sf$per_tree_cov)
+                           #road_den=sites$roads),
+                         # obsCovs=list(effort=ej)
+                      )
+
+plot(umf)
+
+```
+
+## Fit models
+
+lets use `ubms` package to fit models. We contrast the null model (no covariates) against a model with percent tree cover to explain the occupancy. For this example we are not using covariates for the detection part. 
+
+```{r}
+# fit_0 <- occu(~1~1, data=umf) # unmarked
+
+fit_j0 <- stan_occu(~1~1, data=umf, chains=3, iter=10000, cores=3)
+fit_j2 <- stan_occu(~1~scale(per_tree_cov), data=umf, chains=3, iter=10000, cores=3)
+
+
+
+```
+
+### Model selection
+
+```{r}
+#| output: asis
+#| 
+# compare models
+models <- list("p(.)psi(.)" = fit_j0, # put names
+                "p(.)psi(per_tree_cov)" = fit_j2) # put names
+
+mods <- fitList(fits = models)
+
+## see model selection as a table
+datatable( 
+  round(modSel(mods), 3)
+  )
+
+```
+
+
+The model p(.)psi(per_tree_cov) is the "better".
+
+
+#### Estimates for the null model
+
+Estimated values for the null model `p(.)psi(.)` are: `{r} plogis(coef(fit_j0))` for occupancy, and detection probability respectively.
+
+#### Details of the best model
+
+```{r}
+fit_j2
+```
+we conclude MCMC chains have converged if all R>1.05  
+Convergence here is not that good...
+
+
+### Model convergence
+
+Let see the chains. 
+
+```{r}
+#| fig-cap: "Chains trace plot. The chains should be converging"
+#| fig-alt: "the chains should be converging"
+#| 
+traceplot(fit_j2, pars=c("beta_state"))
+```
+
+not that good...
+
+### Evaluate model fit
+
+Statistic (p) should be near 0.5 if the model fits well.
+
+```{r}
+
+# eval
+fit_top_gof <- gof(fit_j2, draws=500, quiet=TRUE)
+fit_top_gof
+
+# plot(fit_top_gof)
+
+```
+0.14 is not that bad. 
+
+
+### Model inference
+
+No covariate for detection, and percent of forest tree cover in occupancy.
+
+```{r}
+#| fig-cap: "Prediction of occupancy with percent tree cover"
+#| fig-alt: "The predictor is percent tree cover"
+# ubms::plot_effects(fit_j2, "det")
+ubms::plot_effects(fit_j2, "state")
+
+```
+The error band is large but there is a clear trend.
+
+### Spatial model
+
+Taking in to account spatial autocorrelation.
+
+```{r}
+# convert to UTM
+katios_utm = st_transform(katios_sf, 21818)
+katios_cord <- st_coordinates(katios_utm)
+site_cov <- as.data.frame(cbind(per_tree_cov=scale(katios_sf$per_tree_cov),
+                  katios_cord))
+
+names(site_cov) <- c("per_tree_cov", "X", "Y")
+
+with(site_cov, RSR(X, Y, threshold=1, plot_site=27))
+
+form <- ~1 ~per_tree_cov + RSR(X, Y, threshold=1)
+umf2 <- unmarkedFrameOccu(y=tbairdi, siteCovs=site_cov)
+# fit_spatial <- stan_occu(form, umf2, chains=3, cores=3, seed=123) # error
+
+```
+
+Spatial model do not run... Error at Building RSR matrices: TridiagEigen: eigen decomposition failed. Probably to few sites.
+
+## Predict occupancy in a map
+
+Lets use a raster map with percent tree cover to predict the occupancy and see the resulting occupancy as a map.
+
+```{r}
+#| fig-cap: "Predicted occupancy map."
+#| fig-alt: "Using the percent tree cover as a spatial predictor"
+# cut large raster 
+box <- ext(-77.18,-77.11, 7.800, 7.89) # make a box xmin, xmax, ymin, ymax
+library(raster)
+per_tree_cov_cut <- raster(crop(per_tree_cov, box))# cut raster using the box
+# put correct name
+names(per_tree_cov_cut) <- "per_tree_cov"
+# predict
+map_occupancy <- ubms::predict(fit_j2,
+                               submodel="state",
+                               newdata=per_tree_cov_cut,
+                               transform=TRUE)
+
+katios_occu <- map_occupancy[[1]] # assign just prediction
+katios_occu[katios_occu >= 0.9] <- NA # convert river to NA
+
+# make a palette 9 colors yellow to green
+pal <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, "YlGn"))
+# plot map
+mapview(katios_occu, col.regions= pal, alpha = 0.5) + mapview(katios_sf, cex=2)
+
+```
+
+
+## Package Citation
+
+```{r }
+pkgs <- cite_packages(output = "paragraph", out.dir = ".") #knitr::kable(pkgs)
+pkgs
+
+```
+
+## Sesion info
+
+<details>
+
+<summary>Session info</summary>
+
+```{r sessioninfo, echo = FALSE}
+#| label: sessioninfo
+options(width = 120)
+devtools::session_info()
+```
+
+</details>
