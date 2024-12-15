@@ -1,59 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/posts/2024-07-29-sigle-season-occupancy/index.html</loc>
-    <lastmod>2024-07-31T17:28:07.634Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/posts/2024-07-05-multi-species-interacting-occupancy/index.html</loc>
-    <lastmod>2024-07-17T21:53:38.081Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/index.html</loc>
-    <lastmod>2024-07-01T17:59:34.939Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/index.html</loc>
-    <lastmod>2024-07-31T17:42:56.989Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/dataexploration.html</loc>
-    <lastmod>2024-06-21T22:22:50.650Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/about.html</loc>
-    <lastmod>2024-07-19T11:40:11.239Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/diversity.html</loc>
-    <lastmod>2024-06-20T20:47:53.286Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/posts/2024-06-15-visualizing-the-data/index.html</loc>
-    <lastmod>2024-07-05T13:25:41.559Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/posts/2024-06-25-species-diversity/index.html</loc>
-    <lastmod>2024-07-05T20:03:38.963Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dlizcano.github.io/cametrapcesar/posts/2024-07-17-stackmodel/index.html</loc>
-    <lastmod>2024-07-29T21:58:29.963Z</lastmod>
-  </url>
-  <url>
     <loc>https://dlizcano.github.io/cametrap/index.html</loc>
     <lastmod>2024-07-31T17:42:56.989Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dlizcano.github.io/cametrap/posts/2024-12-15-riqueza/index.html</loc>
+    <lastmod>2024-12-15T10:39:19.871Z</lastmod>
   </url>
   <url>
     <loc>https://dlizcano.github.io/cametrap/posts/2024-07-29-sigle-season-occupancy/index.html</loc>
     <lastmod>2024-11-07T19:28:43.141Z</lastmod>
   </url>
   <url>
-    <loc>https://dlizcano.github.io/cametrap/posts/2024-07-17-stackmodel/index.html</loc>
-    <lastmod>2024-10-31T22:47:44.692Z</lastmod>
+    <loc>https://dlizcano.github.io/cametrap/posts/2024-06-25-species-diversity/index.html</loc>
+    <lastmod>2024-12-15T10:33:48.705Z</lastmod>
   </url>
   <url>
-    <loc>https://dlizcano.github.io/cametrap/posts/2024-07-05-multi-species-interacting-occupancy/index.html</loc>
-    <lastmod>2024-08-20T08:36:08.319Z</lastmod>
+    <loc>https://dlizcano.github.io/cametrap/posts/2024-07-17-stackmodel/index.knit.html</loc>
+    <lastmod>2024-12-15T10:33:09.619Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dlizcano.github.io/cametrap/posts/2024-12-10-RAI/index.html</loc>
+    <lastmod>2024-12-15T10:18:52.043Z</lastmod>
   </url>
 </urlset>
