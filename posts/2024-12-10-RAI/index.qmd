@@ -21,7 +21,7 @@ categories: [R, cameratrap, curso]
 image: 'img/preview.jpg'
 draft: false
 citation: true
-bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-12-10-RAI/grateful-refs.bib
+bibliography: C:/Users/silvi/Documents/GitHub/cameratrap/posts/2024-12-10-RAI/grateful-refs.bib
 ---
 
 ## Cargar Paquetes
@@ -35,18 +35,18 @@ library(patchwork) # The Composer of Plots
 library(readxl) # Read Excel Files
 library(sf) # Simple Features for R
 library(mapview) # Interactive Viewing of Spatial Data in R
-library(terra) # Spatial Data Analysis
+# library(terra) # Spatial Data Analysis
 library(readr) # Read Rectangular Text Data
 
 library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses 
-library(adehabitatHR) # Home Range Estimation
-library(agricolae) # Statistical Procedures for Agricultural Research
-library(akima) # Interpolation of Irregularly and Regularly Spaced Data
-library(fuzzySim) # Fuzzy Similarity in Species Distributions
-library(MASS) # Support Functions and Datasets for Venables and Ripley's MASS
+# library(adehabitatHR) # Home Range Estimation
+# library(agricolae) # Statistical Procedures for Agricultural Research
+# library(akima) # Interpolation of Irregularly and Regularly Spaced Data
+# library(fuzzySim) # Fuzzy Similarity in Species Distributions
+# library(MASS) # Support Functions and Datasets for Venables and Ripley's MASS
 library(RColorBrewer) # ColorBrewer Palettes
 library(DT) # A Wrapper of the JavaScript Library 'DataTables'
-library(RAIeR) # Relative abundance index and encounter rate estimation cameratraps
+# library(RAIeR) # Relative abundance index and encounter rate estimation cameratraps
 
 library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
 library(tidyverse) # Easily Install and Load the 'Tidyverse'
@@ -97,12 +97,14 @@ RAI = \dfrac{Número de fotos independientes}{dias de camara * 100}
 $$
 
 ::: callout-important
-## RAI no es estimado de abundancia
+## RAI no es exactamente un buen estimado de abundancia
 
-Por eso mejor llamarla “FRECUENCIA DE CAPTURA” (Capture Rate).
+Por eso mejor llamarla *Frecuencia de Captura* (Capture Rate).
 :::
 
-Pueden ver una revision muy interesante en el articulo: [![Índice de abundancia relativa y tasa de encuentro con trampas cámara](img/RAI_Mandujano.jpg)](https://doi.org/10.47603/mano.v10n1.389)
+Pueden ver una revision muy interesante en el articulo:
+
+[![Índice de abundancia relativa y tasa de encuentro con trampas cámara](img/RAI_Mandujano.jpg)](https://doi.org/10.47603/mano.v10n1.389)
 
 ## Veamos un ejemplo
 
@@ -113,12 +115,12 @@ Son dos archivos uno de las camaras y otro de las especies.
 ```{r warning=FALSE}
 
 
-library(hrbrthemes)
+# library(hrbrthemes)
 library(viridis)
 
-cameras <- read.csv("data/survey_metadata_sp_rich.csv")
+cameras <- read.csv("C:/Users/silvi/Documents/GitHub/cameratrap/posts/2024-12-10-RAI/data/survey_metadata_sp_rich.csv")
 # sp recs
-sp_rec <- read.csv2("data/FAZ_sp_rec_only_mammals_indep_with_generics.csv", encoding = "LATIN1")
+sp_rec <- read.csv2("C:/Users/silvi/Documents/GitHub/cameratrap/posts/2024-12-10-RAI/data/FAZ_sp_rec_only_mammals_indep_with_generics.csv", encoding = "LATIN1")
 
 # Delete cams that were not active
 cameras1 <- cameras %>% 
@@ -147,10 +149,11 @@ datatable(sp_rec)
 
 Resulta en un listado de 5 partes: 
 
-reportTest[[1]] esfuerzo_muestreo. camera trap operation times and image date ranges reportTest[[2]] number of species by station 
-reportTest[[3]] number of events and number of stations by species 
-reportTest[[4]] registros_especies. number of species events by station 
-reportTest[[5]] number of species events by station including 0s (non-observed species)
+- reportTest[[1]] esfuerzo_muestreo. camera trap operation times and image date ranges 
+- reportTest[[2]] number of species by station 
+- reportTest[[3]] number of events and number of stations by species 
+- reportTest[[4]] registros_especies. number of species events by station 
+- reportTest[[5]] number of species events by station including 0s (non-observed species)
 
 ```{r}
 #now build the camp op
@@ -171,23 +174,24 @@ survey_rep <- surveyReport(recordTable = sp_rec,
 
 ### Calculemos el RAI
 
-Recuerda que es tasa de captura
+Recuerda que en realidad es mas tasa de captura que de abundancia.
 
-#### primero unimos
+#### primero unimos las dos tablas
 
 ```{r}
 esfuerzo_muestreo <- survey_rep[[1]]
 n_activas <- esfuerzo_muestreo[c("deployment_id", "n_nights_active")]
 wildlife.data <- merge(survey_rep[[4]], n_activas, all.y = T)
-datatable(wildlife.data)# 
+head(datatable(wildlife.data))# 
 ```
 
-#### renombramos
+#### renombramos algunas columnas
 
 ```{r}
 names(wildlife.data)[names(wildlife.data) == "deployment_id"] <- "Camera"
 names(wildlife.data)[names(wildlife.data) == "n_events"] <- "Events"
 names(wildlife.data)[names(wildlife.data) == "n_nights_active"] <- "Effort"
+names(wildlife.data)[names(wildlife.data) == "spanish_common_name"] <- "common_name"
 ```
 
 #### RAI general por especie
@@ -195,7 +199,7 @@ names(wildlife.data)[names(wildlife.data) == "n_nights_active"] <- "Effort"
 El RAI general que se calcula agrupando toda la información de las cámaras por especie.
 
 ```{r}
-RAI <- wildlife.data |> filter(spanish_common_name=="lapa") |> mutate (RAI_general=round ( (sum(Events) / sum(Effort) ) * 100, 2)) 
+RAI <- wildlife.data |> group_by(common_name) |> mutate (RAI_general=round ( (sum(Events) / sum(Effort) ) * 100, 2)) |> ungroup()
 datatable(RAI)
 ```
 
@@ -204,9 +208,37 @@ datatable(RAI)
 RAI alternativo
 
 ```{r}
-RAI <- wildlife.data |> filter(spanish_common_name=="lapa") |> mutate (RAI_camara=round ( Events / Effort * 100, 2)) 
-datatable(RAI)
+RAI2 <- RAI |> group_by(common_name) |> mutate (RAI_camara=round ( Events / Effort * 100, 2)) |> ungroup()
+datatable(RAI2)
 ```
+
+### Veamolo como grafica
+```{r}
+
+# Barplot
+ggplot(RAI, aes(x=reorder(common_name, RAI_general), y=RAI_general)) + 
+  geom_bar(stat = "identity") +
+  coord_flip()
+
+# Barplot
+# Plot
+RAI2 %>%
+  ggplot( aes(x=common_name, y=RAI_camara, fill=common_name)) +
+    geom_boxplot() + scale_x_discrete(guide = guide_axis(angle = 90)) +
+    scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+    geom_jitter(color="black", size=0.4, alpha=0.9) +
+    # theme_ipsum() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11)
+    ) +
+    ggtitle("RAI alternativo") +
+    xlab("")
+
+```
+
+
+
 
 ## Package Citation
 
