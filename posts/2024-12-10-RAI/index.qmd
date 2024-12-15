@@ -1,0 +1,231 @@
+---
+title: 'Esfuerzo de muestreo y RAI'
+subtitle: "Esfuerzo de muestreo y frecuencia de captura o abundancia relativa (RAI)"
+description: "Parte del Curso Introducción al Fototrampeo"
+author: 
+  - name: 'Diego J. Lizcano'
+    orcid: 0000-0002-9648-0576
+    affiliation: "WildMon"
+    affiliation-url: "https://wildmon.ai/team"
+  - name: 'Lain E. Pardo'
+    orcid: 0000-0002-2533-6577
+    affiliation: "Panthera"
+    affiliation-url: "https://panthera.org/colombia"
+  - name: 'Angélica Diaz-Pulido'
+    orcid: 0000-0003-4166-4084
+    affiliation: "IAvH"
+    affiliation-url: "https://www.humboldt.org.co/"
+date: '2024-12-10'
+file-modified: Sys.Date()
+categories: [R, cameratrap, curso]
+image: 'img/preview.jpg'
+draft: false
+citation: true
+bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-12-10-RAI/grateful-refs.bib
+---
+
+## Cargar Paquetes
+
+First we load some packages
+
+```{r setup, include=TRUE}
+
+library(grateful) # Facilitate Citation of R Packages
+library(patchwork) # The Composer of Plots
+library(readxl) # Read Excel Files
+library(sf) # Simple Features for R
+library(mapview) # Interactive Viewing of Spatial Data in R
+library(terra) # Spatial Data Analysis
+library(readr) # Read Rectangular Text Data
+
+library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses 
+library(adehabitatHR) # Home Range Estimation
+library(agricolae) # Statistical Procedures for Agricultural Research
+library(akima) # Interpolation of Irregularly and Regularly Spaced Data
+library(fuzzySim) # Fuzzy Similarity in Species Distributions
+library(MASS) # Support Functions and Datasets for Venables and Ripley's MASS
+library(RColorBrewer) # ColorBrewer Palettes
+library(DT) # A Wrapper of the JavaScript Library 'DataTables'
+library(RAIeR) # Relative abundance index and encounter rate estimation cameratraps
+
+library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
+library(tidyverse) # Easily Install and Load the 'Tidyverse'
+
+# source("C:/CodigoR/CameraTrapCesar/R/organiza_datos.R")
+
+```
+
+## INTRODUCCIÓN
+
+El estudio de mamíferos medianos y grandes en bosques tropicales suele ser difícil ya que muchas de estas especies son crípticas, nocturnas y esquivas, dificultando su detección. Los métodos tradicionales requieren de la captura de los animales y suelen ser costosos, de difícil manejo y poco efectivas. Por esta razón, estas técnicas han sido reemplazadas ampliamente por la técnica del fototrampeo, la cual usa cámaras fijas que se activan para captar imágenes de animales en el momento que pasan frente a la cámara, mediante sensores infrarrojos.
+
+Las cámaras trampa son utilizadas en investigaciones biológicas como una herramienta importante para determinar distintos parámetros ecológicos como densidad, ocurrencia, riqueza, entre otros. Las ventajas de esta técnica son muy amplias, por lo que su uso es cada vez más frecuente. Por esta razón es importante conocer las características de los equipos, los alcances y limitaciones del empleo de cámaras, así como tener claridad sobre el tipo de datos arrojados con esta técnica y su interpretación. El éxito de esta técnica, como de cualquier otra, depende a su vez de un adecuado planteamiento de las preguntas de investigación y diseño de muestreo, así como una base conceptual sólida que permita alcanzar los objetivos de investigación.
+
+En este curso queremos hacer una introducción general al fototrampeo donde los participantes entiendan como funcionan las cámaras trampa, que consideraciones se deben tener para el diseño de un estudio con fototrampeo, así como una introducción a tres análisis básicos (estimación de riqueza, abundancia relativa y horarios de actividad).
+
+## OBJETIVOS
+
+1.  Capacitar estudiantes de pregrado y personas interesadas en entender el uso y los alcances de la técnica del fototrampeo.
+
+2.  Entender de manera general como se diseña un estudio con fototrampeo y como se analizan e interpretan los datos derivados con énfasis en riqueza, abundancia relativa y patrones de actividad.
+
+## METODOLOGÍA
+
+El curso está estructurado en dos grandes temas. El primero concerniente a la técnica propiamente dicha y el segundo relacionado con las preguntas de investigación y su análisis. Todas las sesiones son teórico-prácticas y para los ejercicios de montaje de cámaras se hará una práctica corta al interior de la Universidad Nacional. Al finalizar el curso se entregará una carpeta digital con material relacionado como libros y artículos y las presentaciones en pdf, así como los códigos en R usados en las demostraciones.
+
+## Libro
+
+El curso incluye el Libro Fototrampeo en R de Salvador Mandujano [![Fototrampeo en R](img/libro.png)](https://github.com/SMandujanoR/Foto-trampeo-R-Vol_I)
+
+```{r}
+#| label: renv
+#| include: false
+# https://www.joelnitta.com/posts/2024-01-11_using_renv_with_blog/
+# library(renv)
+# renv::use(lockfile = "renv.lock")
+
+library(quarto) # R Interface to 'Quarto' Markdown Publishing System
+library(styler) # Non-Invasive Pretty Printing of R Code
+```
+
+## Indice de Abundancia Relativa (RAI)
+
+> Número de fotos por unidad de esfuerzo
+
+$$
+RAI = \dfrac{Número de fotos independientes}{dias de camara * 100}
+$$
+
+::: callout-important
+## RAI no es estimado de abundancia
+
+Por eso mejor llamarla “FRECUENCIA DE CAPTURA” (Capture Rate).
+:::
+
+Pueden ver una revision muy interesante en el articulo: [![Índice de abundancia relativa y tasa de encuentro con trampas cámara](img/RAI_Mandujano.jpg)](https://doi.org/10.47603/mano.v10n1.389)
+
+## Veamos un ejemplo
+
+### Carguemos los datos
+
+Son dos archivos uno de las camaras y otro de las especies.
+
+```{r warning=FALSE}
+
+
+library(hrbrthemes)
+library(viridis)
+
+cameras <- read.csv("data/survey_metadata_sp_rich.csv")
+# sp recs
+sp_rec <- read.csv2("data/FAZ_sp_rec_only_mammals_indep_with_generics.csv", encoding = "LATIN1")
+
+# Delete cams that were not active
+cameras1 <- cameras %>% 
+              filter(!No_spp == 0) #
+  
+# check cams vs sp records
+
+not_in_cams <- left_join(sp_rec, cameras1, by ="deployment_id") 
+unique(not_in_cams$deployment_id) #OK
+
+```
+
+#### Camaras
+
+```{r}
+datatable(cameras)
+```
+
+#### Especies
+
+```{r}
+datatable(sp_rec)
+```
+
+### Usemos las funciones de camtrapR
+
+Resulta en un listado de 5 partes: 
+
+reportTest[[1]] esfuerzo_muestreo. camera trap operation times and image date ranges reportTest[[2]] number of species by station 
+reportTest[[3]] number of events and number of stations by species 
+reportTest[[4]] registros_especies. number of species events by station 
+reportTest[[5]] number of species events by station including 0s (non-observed species)
+
+```{r}
+#now build the camp op
+sp_rec$start_time <- as.POSIXct(sp_rec$start_time, format = "%Y-%m-%d %H:%M") #     
+
+survey_rep <- surveyReport(recordTable = sp_rec,
+                               CTtable = cameras1,
+                               speciesCol = "spanish_common_name", 
+                               stationCol = "deployment_id",
+                               setupCol = "start_date", 
+                               retrievalCol = "end_date",
+                               recordDateTimeCol = "start_time",
+                               makezip = F # prepara un archivo .zip, False here 
+                               #sinkpath = "data_out",
+                            # camOp = cam_op) # directorio donde guardara .zip
+                           )
+```
+
+### Calculemos el RAI
+
+Recuerda que es tasa de captura
+
+#### primero unimos
+
+```{r}
+esfuerzo_muestreo <- survey_rep[[1]]
+n_activas <- esfuerzo_muestreo[c("deployment_id", "n_nights_active")]
+wildlife.data <- merge(survey_rep[[4]], n_activas, all.y = T)
+datatable(wildlife.data)# 
+```
+
+#### renombramos
+
+```{r}
+names(wildlife.data)[names(wildlife.data) == "deployment_id"] <- "Camera"
+names(wildlife.data)[names(wildlife.data) == "n_events"] <- "Events"
+names(wildlife.data)[names(wildlife.data) == "n_nights_active"] <- "Effort"
+```
+
+#### RAI general por especie
+
+El RAI general que se calcula agrupando toda la información de las cámaras por especie.
+
+```{r}
+RAI <- wildlife.data |> filter(spanish_common_name=="lapa") |> mutate (RAI_general=round ( (sum(Events) / sum(Effort) ) * 100, 2)) 
+datatable(RAI)
+```
+
+#### RAI por especie por camara
+
+RAI alternativo
+
+```{r}
+RAI <- wildlife.data |> filter(spanish_common_name=="lapa") |> mutate (RAI_camara=round ( Events / Effort * 100, 2)) 
+datatable(RAI)
+```
+
+## Package Citation
+
+```{r }
+pkgs <- cite_packages(output = "paragraph", out.dir = ".") #knitr::kable(pkgs)
+pkgs
+
+```
+
+## Sesion info
+
+<details>
+
+<summary>Session info</summary>
+
+```{r sessioninfo, echo = FALSE}
+#| label: sessioninfo
+options(width = 120)
+devtools::session_info()
+```
+
+</details>
