@@ -83,6 +83,7 @@ div.csl-indent {
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
+<link href="../../favicon.png" rel="icon" type="image/png">
 <script src="../../site_libs/quarto-html/quarto.js"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -142,13 +143,13 @@ background-size: cover;
 <script src="../../site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script><link rel="stylesheet" href="../../styles.css">
 <meta property="og:title" content="Camera Trap Blog - Multispecies occupancy model">
 <meta property="og:description" content="Multispecies occupancy models combines information from multiple species to estimate both individual and community-level responses to environmental variables">
-<meta property="og:image" content="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/img/preview.png">
+<meta property="og:image" content="https://dlizcano.github.io/cametrap/posts/2024-06-20-multispecies-occupancy/img/preview.png">
 <meta property="og:site_name" content="Camera Trap Blog">
 <meta property="og:image:height" content="540">
 <meta property="og:image:width" content="875">
 <meta name="twitter:title" content="Camera Trap Blog - Multispecies occupancy model">
 <meta name="twitter:description" content="Multispecies occupancy models combines information from multiple species to estimate both individual and community-level responses to environmental variables">
-<meta name="twitter:image" content="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/img/preview.png">
+<meta name="twitter:image" content="https://dlizcano.github.io/cametrap/posts/2024-06-20-multispecies-occupancy/img/preview.png">
 <meta name="twitter:image-height" content="540">
 <meta name="twitter:image-width" content="875">
 <meta name="twitter:card" content="summary_large_image">
@@ -173,8 +174,9 @@ background-size: cover;
 <span class="menu-text">Data exploration</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../diversity.html"> 
-<span class="menu-text">Diversity</span></a>
+    <span class="nav-link">
+<span class="menu-text">diversity.qmd</span>
+    </span>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../about.html"> 
@@ -302,7 +304,7 @@ background-size: cover;
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://mc-stan.org/bayesplot/">bayesplot</a></span><span class="op">)</span> <span class="co"># Plotting for Bayesian Models # Plotting for Bayesian Models </span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">SpadeR</span><span class="op">)</span> <span class="co"># Species-Richness Prediction and Diversity Estimation with R </span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jabiru/tictoc">tictoc</a></span><span class="op">)</span> <span class="co"># Functions for Timing R Scripts, as Well as Implementations of "Stack" and "StackList" Structures </span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">beepr</span><span class="op">)</span> <span class="co"># Easily Play Notification Sounds on any Platform </span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rasmusab/beepr">beepr</a></span><span class="op">)</span> <span class="co"># Easily Play Notification Sounds on any Platform </span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">snowfall</span><span class="op">)</span> <span class="co"># Easier Cluster Computing (Based on 'snow')</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://mc-stan.org/bayesplot/">bayesplot</a></span><span class="op">)</span> <span class="co"># Plotting for Bayesian Models # Plotting for Bayesian Models </span></span>
 <span></span>
@@ -626,12 +628,12 @@ background-size: cover;
 <span></span>
 <span><span class="co"># Formatear los datos a un vector de frecuencia</span></span>
 <span><span class="va">inci_Chao</span> <span class="op">&lt;-</span> <span class="va">ylist</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>  <span class="co"># historias de captura</span></span>
-<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span><span class="op">(</span><span class="va">.</span>,na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="co"># sumo las detecciones en cada sitio</span></span>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rowSums.html">rowSums</a></span><span class="op">(</span><span class="va">.</span>,na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="co"># sumo las detecciones en cada sitio</span></span>
 <span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/reduce.html">reduce</a></span><span class="op">(</span><span class="va">cbind</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="co"># unimos las listas</span></span>
 <span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/transpose.html">t</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="co"># trasponer la tabla</span></span>
 <span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="co">#formato tibble</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate_all.html">mutate_if</a></span><span class="op">(</span><span class="va">is.numeric</span>,<span class="op">~</span><span class="op">(</span><span class="va">.</span><span class="op">&gt;=</span><span class="fl">1</span><span class="op">)</span><span class="op">*</span><span class="fl">1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>  <span class="co">#como es incidencia, formateo a 1 y 0</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>  <span class="co"># ahora si la suma de las incidencias en cada sitio</span></span>
+<span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/rowSums.html">rowSums</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>  <span class="co"># ahora si la suma de las incidencias en cada sitio</span></span>
 <span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/add_row.html">add_row</a></span><span class="op">(</span>value<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">CToperation</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, .before <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>  <span class="co"># el formato requiere que el primer valor sea el número de sitios</span></span>
 <span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/coerce.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Requiere formato de matriz</span></span>
@@ -1027,12 +1029,12 @@ Zhu, Hao. 2024. <em><span class="nocase">kableExtra</span>: Construct Complex Ta
   author = {J. Lizcano, Diego},
   title = {Multispecies Occupancy Model},
   date = {2024-06-23},
-  url = {https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/},
+  url = {https://dlizcano.github.io/cametrap/posts/2024-06-20-multispecies-occupancy/},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-j._lizcano2024" class="csl-entry quarto-appendix-citeas" role="listitem">
 J. Lizcano, Diego. 2024. <span>“Multispecies Occupancy Model.”</span>
-June 23, 2024. <a href="https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/">https://dlizcano.github.io/cametrapcesar/posts/2024-06-20-multispecies-occupancy/</a>.
+June 23, 2024. <a href="https://dlizcano.github.io/cametrap/posts/2024-06-20-multispecies-occupancy/">https://dlizcano.github.io/cametrap/posts/2024-06-20-multispecies-occupancy/</a>.
 </div></div></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -1269,7 +1271,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/dlizcano\.github\.io\/cametrapcesar");
+      var filterRegex = new RegExp("https:\/\/dlizcano\.github\.io\/cametrap");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
@@ -1599,7 +1601,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script><script src="https://utteranc.es/client.js" repo="dlizcano/dlizcano.github.io" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
 </script>
 </div> <!-- /content -->
-<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","openEffect":"zoom","loop":false,"selector":".lightbox","closeEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

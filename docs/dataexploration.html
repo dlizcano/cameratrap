@@ -30,6 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./favicon.png" rel="icon" type="image/png">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -101,8 +102,9 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Data exploration</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./diversity.html"> 
-<span class="menu-text">Diversity</span></a>
+    <span class="nav-link">
+<span class="menu-text">diversity.qmd</span>
+    </span>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./about.html"> 
@@ -140,9 +142,13 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#load-the-data" id="toc-load-the-data" class="nav-link active" data-scroll-target="#load-the-data">Load the data</a>
+  <li><a href="#why-data-exploration-is-crucial-for-biodiversity-and-camera-trap-projects" id="toc-why-data-exploration-is-crucial-for-biodiversity-and-camera-trap-projects" class="nav-link active" data-scroll-target="#why-data-exploration-is-crucial-for-biodiversity-and-camera-trap-projects">Why Data Exploration is Crucial for Biodiversity and Camera Trap Projects</a>
   <ul class="collapse">
-  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description">Description</a></li>
+  <li><a href="#revealing-hidden-patterns-and-trends" id="toc-revealing-hidden-patterns-and-trends" class="nav-link" data-scroll-target="#revealing-hidden-patterns-and-trends">1. Revealing Hidden Patterns and Trends</a></li>
+  <li><a href="#identifying-and-correcting-errors-avoid-garbage-in-garbage-out" id="toc-identifying-and-correcting-errors-avoid-garbage-in-garbage-out" class="nav-link" data-scroll-target="#identifying-and-correcting-errors-avoid-garbage-in-garbage-out">2. Identifying and Correcting Errors (Avoid Garbage In, Garbage Out!)</a></li>
+  <li><a href="#guiding-hypothesis-generation-and-research-questions" id="toc-guiding-hypothesis-generation-and-research-questions" class="nav-link" data-scroll-target="#guiding-hypothesis-generation-and-research-questions">3. Guiding Hypothesis Generation and Research Questions</a></li>
+  <li><a href="#informing-sampling-strategies-and-future-research" id="toc-informing-sampling-strategies-and-future-research" class="nav-link" data-scroll-target="#informing-sampling-strategies-and-future-research">4. Informing Sampling Strategies and Future Research</a></li>
+  <li><a href="#effective-communication-and-storytelling" id="toc-effective-communication-and-storytelling" class="nav-link" data-scroll-target="#effective-communication-and-storytelling">5. Effective Communication and Storytelling</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -170,10 +176,52 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="load-the-data" class="level2">
-<h2 class="anchored" data-anchor-id="load-the-data">Load the data</h2>
-<section id="description" class="level3">
-<h3 class="anchored" data-anchor-id="description">Description</h3>
+<section id="why-data-exploration-is-crucial-for-biodiversity-and-camera-trap-projects" class="level2">
+<h2 class="anchored" data-anchor-id="why-data-exploration-is-crucial-for-biodiversity-and-camera-trap-projects">Why Data Exploration is Crucial for Biodiversity and Camera Trap Projects</h2>
+<p>The natural world is complex full of intricate interactions. Understanding this complexity is vital for conservation efforts. Technology is providing us with powerful tools to gather data. Among the most popular and effective are camera traps – silent sentinels capturing candid moments of wildlife, day and night.</p>
+<p>But collecting data is only the first step. Imagine a vast library filled with millions of books, uncatalogued and unread. That’s what raw camera trap data can be without proper exploration. Data exploration is the process of sifting through, visualizing, and understanding your data <em>before</em> diving into complex analyses. And when it comes to biodiversity and camera trap projects, it’s not just important – it’s absolutely critical.</p>
+<p>Here’s why:</p>
+<section id="revealing-hidden-patterns-and-trends" class="level3">
+<h3 class="anchored" data-anchor-id="revealing-hidden-patterns-and-trends">1. Revealing Hidden Patterns and Trends</h3>
+<p>Think of data exploration as shining a spotlight into the dark corners of your dataset. Before you even formulate a hypothesis, exploring your data can reveal surprising patterns, trends, and anomalies you might otherwise miss.</p>
+<ul>
+<li><p><strong>Species Activity Patterns:</strong> When are certain animals most active? Are they nocturnal, diurnal, or crepuscular? Exploring temporal data can show peaks and troughs in activity, informing our understanding of their ecology and potential human-wildlife conflict.</p></li>
+<li><p><strong>Spatial Distribution:</strong> Where are different species congregating? Are there areas they avoid? Visualizing spatial data can highlight critical habitats, movement corridors, or barriers.</p></li>
+<li><p><strong>Inter-species Relationships:</strong> Do certain species appear together or avoid each other? Preliminary exploration can hint at predator-prey dynamics or competitive exclusion.</p></li>
+</ul>
+</section>
+<section id="identifying-and-correcting-errors-avoid-garbage-in-garbage-out" class="level3">
+<h3 class="anchored" data-anchor-id="identifying-and-correcting-errors-avoid-garbage-in-garbage-out">2. Identifying and Correcting Errors (Avoid Garbage In, Garbage Out!)</h3>
+<p>No dataset is perfect. Misidentifications, incorrect timestamps, camera malfunctions or excel dates formats can all introduce errors. Data exploration acts as your first line of defense against these inaccuracies.</p>
+<ul>
+<li><p><strong>Spotting Outliers:</strong> An unusually high number of detections for a particular species in one location, or a sudden drop-off, could indicate a data entry error or a camera malfunction.</p></li>
+<li><p><strong>Checking Data Integrity:</strong> Visualizing distributions of variables can quickly highlight impossible values (e.g., a camera trap recording an animal at a negative temperature) or inconsistencies. Catching these early saves immense time and ensures the validity of your subsequent analyses.</p></li>
+</ul>
+</section>
+<section id="guiding-hypothesis-generation-and-research-questions" class="level3">
+<h3 class="anchored" data-anchor-id="guiding-hypothesis-generation-and-research-questions">3. Guiding Hypothesis Generation and Research Questions</h3>
+<p>Effective research begins with well-formed questions. Data exploration helps you refine existing hypotheses and generate new, more targeted ones.</p>
+<ul>
+<li><p>If your exploration shows a strong correlation between a specific habitat type and a rare species, you might formulate a hypothesis about habitat preference.</p></li>
+<li><p>Discovering an unexpected species in an area could lead to new questions about range expansion or previously unrecorded populations.</p></li>
+</ul>
+</section>
+<section id="informing-sampling-strategies-and-future-research" class="level3">
+<h3 class="anchored" data-anchor-id="informing-sampling-strategies-and-future-research">4. Informing Sampling Strategies and Future Research</h3>
+<p>Understanding the nuances of your current data can significantly improve future data collection efforts.</p>
+<ul>
+<li><p><strong>Optimizing Camera Placement:</strong> If exploration reveals certain areas consistently yield more valuable data, you can adjust your camera trap placement in subsequent deployments.</p></li>
+<li><p><strong>Refining Survey Timings:</strong> If your data shows that a target species is primarily active during a specific short window, you might focus your efforts during those times.</p></li>
+<li><p><strong>Identifying Data Gaps:</strong> Exploration can highlight areas or time periods where you have insufficient data, prompting you to adjust your sampling strategy.</p></li>
+</ul>
+</section>
+<section id="effective-communication-and-storytelling" class="level3">
+<h3 class="anchored" data-anchor-id="effective-communication-and-storytelling">5. Effective Communication and Storytelling</h3>
+<p>Visualizations born from data exploration and are a powerful tool for communicating your findings to a wider audience – stakeholders, policymakers, or the general public.</p>
+<ul>
+<li><p><strong>Engaging Infographics:</strong> Simple bar charts showing species richness or heat maps illustrating animal density can be far more impactful than raw numbers.</p></li>
+<li><p><strong>Highlighting Key Insights:</strong> Visualizing your data allows you to tell a compelling story about the wildlife you’re studying and the conservation challenges they face.</p></li>
+</ul>
 
 
 </section>
@@ -416,7 +464,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/dlizcano\.github\.io\/cametrapcesar");
+      var filterRegex = new RegExp("https:\/\/dlizcano\.github\.io\/cametrap");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
