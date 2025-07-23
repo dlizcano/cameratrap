@@ -1,6 +1,6 @@
 ---
 title: 'Species diversity'
-subtitle: "Species acumulation curves, rarefaction and other plots"
+subtitle: "Species accumulation curves, rarefaction and other plots"
 description: "using packages `vegan` and `iNext` to analyze diversity on camera trap data"
 author: 
   - name: 'Diego J. Lizcano'
@@ -14,19 +14,17 @@ citation: true
 bibliography: "C:/CodigoR/CameraTrapCesar/posts/2024-06-25-species-diversity/grateful-refs.bib"
 ---
 
-
-## Species richness and sampling effort  
+## Species richness and sampling effort
 
 There are two commonly used ways to account for survey effort when estimating species richness using camera traps:
 
-1. using the rarefaction of observed richness.  
+1.  using the rarefaction of observed richness.
 
-2. using multispecies occupancy models to account for the species present but not observed (occupancy model). 
+2.  using multispecies occupancy models to account for the species present but not observed (occupancy model, taking in to account imperfect detection).
 
 In this post we can see an example of No 1. using the classical approach of community ecology using the `vegan` package. The vegan package (https://cran.r-project.org/package=vegan) provides tools for descriptive community ecology. It has basic functions of diversity analysis, community ordination and dissimilarity analysis. The vegan package provides most standard tools of descriptive community analysis. Later in the post we carry out another diversity analysis using functions of the package `iNEXT`.
 
 The modern approach to measure species diversity include the "Sample Hill diversities" also known as Hill numbers. Rarefaction and extrapolation with Hill numbers have gain popularity in the last decade and can be computed using the function `renyi` in the R package `vegan` (Oksanen 2016) and the function `rarity` in the R package `MeanRarity` (Roswell and Dushoff 2020), and Hill diversities of equal-sized or equal-coverage samples can be approximately compared using the functions `iNEXT` and `estimateD` in the R package `iNEXT` (Hsieh et al. 2016). Estimates for asymptotic values of Hill diversity are available in `SpadeR` (Chao and Jost 2015, Chao et al. 2015).
-
 
 
 ## Load packages
@@ -61,8 +59,6 @@ library(plotly)
 
 ```
 
-
-
 ## Load data
 
 ```{r warning=FALSE}
@@ -75,15 +71,11 @@ habs <- read.csv("C:/CodigoR/CameraTrapCesar/data/habitats.csv")
 
 ```
 
-
-
-
 ## Pooling together several sites
 
-For this example I selected one year for the sites: Becerril 2021, LaPaz_Manaure 2019, MLJ, CL1, CL2 and PCF.  Sometimes we need to make unique codes per camera and cameraOperation table. This was not the case.
+For this example I used data gathered by [fundación Galictis](https://www.linkedin.com/company/fundaci%C3%B3n-galictis) in Perija, Colombia. I selected one year for the sites: Becerril 2021, LaPaz_Manaure 2019, MLJ, CL1, CL2 and PCF. Sometimes we need to make unique codes per camera and cameraOperation table. This was not the case.
 
-For this example we are using the habitat type were the camera was installed as a way to see the sampling effort (number of cameras) per habitat type. Th habitat type was extracted overlaying the camera points on top of the [Land Cover 100m global dataset from COPERNICUS](https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_Landcover_100m_Proba-V-C3_Global#bands) using Google Earth engine connected to R. How to do this will be in another post. 
-
+For this example we are using the habitat type were the camera was installed as a way to see the sampling effort (number of cameras) per habitat type. The habitat type was extracted overlaying the camera points on top of the [Land Cover 100m global dataset from COPERNICUS](https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_Landcover_100m_Proba-V-C3_Global#bands) using Google Earth engine connected to R. How to do this will be in another post.
 
 ```{r}
 # make a new column Station
@@ -125,13 +117,9 @@ CToperation  <- data_south |>
 
 ```
 
+## Generating the cameraOperation table and making detection histories for all the species.
 
-
-
-
-## Generating the cameraOperation table and making detection histories for all the species. 
-
-The package CamtrapR has the function 'cameraOperation' which makes a table of cameras (stations) and dates (setup, puck-up), this table is key to generate the detection histories using the function 'detectionHistory' in the next step. 
+The package CamtrapR has the function 'cameraOperation' which makes a table of cameras (stations) and dates (setup, puck-up), this table is key to generate the detection histories using the function 'detectionHistory' in the next step.
 
 ```{r }
 # Generamos la matríz de operación de las cámaras
@@ -181,11 +169,9 @@ ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
   
 ```
 
-
 ## Use the detection histories to make the a matrix for `vegan` and the incidence for `iNEXT`.
 
 Species accumulation curves made using the package vegan, plot the increase in species richness as we add survey units. If the curve plateaus (flattens), then that suggests you have sampled the majority of the species in your survey site (camera or habitat type).
-
 
 ```{r}
 # loop to make vegan matrix
@@ -268,7 +254,6 @@ incidence_cesar <- within(incidence_cesar, rm("herbaceous_wetland"))
 
 ```
 
-
 ## To start lets plot the species vs sites
 
 ```{r}
@@ -303,18 +288,16 @@ p <- ggplot(df, aes(Species, Sampled_site)) +
 p
  
 ```
+
 > Notice how some cameras didn't record any species. Here showed as the gay horizontal line. Perhaps we need to delete those cameras.
 
-
 ## Rarefaction using `vegan`
- 
-> Notice that sites are cameras and the acumulation is species per camera not time
- 
+
+> Notice that sites are cameras and the accumulation is species per camera not time
+
 Rarefaction is a technique to assess expected species richness. Rarefaction allows the calculation of species richness for a given number of individual samples, based on the construction of rarefaction curves.
 
 The issue that occurs when sampling various species in a community is that the larger the number of individuals sampled, the more species that will be found. Rarefaction curves are created by randomly re-sampling the pool of N samples multiple times and then plotting the average number of species found in each sample (1,2, … N). “Thus rarefaction generates the expected number of species in a small collection of n individuals (or n samples) drawn at random from the large pool of N samples.”. Rarefaction curves generally grow rapidly at first, as the most common species are found, but the curves plateau as only the rarest species remain to be sampled.
-
-
 
 ```{r}
 
@@ -346,9 +329,7 @@ plot(pool)
 
 ### Ranked abundance distribution
 
-An alternative approach to species abundance distribution is to plot logarithmic abundances in decreasing order, or against ranks of species. 
-
-
+An alternative approach to species abundance distribution is to plot logarithmic abundances in decreasing order, or against ranks of species.
 
 ```{r}
 k <- sample(nrow(mat_vegan), 1)
@@ -358,7 +339,6 @@ radlattice(rad)
 
 
 ```
-
 
 ### Hill Diversities using vegan
 
@@ -372,7 +352,7 @@ plot(mod, as.table=TRUE, col = c(1, 2, 2))
 persp(mod)
 ```
 
-### Total number of species 
+### Total number of species
 
 ```{r}
 DT::datatable(round(specpool(mat_vegan),3))
@@ -381,7 +361,7 @@ DT::datatable(round(specpool(mat_vegan),3))
 
 ### Number of unseen species per camera
 
-Look at S.chao1 
+Look at S.chao1
 
 ```{r}
 DT::datatable(
@@ -396,11 +376,9 @@ S_per_site$Station <- rownames(S_per_site)
 
 It is weird to have .5 species in some sites.
 
+## Map it converting Cameratrap-operation to sf
 
-
-## Map it converting Cameratrap-operation to sf 
-
-In this step we convert the Cameratrap-operation table to sf, we add elevation from AWS, habitat type and species per site (S.chao1) to finally visualize the map showing the number of species as the size of the dot.
+In this step we convert the Cameratrap-operation table to sf, we add elevation from Amazon web Services (AWS), habitat type and species per site (S.chao1) to finally visualize the map showing the number of species as the size of the dot.
 
 ```{r}
 
@@ -429,8 +407,7 @@ mapview(CToperation_elev_sf, zcol="hab_code", cex = "S.chao1", alpha = 0)
 
 ## Perhaps it is easyer to plot the species number as a countour map
 
-One advantage of using the eks density estimate, is that it is clearer what the output means. The 20% contour means “20% of the measurements lie inside this contour”. The documentation for eks takes issue with how stat_density_2d does its calculation, I don't know who is right because the estimated value is species.
-
+One advantage of using the `eks` density estimate, is that it is clearer what the output means. The 20% contour means “20% of the measurements lie inside this contour”. The documentation for `eks` takes issue with how `stat_density_2d` from `ggplot2` does its calculation, I don't know who is right because the estimated value is species and both graphs are similar.
 
 ```{r}
 # select chao
@@ -467,8 +444,7 @@ tmap::tm_shape(species) +
 #     coord_sf(xlim=xlim, ylim=ylim) 
 ```
 
-> In general terms the species estimate per site seems to be larger near the mine and decrease with the distance to the mine. Also notice kernel density estimates are larger than s.chao1.
-
+> In general terms the species estimate per site seems to be larger near the coal mine and decrease with the distance to the mine. Also notice kernel density estimates are larger than s.chao1.
 
 ## Nonmetric Multidimensional Scaling (NMDS)
 
@@ -538,9 +514,7 @@ ordiplot <- gg_ordisurf(ord = example_NMDS,
 
 ```
 
-The contours connect species in the ordination space that are predicted to have the same elevation.
-
-
+The contours connect species in the ordination space that are predicted to have the same elevation. Notice this is not a geographic map, it is a multivariate space.
 
 ## Rarefaction using `iNEXT`
 
@@ -576,10 +550,6 @@ ggiNEXT(out2, type=1, facet.var="Order.q", color.var="Assemblage") + theme_class
 
 The `iNEXT` package is well suited for comparisons of diversity indices through the use of hill numbers - of which the `q` value = 1 represents the traditional diversity indices: The species richness is q = 0. The Shannon index is (q=1), and Simpson is (q=2). Note Increasing values of q reduces the influence of rare species on our estimate of community diversity.
 
-
-
-
-
 ## Package Citation
 
 ```{r }
@@ -591,7 +561,7 @@ pkgs
 ## Sesion info
 
 <details>
-  
+
 <summary>Session info</summary>
 
 ```{r sessioninfo, echo = FALSE}
@@ -601,5 +571,3 @@ devtools::session_info()
 ```
 
 </details>
-
-

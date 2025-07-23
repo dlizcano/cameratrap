@@ -1,11 +1,20 @@
 ---
 title: 'Riqueza de especies'
-subtitle: "Species acumulation curves, rarefaction and other plots"
-description: "using packages `vegan` and `iNext` to analyze diversity on camera trap data"
+subtitle: "Curvas de acumulación de especies, rarefacción y otras gráficas"
+description: "Uso de los paquetes `vegan` y `iNext` para analizar la diversidad con datos de fototrampeo"
 author: 
   - name: 'Diego J. Lizcano'
     orcid: 0000-0002-9648-0576
     affiliation: "WildMon"
+    affiliation-url: "https://wildmon.ai/team"
+  - name: 'Camilo Fernández-Rodríguez'
+    orcid: 0000-0002-4256-7713
+    affiliation: "Fundación Galictis"
+    affiliation-url: "https://www.linkedin.com/company/fundaci%C3%B3n-galictis"
+  - name: 'Katherine Pérez-Gómez'
+    orcid: 0000-0002-4416-1282
+    affiliation: "Fundación Galictis"
+    affiliation-url: "https://www.linkedin.com/company/fundaci%C3%B3n-galictis"
 date: '2024-06-25'
 file-modified: Sys.Date()
 categories: [R, diversity, accumulation, effort]
@@ -18,15 +27,14 @@ bibliography: "C:/CodigoR/CameraTrapCesar/posts/2024-06-25-species-diversity/gra
 
 Hay dos formas de uso común para tener en cuenta el esfuerzo de muestreo al estimar la riqueza de especies mediante cámaras trampa:
 
-utilizando la rarefacción de la riqueza observada.
+1.  Utilizando la rarefacción de la riqueza observada.
+2.  Utilizando modelos de ocupación multiespecie para tener en cuenta las especies presentes pero no observadas (teniendo en cuenta la detección imperfecta).
 
-utilizando modelos de ocupación multiespecie para tener en cuenta las especies presentes pero no observadas (modelo de ocupación).
+En este post podemos ver un ejemplo del número 1 utilizando el enfoque clásico de la ecología de comunidades usando el paquete `vegan`. El paquete `vegan` ([https://cran.r-project.org/package=vegan](https://vegandevs.github.io/vegan/)) proporciona herramientas para describir la ecología de las comunidades. Este paquete tiene funciones básicas de análisis de diversidad, ordenación de comunidades y análisis de disimilitud. El paquete `vegan` proporciona la mayoría de las herramientas estándar para el análisis descriptivo de comunidades principalmente de comunidades vegetales, pero sus conceptos tambien pueden ser aplicados a la fauna. Más adelante en este post realizamos otro análisis de diversidad utilizando algunas funciones del paquete `iNEXT`.
 
-En este post podemos ver un ejemplo del número 1 utilizando el enfoque clásico de la ecología de comunidades utilizando el paquete vegan. El paquete vegan (https://cran.r-project.org/package=vegan) proporciona herramientas para la ecología descriptiva de comunidades. Tiene funciones básicas de análisis de diversidad, ordenación de comunidades y análisis de disimilitud. El paquete vegan proporciona la mayoría de las herramientas estándar de análisis descriptivo de comunidades. Más adelante en el artículo realizamos otro análisis de diversidad utilizando funciones del paquete iNEXT.
+El enfoque moderno para medir la diversidad de especies incluye los "numeros de Hill". La rarefacción y la extrapolación con números de Hill han ganado popularidad en la última década y se pueden calcular utilizando la función `renyi` en el paquete `vegan` (Oksanen 2016) y la función `rarity` en el paquete `MeanRarity` (Roswell y Dushoff 2020), y las diversidades de Hill de muestras de igual tamaño o igual cobertura se pueden comparar utilizando las funciones `iNEXT` y `estimateD` del paquete `iNEXT` (Hsieh et al. 2016). Las estimaciones para valores asintóticos de diversidad de Hill están tambien disponibles en el paquete `SpadeR` (Chao y Jost 2015, Chao et al. 2015).
 
-El enfoque moderno para medir la diversidad de especies incluye los "numeros de Hill". La rarefacción y la extrapolación con números de Hill han ganado popularidad en la última década y se pueden calcular utilizando la función renyi en el paquete R vegan (Oksanen 2016) y la función rarity en el paquete R MeanRarity (Roswell y Dushoff 2020), y las diversidades de Hill de muestras de igual tamaño o igual cobertura se pueden comparar utilizando las funciones iNEXT y estimateD en el paquete R iNEXT (Hsieh et al. 2016). Las estimaciones para valores asintóticos de diversidad de Hill están disponibles en SpadeR (Chao y Jost 2015, Chao et al. 2015).
-
-## Load packages
+## Cargar Paquetes
 
 ```{r setup, include=TRUE}
 
@@ -36,17 +44,17 @@ library(readxl) # Read Excel Files
 library(sf) # Simple Features for R
 library(elevatr) # Access Elevation Data from Various APIs
 library(mapview) # Interactive Viewing of Spatial Data in R
-library(tmap)
+library(tmap) # nice maps in R
 library(eks) # make countours
 library(grateful) # Facilitate Citation of R Packages
 library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses
 library(vegan) # Community Ecology Package 
-library(ggvegan)
+library(ggvegan) # vegan adaptation for ggplot
 # library(BiodiversityR) # cause error!
 library(ggordiplots)
 library(grid)
 library(gridExtra)
-library(DT)
+library(DT) # tablas en R
 library(MeanRarity)
 library(SpadeR)
 library(iNEXT) # Interpolation and Extrapolation for Species Diversity
@@ -58,11 +66,12 @@ library(plotly)
 
 ```
 
-## Load data
+## Cargar los Datos
 
 ```{r warning=FALSE}
 
-datos <- read_excel("C:/CodigoR/CameraTrapCesar/data/CT_Cesar.xlsx")
+datos <- read_excel("C:/CodigoR/CameraTrapCesar/data/CT_CESAR_editada2025.xlsx",
+    sheet = "ImageData")
 
 # habitat types extracted from Copernicus
 habs <- read.csv("C:/CodigoR/CameraTrapCesar/data/habitats.csv")
@@ -72,53 +81,53 @@ habs <- read.csv("C:/CodigoR/CameraTrapCesar/data/habitats.csv")
 
 ## Agrupación de varios sitios
 
-Para este ejemplo, seleccioné un año para los sitios: Becerril 2021, LaPaz_Manaure 2019, MLJ, CL1, CL2 y PCF. A veces, necesitamos crear códigos únicos por cámara y tabla cameraOperation. Este no fue el caso.
+Para este ejemplo usaremos datos de la [Fundación Galictis](https://www.linkedin.com/company/fundaci%C3%B3n-galictis) y la [Fundación Carboandes](https://fundacioncarboandes.org/), que fueron tomados en varias localidade de la Serrania del Perija. En este caso seleccioné un año para los sitios: Becerril 2021 y LaPaz_Manaure 2019. Algunas veces, necesitamos crear códigos únicos por cámara y una tabla que relaciona las fechas de operacion de cada camara, Sin embargo, este no fue el caso.
 
-Para este ejemplo, usamos el tipo de hábitat donde se instaló la cámara como una forma de ver el esfuerzo de muestreo (número de cámaras) por tipo de hábitat. El tipo de hábitat se extrajo superponiendo los puntos de la cámara sobre el [conjunto de datos global de cobertura terrestre de 100 m de COPERNICUS](https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_Landcover_100m_Proba-V-C3_Global#bands) utilizando el motor de Google Earth conectado a R. Cómo hacer esto se explicará en otra publicación.
+Para este ejemplo, usamos el tipo de hábitat donde se instaló la cámara como una categoria para comparar el esfuerzo de muestreo (número de cámaras) por tipo de hábitat. El tipo de hábitat se extrajo superponiendo los puntos de la cámara sobre el [conjunto de datos global de cobertura terrestre de 100 m de COPERNICUS](https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_Landcover_100m_Proba-V-C3_Global#bands) utilizando el Google Earth Engine conectado a R. Cómo hacer esto se explicará en otra publicación.
 
 ```{r}
 # make a new column Station
 # datos_PCF <- datos |> dplyr::filter(Proyecto=="CT_LaPaz_Manaure") |> unite ("Station", ProyectoEtapa:Salida:CT, sep = "-")
 
 # fix dates
-datos$Start <- as.Date(datos$Start, "%d/%m/%Y")
-datos$End <- as.Date(datos$End, "%d/%m/%Y")
-datos$eventDate <- as.Date(datos$eventDate, "%d/%m/%Y")
+datos$Start <- as.Date(datos$EM_Inicio, "%d/%m/%Y") #start camera trap
+datos$End <- as.Date(datos$EM_Fin, "%d/%m/%Y") # end camera trap
+datos$eventDate <- as.Date(datos$eventDate_correjido, "%d/%m/%Y")
 datos$eventDateTime <- ymd_hms(paste(datos$eventDate, " ",
-                              datos$eventTime, ":00", sep=""))
+                              datos$eventTime4_Final, ":00", sep=""))
 
 # filter Becerril
-datos_Becerril <- datos |> dplyr::filter(ProyectoEtapa=="CT_Becerril") |> mutate (Station=IdGeo) |> filter(Year==2021)
+datos_Becerril <- datos |> dplyr::filter(Proyecto=="Becerril") |> mutate (Station=ID_GEO) |> mutate(Year= year(eventDate)) |> filter(Year==2021)
 
 # filter LaPaz_Manaure
-datos_LaPaz_Manaure<- datos |> dplyr::filter(ProyectoEtapa=="CT_LaPaz_Manaure") |> mutate (Station=IdGeo) |> filter(Year==2019)
+datos_LaPaz_Manaure<- datos |> dplyr::filter(Proyecto=="LaPaz_Manaure") |> mutate (Station=ID_GEO) |> mutate(Year= year(eventDate)) |> filter(Year==2019)
 
 # filter MLJ
-datos_MLJ <- datos |> dplyr::filter(ProyectoEtapa=="MLJ_TH_TS_2021") |> mutate (Station=IdGeo)
+# datos_MLJ <- datos |> dplyr::filter(ProyectoEtapa=="MLJ_TH_TS_2021") |> mutate (Station=IdGeo)
 
 # filter CL
-datos_CL1 <- datos |> dplyr::filter(ProyectoEtapa=="CL-TH2022") |> mutate (Station=IdGeo)
+#datos_CL1 <- datos |> dplyr::filter(ProyectoEtapa=="CL-TH2022") |> mutate (Station=IdGeo)
 # filter CL
-datos_CL2 <- datos |> dplyr::filter(ProyectoEtapa=="CL-TS2022") |> mutate (Station=IdGeo)
+#datos_CL2 <- datos |> dplyr::filter(ProyectoEtapa=="CL-TS2022") |> mutate (Station=IdGeo)
 
 # filter PCF
-datos_PCF <- datos |> dplyr::filter(Proyecto=="PCF") |> mutate (Station=IdGeo)
+#datos_PCF <- datos |> dplyr::filter(Proyecto=="PCF") |> mutate (Station=IdGeo)
 
-data_south <- rbind(datos_LaPaz_Manaure, datos_Becerril, datos_MLJ,datos_CL1, datos_CL2,datos_PCF)
+data_south <- rbind(datos_LaPaz_Manaure, datos_Becerril) #, datos_MLJ,datos_CL1, datos_CL2,datos_PCF)
 
-# filter 2021 and make uniques
+# group and  and make uniques
 CToperation  <- data_south |> 
               # filter(Year==2021) |> 
               group_by(Station) |> 
-              mutate(minStart=min(Start), maxEnd=max(End)) |>  distinct(Longitude, Latitude, minStart, maxEnd, Year) |> 
+              mutate(minStart=min(Start), maxEnd=max(End)) |>  distinct(Lon, Lat, minStart, maxEnd, Year) |> 
   ungroup()
 
 
 ```
 
-## Generar la tabla cameraOperation y realizar los históricos de detección para todas las especies.
+## Generar la tabla cameraOperation y realizar las historias de detección para todas las especies
 
-El paquete CamtrapR tiene la función 'cameraOperation' que realiza una tabla de cámaras (estaciones) y fechas (setup, puck-up), esta tabla es clave para generar los históricos de detección utilizando la función 'detectionHistory' en el siguiente paso.
+El paquete `CamtrapR` tiene la función `cameraOperation` que realiza una tabla de cámaras (estaciones) y fechas (setup, puck-up), esta tabla es la clave para generar las historias de detección utilizando la función `detectionHistory` en el siguiente paso. Para simplificar la matriz y facilitar la convergencia del modelo estamos colapsando los datos a 7 dias.
 
 ```{r }
 # Generamos la matríz de operación de las cámaras
@@ -133,9 +142,12 @@ camop <- cameraOperation(CTtable= CToperation, # Tabla de operación
                          # sessionCol= "Year")
 
 # Generar las historias de detección ---------------------------------------
-## remove plroblem species
-# ind <- which(datos_PCF$Species=="Marmosa sp.")
-# datos_PCF <- datos_PCF[-ind,]
+## remove problem species
+ind <- which(data_south$Species=="Leopardus sp.")
+data_south <- data_south[-ind,]
+# ind <- which(data_south$Species=="Hydrochoerus isthmius")
+# data_south <- data_south[-ind,]
+
 
 DetHist_list <- lapply(unique(data_south$Species), FUN = function(x) {
   detectionHistory(
@@ -168,9 +180,11 @@ ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
   
 ```
 
-## Use the detection histories to make the a matrix for `vegan` and the incidence for `iNEXT`.
+## Usemos los historiales de detección para crear una matriz para `vegan` y la matriz de incidencia para `iNEXT`.
 
-Species accumulation curves made using the package vegan, plot the increase in species richness as we add survey units. If the curve plateaus (flattens), then that suggests you have sampled the majority of the species in your survey site (camera or habitat type).
+Las curvas de acumulación de especies, creadas con el paquete `vegan`, representan gráficamente el aumento de la riqueza de especies a medida que se añaden mas unidades de muestreo. Si la curva se estabiliza (se aplana o alcanza una asintota), esto indica que se ha muestreado la mayoría de las especies en el sitio de muestreo (en este caso la cámara o tipo de hábitat).
+
+Primero creamos una matriz para `vegan` y luego modificamos la matriz para crear la matriz de incidencias que se usa en el paquete `iNEXT`, la cual es una lista.
 
 ```{r}
 # loop to make vegan matrix
@@ -184,35 +198,38 @@ colnames(mat_vegan)  <- unique(data_south$Species)
 rownames(mat_vegan) <- rownames(ylist[[1]])
 
 mat_vegan2 <- as.data.frame(mat_vegan)
-mat_vegan2$hab <- habs$hab_code
+mat_vegan2$hab <- habs$hab_code[1:41]
 # mat_vegan3 <-  mat_vegan2 |> 
   
+# ver la estructura de la matriz
+datatable(head(mat_vegan))
+
 # Select specific rows by row numbers
 closed_forest_rows <- which(mat_vegan2$hab=="closed_forest_evergreen_broad")
-herbaceous_rows <- which(mat_vegan2$hab=="herbaceous_wetland")
+# herbaceous_rows <- which(mat_vegan2$hab=="herbaceous_wetland")
 herbs_rows <- which(mat_vegan2$hab=="herbs")
 open_forest_rows <- which(mat_vegan2$hab=="open_forest_evergreen_broad")
-open_forest2_rows <- which(mat_vegan2$hab=="open_forest_other")
+# open_forest2_rows <- which(mat_vegan2$hab=="open_forest_other")
 
 
 closed_forest <- apply(mat_vegan2[closed_forest_rows,1:22], MARGIN = 2, sum)
-herbaceous_wetland <- apply(mat_vegan2[herbaceous_rows,1:22], MARGIN = 2, sum)
+# herbaceous_wetland <- apply(mat_vegan2[herbaceous_rows,1:22], MARGIN = 2, sum)
 herbs  <- apply(mat_vegan2[herbs_rows,1:22], MARGIN = 2, sum)
 open_forest_evergreen <- apply(mat_vegan2[open_forest_rows,1:22], MARGIN = 2, sum)
-open_forest_other <- apply(mat_vegan2[open_forest2_rows,1:22], MARGIN = 2, sum)
+# open_forest_other <- apply(mat_vegan2[open_forest2_rows,1:22], MARGIN = 2, sum)
 
 # tb_sp <- mat_vegan2 |> group_by(hab)
 # hab_list <- group_split(tb_sp)
 
-# make list of dataframe per habitat
+# make list of dataframes per habitat
 sp_by_hab <- mat_vegan2 |> dplyr::group_by(hab) %>% split (.$hab)
 # arrange abundance (detection frecuency) mat for INEXT 
 cesar_sp <- t(rbind(
-t(colSums(sp_by_hab[[1]][,1:33])),
-t(colSums(sp_by_hab[[2]][,1:33])),
-t(colSums(sp_by_hab[[3]][,1:33])),
-t(colSums(sp_by_hab[[4]][,1:33])),
-t(colSums(sp_by_hab[[5]][,1:33]))
+t(colSums(sp_by_hab[[1]][,1:29])),
+t(colSums(sp_by_hab[[2]][,1:29])),
+t(colSums(sp_by_hab[[3]][,1:29]))
+# t(colSums(sp_by_hab[[4]][,1:30])),
+# t(colSums(sp_by_hab[[5]][,1:30]))
 ))
  
 colnames(cesar_sp) <- names(sp_by_hab)
@@ -240,10 +257,10 @@ f_incidences <- function(habitat_rows=closed_forest_rows){ylist %>%  # historias
 # Make an empty list to store our data
 incidence_cesar <- list() 
 incidence_cesar[[1]] <- f_incidences(closed_forest_rows)
-incidence_cesar[[2]] <- f_incidences(herbaceous_rows)
-incidence_cesar[[3]] <- f_incidences(herbs_rows)
-incidence_cesar[[4]] <- f_incidences(open_forest_rows)
-incidence_cesar[[5]] <- f_incidences(open_forest_other)
+# incidence_cesar[[2]] <- f_incidences(herbaceous_rows)
+incidence_cesar[[2]] <- f_incidences(herbs_rows)
+incidence_cesar[[3]] <- f_incidences(open_forest_rows)
+# incidence_cesar[[5]] <- f_incidences(open_forest_other)
 
 # put names
 names(incidence_cesar) <- names(sp_by_hab)
@@ -251,9 +268,12 @@ names(incidence_cesar) <- names(sp_by_hab)
 # we deleted this habitat type for making error
 incidence_cesar <- within(incidence_cesar, rm("herbaceous_wetland")) 
 
+# ver la estructura de la matriz de incidencias
+str(incidence_cesar)
+
 ```
 
-## Para comenzar, graficaremos las especies versus los sitios.
+## Para comenzar, graficaremos las especies versus los sitios
 
 ```{r}
 #| fig-height: 10
@@ -288,9 +308,9 @@ p
  
 ```
 
-> Observe cómo algunas cámaras no registraron ninguna especie. Aquí se muestra como la línea horizontal gay. Tal vez debamos eliminar esas cámaras.
+> Observe cómo algunas cámaras no registraron ninguna especie. Aquí se muestra como la línea horizontal gis. Tal vez debamos eliminar esas cámaras.
 
-## Rarefaction usando `vegan`
+## Rarefacción usando `vegan`
 
 > Tenga en cuenta que los sitios son cámaras y la acumulación es de especies por cámara, no de tiempo.
 
@@ -326,39 +346,72 @@ plot(pool)
 
 ```
 
-### Distribución de abundancia clasificada
+### Rango Abundancia Dominancia
 
-Un enfoque alternativo para la distribución de la abundancia de especies es representar gráficamente las abundancias logarítmicas en orden decreciente o en función de los rangos de especies.
+Un enfoque alternativo para la distribución de la abundancia de especies es representar gráficamente las abundancias logarítmicas en orden decreciente o en función de los rangos de especies. Estos tambien son conocidos como Whittaker plots. 
+
+Las curvas de Rango Abundancia Dominancia muestran la abundancia logarítmica de las especies en función de su orden jerárquico. Se supone que estos gráficos son eficaces para analizar los tipos de distribución de la abundancia en las comunidades. 
 
 ```{r}
 k <- sample(nrow(mat_vegan), 1)
-rad <- radfit(mat_vegan[22,]) # species 22
+# Take a subset to save time and nerves
+rad <- radfit(mat_vegan[21,]) # site 21
 # plot(rad)
 radlattice(rad)
 
-
+# Take a subset of sites 1 to 3 in mat_vegan to save time and nerves
+mod <- radfit(mat_vegan[1:3,])
+mod
+plot(mod)
 ```
 
-### Hill Diversities using vegan
+### Diversidad de Hill usando el paquete `vegan`
+
+La función `renyi` encuentra diversidades de Rényi en las  escala del número de Hill correspondiente.
+
+Calculemos las curvas de acumulación de especies para todos los los sitios. 
 
 ```{r}
 # data(BCI)
 i <- sample(nrow(mat_vegan), 20)
-mod <- renyi(mat_vegan) #selecting sites with more than one record
-plot(mod)
-mod <- renyiaccum(mat_vegan[55:89,])
-plot(mod, as.table=TRUE, col = c(1, 2, 2))
-persp(mod)
+mod2 <- renyi(mat_vegan) #selecting sites with more than one record
+plot(mod2)
+
 ```
 
-### Total number of species
+Ahora comparemos los sitios 1 al 18 que corresponden la Paz Manaure Vs. Beccerril que son los sitios  19 al 41. Note que el sitio 12 no tiene ninguna especie, asi que debe ser eliminado. 
+
+```{r}
+# sitios 19 a 41
+mod3 <- renyiaccum(mat_vegan[19:41,], hill=TRUE) # sitios 19 a 41 RNB
+mod4 <- renyiaccum(mat_vegan[c(1,2,3,4,5,6,7,8,9,10,
+                               11,13,14,15,16,17,18),], hill=TRUE) # sitios POA
+
+# create a new plotting window and set the plotting area into a 1*2 array
+par(mfrow = c(1, 2))
+plot(mod3, as.table=TRUE, col = c(1, 2, 2))
+plot(mod4, as.table=TRUE, col = c(1, 2, 2))
+
+# persp(mod3)
+```
+
+Las graficas tambien se pueden ver en 3D
+```{r}
+
+par(mfrow = c(1, 2))
+persp(mod3)
+persp(mod4)
+```
+
+
+### Número total de especies
 
 ```{r}
 DT::datatable(round(specpool(mat_vegan),3))
 
 ```
 
-### Number of unseen species per camera
+### Numero de especies no vistas en cada camara
 
 Look at S.chao1
 
@@ -375,9 +428,9 @@ S_per_site$Station <- rownames(S_per_site)
 
 It is weird to have .5 species in some sites.
 
-## Mapa que convierte la operación de la cámara trampa a sf
+## Creemos un mapa al convertir la tabla de operación de la cámara trampa a un objeto `sf`
 
-En este paso, convertimos la tabla de operación de la cámara trampa a sf, agregamos la elevación de AWS, el tipo de hábitat y las especies por sitio (S.chao1) para finalmente visualizar el mapa que muestra la cantidad de especies como el tamaño del punto.
+En este paso, convertimos la tabla de operación de la cámara trampa a un objeto `sf`. Luego agregamos la elevación con una busqueda rapida en los datos de la nube de Amazon (AWS), luego agregamos el tipo de hábitat y las especies por sitio (S.chao1), para finalmente visualizar el mapa, el cuál muestra la cantidad de especies como el tamaño del punto.
 
 ```{r}
 
@@ -386,8 +439,8 @@ En este paso, convertimos la tabla de operación de la cámara trampa a sf, agre
 projlatlon <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 CToperation_sf <-  st_as_sf(x = CToperation,
-                         coords = c("Longitude", 
-                                    "Latitude"),
+                         coords = c("Lon", 
+                                    "Lat"),
                          crs = projlatlon)
 
 # write.csv(habs, "C:/CodigoR/CameraTrapCesar/data/habitats.csv")
@@ -404,9 +457,11 @@ mapview(CToperation_elev_sf, zcol="hab_code", cex = "S.chao1", alpha = 0)
 
 ```
 
-## Tal vez sea más fácil representar gráficamente el número de especies como un mapa de contornos
+## Mapa de contornos
 
-Una ventaja de utilizar la estimación de densidad de eks es que resulta más claro lo que significa el resultado. El contorno del 20 % significa que "el 20 % de las mediciones se encuentran dentro de este contorno". La documentación de eks no está de acuerdo con la forma en que stat_density_2d realiza su cálculo. No sé quién tiene razón porque el valor estimado es la especie.
+Una ventaja de utilizar la estimación de densidad es que podemos sobreponerla a un mapa y usar Los suavizadores de kernel, los cuales son herramientas esenciales para el análisis de datos geograficos. Gracias a su capacidad para transmitir información estadística compleja con visualizaciones gráficas concisas, podemos vcisualizar un mapa de riqueza de especies con contornos. El suavizador de kernel más utilizado es el estimador de densidad de kernel (KDE), que se calcula con la funcion `st_kde` del paquete `eks`.
+
+El contorno del 20 % significa que "el 20 % de las mediciones se encuentran dentro de este contorno". La documentación de `eks` no está de acuerdo con la forma en que `stat_density_2d` del paquete `ggplot2` realiza su cálculo. No sé quién tiene razón porque el valor estimado es la especie y los resultados son similares. En todo caso usemos `eks`.
 
 ```{r}
 # select chao
@@ -443,13 +498,13 @@ tmap::tm_shape(species) +
 #     coord_sf(xlim=xlim, ylim=ylim) 
 ```
 
-> En términos generales, la estimación de especies por sitio parece ser mayor cerca de la mina y disminuye con la distancia a la mina. Observe también que las estimaciones de densidad de núcleo son mayores que las de s.chao1.
+> En términos generales, la estimación de riqueza de especies por sitio muestra que al parecer es mayor en el norte. Observe también que las estimaciones de densidad de núcleo son mayores que las de s.chao1.
 
 ## Escalamiento multidimensional no métrico (NMDS)
 
 En la investigación ecológica, a menudo nos interesa no solo comparar descriptores univariados de comunidades, como la diversidad, sino también cómo las especies constituyentes (o la composición de especies) cambian de una comunidad a la siguiente. Una herramienta común para hacer esto es el escalamiento multidimensional no métrico, o NMDS. El objetivo del NMDS es agrupar la información de múltiples dimensiones (por ejemplo, de múltiples comunidades, sitios donde se instaló la cámara trampa, etc.) en solo unas pocas, de modo que se puedan visualizar e interpretar. A diferencia de otras técnicas de ordenación que se basan en distancias (principalmente euclidianas), como el análisis de coordenadas principales, el NMDS utiliza órdenes de rango y, por lo tanto, es una técnica extremadamente flexible que puede adaptarse a una variedad de diferentes tipos de datos.
 
-Si el tratamiento es continuo, como un gradiente ambiental, entonces puede ser útil trazar líneas de contorno en lugar de envolturas convexas. Podemos obtener algunos datos de elevación para nuestra matriz comunitaria original y superponerlos en el gráfico NMDS usando "ordisurf".
+Si el tratamiento es continuo, como un gradiente ambiental, entonces puede ser útil trazar líneas de contorno en lugar de envolturas convexas. Podemos obtener algunos datos de elevación para nuestra matriz comunitaria original y superponerlos en el gráfico NMDS usando `ordisurf`.
 
 ```{r}
 
@@ -513,9 +568,9 @@ ordiplot <- gg_ordisurf(ord = example_NMDS,
 
 ```
 
-Los contornos conectan especies en el espacio de ordenación que se predice que tendrán la misma elevación.
+Los contornos conectan especies en el espacio de ordenación que se predice que tendrán la misma elevación. Note que es una representación en el espacio multivariado, no una representación geográfica.
 
-## Rarefaction using `iNEXT`
+## Rarefaction usando `iNEXT`
 
 ```{r}
 
@@ -547,7 +602,19 @@ ggiNEXT(out2, type=1, facet.var="Order.q", color.var="Assemblage") + theme_class
 
 ```
 
-El paquete `iNEXT` es adecuado para comparaciones de índices de diversidad mediante el uso de números de Hill, de los cuales el valor `q` = 1 representa los índices de diversidad tradicionales: La riqueza de especies es q = 0. El índice de Shannon es (q=1) y el de Simpson es (q=2). Nota: el aumento de los valores de q reduce la influencia de las especies raras en nuestra estimación de la diversidad de la comunidad.
+El paquete `iNEXT` es adecuado para comparaciones de índices de diversidad mediante el uso de números de Hill, de los cuales el valor `q` representa la riqueza y los índices de diversidad tradicionales:
+
+-   La riqueza de especies es q = 0.
+
+-   El índice de Shannon es q=1
+
+-   El índice de Simpson es q=2.
+
+> Nota: el aumento de los valores de `q` reduce la influencia de las especies raras en nuestra estimación de la diversidad de la comunidad.
+
+Facil no?... tenga en cuenta que en los datos de fototrampeo, tal vez debamos separar en los datos aves de los de mamíferos.
+
+![](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjcweWYycGs0aGR3b2t0YjFiYWxrYTA1NGRtN2thOXZ0ZHJ5b3J5ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/s5lWcBn4uorLrLOLoP/giphy.gif)
 
 ## Package Citation
 
@@ -559,14 +626,8 @@ pkgs
 
 ## Sesion info
 
-<details>
-
-<summary>Session info</summary>
-
-```{r sessioninfo, echo = FALSE}
-#| label: sessioninfo
-options(width = 150)
-devtools::session_info()
+::: {.callout-note collapse="true"}
+```{r}
+print(sessionInfo(), locale = FALSE)
 ```
-
-</details>
+:::

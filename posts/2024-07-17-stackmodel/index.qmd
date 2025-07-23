@@ -13,7 +13,7 @@ author:
     affiliation-url: "https://procat-conservation.org/"
 date: '2024-07-17'
 file-modified: Sys.Date()
-categories: [R, occupancy, ubms]
+categories: [R, occupancy, ubms, unmarked]
 image: 'img/preview.jpg'
 draft: false
 citation: true
@@ -22,29 +22,39 @@ bibliography:
  - C:/CodigoR/CameraTrapCesar/posts/2024-07-17-stackmodel/doc_citations.bib
 ---
 
+## Shoud I use a multiseason model?
+
+Multi-season (or dynamic) models are commonly used to estimate colonization and/or extinction probabilities, and to test hypotheses on these parameters (using covariates on the parameters gamma and epsilon). This approach needs good amounts of data (many sites, and specially many seasons or years). If you don't need to estimate dynamic parameters (Colonization or extinction, gamma and epsilon) but you'd like to test for temporal variation in occupancy (Psi) between two or three years taking in to account detection probability (p) you could apply a single-season model with random effects (being random effects the camera trap, sampling unit, or site), by stacking years (i.e., your sampling units would be combination camera-years).
+
 ## Using random effects with `ubms`
 
-One of the advantages of `ubms` is that it is possible to include random effects in your models, using the same syntax as `lme4` (Bates et al. 2015). For example, if you have a group site covariate, you can fit a model with random intercepts by group by including + (1\|group) in your parameter formula. Random slopes, or a combination of random slopes and intercepts, are also possible.
+One of the advantages of the package `ubms` is that it is possible to include random effects easily in your models, using the same syntax as `lme4` (Bates et al. 2015). For example, if you have a group or site covariate, you can fit a model with random intercepts by group-site by including + (1\|site) in your parameter formula. Random slopes, or a combination of random slopes and intercepts, are also possible.
 
-To illustrate the use of random effects of `ubms`, in this post fits we fit a model using a “stacked” model approach. Additionally in `ubms` you can instead include, for example, random site intercepts to account for possible pseudoreplication.
+To illustrate the use of random effects using the package `ubms`, in this post, we fit a model using a “stacked” model approach. Additionally in `ubms` you can instead include, for example, random site intercepts to account for possible pseudoreplication.
 
-### The "stacked" model
+Recently (February 2025) [version 1.5.0 of `unmarked`](https://github.com/biodiverse/unmarked/releases/tag/v1.5.0) also incorporated random effects and community models.
 
-An alternative approach is to fit multiple years of data into a single-season model is using the “stacked” approach. Essentially, you treat unique site-year combinations as sites.
+## The "stacked" model
+
+An alternative approach to try a dynamic model, is to fit multiple years of data into a single-season model, using the “stacked” approach. Essentially, you treat unique site-year combinations as sites and can make occupancy comparisons between years.
 
 There are several potential reasons for this:
 
 -   
 
-    1.  You don’t have enough data. Take in to account, Dail-Madsen type models are particularly data hungry.
+    1.  Take in to account that dynamic models and Dail-Madsen type models are particularly data hungry.
 
 -   
 
-    2.  You are not interested in the transition probabilities.
+    2.  You are not interested in the transition probabilities (colonization or extinction rates).
 
 -   
 
-    3.  You have very few years or seasons (less than five) and the occupancy did not changed.
+    3.  You have very few years or seasons (less than five) in your sampling design, and the occupancy did not changed substantially in those few years.
+
+This is specially useful if you only have 2 years of data, so there is no great gain in fitting a dynamic occupancy model with the four parameters parameters $\Psi$, $p$, $\gamma$, and $\epsilon$, especially if you have a low number of detections and few years or seasond. So the best approach is combining (stacking) the two-treee years, and running a single season occupancy model, with just two parameters ($\Psi$ and $p$ instead of four parameters), with year as an explanatory variable and the site as random effect as using `lme4` notation as:
+
+model \<- occu (\~ effort \~ elevation + year + (1 \| site), data = newOccu)
 
 ```{r}
 #| label: renv
@@ -70,22 +80,22 @@ library(sf) # Simple Features for R
 library(mapview) # Interactive Viewing of Spatial Data in R
 library(terra) # Spatial Data Analysis
 library(elevatr) # Access Elevation Data from Various APIs
-library(readr)
+library(readr) # read csv files 
 
 library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses 
-library(ubms) 
-library(lme4) 
-library(DT)
+library(ubms) # bayesian occupancy modeling
+library(lme4) # 
+library(DT) # nice tables
 
 library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
-library(tidyverse) # Easily Install and Load the 'Tidyverse'
+library(tidyverse) # Load the 'Tidyverse'
 
 
 ```
 
 ## Load data
 
-The data set is [downloaded from Initiative Monitoreo Katios in Wildlife insights](https://app.wildlifeinsights.org/initiatives/2000172/Monitoreo-Katios)
+The data set is [downloaded from Initiative Monitoreo Katios in Wildlife insights](https://app.wildlifeinsights.org/initiatives/2000172/Monitoreo-Katios) were we sampled with an array of 30 cameras on two consecutive years in Katios National Park in Colombia.
 
 [![Initiative Monitoreo Katios](img/initiative.jpg)](https://app.wildlifeinsights.org/initiatives/2000172/Monitoreo-Katios)
 
@@ -109,11 +119,7 @@ cam_deploy_image <- images  |>
 
 ```
 
-
-
-
-
-## Convert to sf and view the map 
+## Convert to sf and view the map
 
 ```{r}
 
@@ -136,18 +142,16 @@ mapview(st_jitter(datos_sf, 0.00075) , zcol="samp_year")
 
 Notice we used the function `st_jitter()` because the points are on top of the previous year.
 
-
 ## Extract site covariates
 
-Using the coordinates of the `sf` object (datos_sf) we put the cameras on top of the covaraies and with the function `terra::extract()` we get the covariate value. 
+Using the coordinates of the `sf` object (datos_sf) we put the cameras on top of the covaraies and with the function `terra::extract()` we get the covariate value.
 
-In this case we used as covariates: 
+In this case we used as covariates:
 
-- Cattle distribution as number of cows per 10 square kilometer [@Gilbert2018].
-- Percent of tree cover from [MODIS product 44B](https://lpdaac.usgs.gov/products/mod44bv006/).
-- Road density from [@Meijer2018]. 
-- Land cover types from [MODIS](https://lpdaac.usgs.gov/products/mcd12q1v006/).
-
+-   Cattle distribution as number of cows per 10 square kilometer [@Gilbert2018].
+-   Percent of tree cover from [MODIS product 44B](https://lpdaac.usgs.gov/products/mod44bv006/).
+-   Road density from [@Meijer2018].
+-   Land cover types from [MODIS](https://lpdaac.usgs.gov/products/mcd12q1v006/).
 
 ```{r}
 #load rasters
@@ -196,29 +200,27 @@ write.csv(sites, "C:/CodigoR/CameraTrapCesar/data/katios/stacked/site_covs.csv")
 
 ```
 
-
 ## Select by years and convert to stacked format
 
 To get the detection history we use the function detectionHistory of the `camtrapR` package.
 
-> But take in to account, at the end we need to stack the data in this format:
-
-
+::: {.callout-tip title="Take in to account, at the end we need to stack the data in this format:"}
 | obs1 | obs2 | obs3 | site | year |
-| ---- | ---- | ---- | ---- | ---- |
-|   0  |  0   | 0    |  1   |  1   |
-|   0  |  0   | 0    |  2   |  1   |
-|  NA  |  NA  | NA   |  3   |  1   |
-|   0  |  0   | 0    |  4   |  1   |
-|   0  |  0   | 0    |  5   |  2   |
-|  NA  |  NA  | NA   |  6   |  2   | 
+|------|------|------|------|------|
+| 0    | 0    | 0    | 1    | 1    |
+| 0    | 0    | 0    | 2    | 1    |
+| 1    | NA   | NA   | 3    | 1    |
+| 0    | 0    | 0    | 4    | 1    |
+| 0    | 0    | 0    | 1    | 2    |
+| 1    | 0    | 1    | 2    | 2    |
+| 0    | 1    | NA   | 3    | 2    |
+:::
 
 So we need to go by years and then stack de two tables.
 
 ### First year 2021
 
-Here we use the function `detectionHistory()` to generate species detection histories that can be used in occupancy analyses, with package `unmarked` and `ubms`. It generates detection histories in different formats, with adjustable occasion length and occasion start time. Notice we firs neet to get the camera operation dates using the function `cameraOperation()`.
-
+Here we use the function `detectionHistory()` from the package `camtrapR` to generate species detection histories that can be used later in occupancy analyses, with package `unmarked` and `ubms`. `detectionHistory()` generates detection histories in different formats, with adjustable occasion length and occasion start time and effort covariates. Notice we first need to get the camera operation dates using the function `cameraOperation()`.
 
 ```{r}
 
@@ -294,7 +296,6 @@ which(names(ylist_2021) =="Panthera onca")
 
 
 ```
-
 
 ### Next, the year 2022
 
@@ -374,9 +375,10 @@ which(names(ylist_2022) =="Panthera onca")
 
 ```
 
-## Save and fix in excel
+## Save and fix in excel if it is needed
 
-### Jaguar
+### We are using the data for the Jaguar
+
 ```{r}
 # Jaguar
 # datatable (ylist_2021[[5]], caption = 'Jaguar 2021')
@@ -395,9 +397,7 @@ write.csv(effortlist_2022[[5]], "C:/CodigoR/CameraTrapCesar/data/katios/stacked/
 
 ```
 
-
-
-## Fitting a stacked model for jaguar
+## Fitting a stacked model for the Jaguar
 
 Lets use the `ubms` package to make a stacked occupancy model pooling 2021 and 2022 data together and use the percent tree cover, the road density and the cattle density as covariates for the occupancy and the effort as the number of sampling days as covariate for detection.
 
@@ -410,14 +410,15 @@ jaguar <- read.csv("C:/CodigoR/CameraTrapCesar/data/katios/stacked/y_jaguar_stac
 #### Look at the data
 
 ```{r}
+
 datatable(head(jaguar))
 ```
 
-Notice we collapsed the events to 15 days in the 2021 sampling season, and to 25 days in the 2022 sampling season, to end with 6 repeated observations in de matrix. In the matrix o1 to o6 are observations and e1 to e6 are sampling effort(observation covariates). Land_cover, per_tree_cov and roads are site covariates.
+Notice we collapsed the events to 15 days in the 2021 sampling season, and to 25 days in the 2022 sampling season, to end with 6 repeated observations in de matrix. In the matrix o1 to o6 are observations and e1 to e6 are sampling effort (observation-detection covariates). Land_cover, per_tree_cov and roads are site covariates (occupancy covariate).
 
 ### Create an unmarked frame
 
-With our stacked dataset constructed, we build the `unmarkedFrame()` object.
+With our stacked dataset constructed, we build the `unmarkedFrameOccu()` object, organizing detection, non-detection data along with the covariates.
 
 ```{r}
 
@@ -429,8 +430,11 @@ With our stacked dataset constructed, we build the `unmarkedFrame()` object.
 #             effortlist[[4]][31:50,12:19])
     
   
+jaguar_covs <- jaguar[,c(8,9,16:19)]
+jaguar_covs$year <- as.factor(jaguar_covs$year)
+
 umf <- unmarkedFrameOccu(y=jaguar[,2:7], 
-                         siteCovs=jaguar[,c(8,9,16:19)],
+                         siteCovs=jaguar_covs,
                          obsCovs=list(effort=jaguar[10:15])
                       )
 
@@ -442,7 +446,7 @@ plot(umf)
 
 #### Fit the Stacked Model
 
-We’ll now we fit a model with fixed effects of percent tree cover road density and cattle density (per_tree_cov, roads and cattle) on occupancy and a effort affecting the detection. In addition, we will include random intercepts by site, since in stacking the data we have pseudoreplication by site. To review, random effects are specified using the approach used in with the `lme4` package. For example, a random intercept for each level of the covariate site is specified with the formula component (1|site). Including random effects in a model in `ubms` usually significantly increases the run time, but at the end is worth the waiting time.
+We’ll now we fit a model with fixed effects of percent tree cover road density and cattle density (per_tree_cov, roads and cattle) on occupancy, and a effort as the detection covariate. In addition, we will include random intercepts by site, since in stacking the data we have pseudoreplication by site. To remember, random effects are specified using the same notation used in with the `lme4` package. For example, a random intercept for each level of the covariate site is specified with the formula component (1\|site). Take in to account, Including random effects in a model in `ubms` usually significantly increases the run time, but at the end is worth the waiting time.
 
 Next we perform model selection.
 
@@ -450,15 +454,15 @@ Next we perform model selection.
 # fit_0 <- occu(~1~1, data=umf) # unmarked
 
 fit_j0 <- stan_occu(~1~1 + (1|site),
-                       data=umf, chains=3, iter=10000, cores=3)
+                       data=umf, chains=3, iter=50000, cores=3)
 fit_j1 <- stan_occu(~scale(effort) ~1 + (1|site), 
-                       data=umf, chains=3, iter=10000)
+                       data=umf, chains=3, iter=50000)
 fit_j2 <- stan_occu(~scale(effort) ~scale(per_tree_cov) + (1|site), 
-                       data=umf, chains=3, iter=10000)
+                       data=umf, chains=3, iter=50000)
 fit_j3 <- stan_occu(~scale(effort) ~scale(roads) + (1|site), 
-                       data=umf, chains=3, iter=10000)
+                       data=umf, chains=3, iter=50000)
 fit_j4 <- stan_occu(~scale(effort) ~scale(cattle) + (1|site), 
-                       data=umf, chains=3, iter=10000)
+                       data=umf, chains=3, iter=50000)
 # compare
 models <- list(Null = fit_j0,
                 effort = fit_j1,
@@ -482,22 +486,19 @@ Instead of AIC, models are compared using leave-one-out cross-validation (LOO) (
 loo(fit_j4)
 ```
 
-
-> Best model is effort_cattle _(fit_j4)_ which has effort on detection and percent tree cover on occupancy.
-
+> Best model is effort_cattle *(fit_j4)* which has effort on detection and percent tree cover on occupancy.
 
 ```{r}
 fit_j4
 
 ```
 
-Looking at the summary of `fit_j4`, we conclude MCMC chains have converged if all R^>1.05 To visualize convergence, look at the traceplots:
+Looking at the summary of `fit_j4`, we conclude MCMC chains have converged if all R\^\>1.05 To visualize convergence, look at the traceplots:
 
 ```{r}
 traceplot(fit_j4, pars=c("beta_state", "beta_det"))
 
 ```
-
 
 ### Evaluate model fit
 
@@ -505,7 +506,7 @@ Statistic should be near 0.5 if the model fits well.
 
 ```{r}
 # eval
-fit_top_gof <- gof(fit_j4, draws=300, quiet=TRUE)
+fit_top_gof <- gof(fit_j4, draws=500, quiet=TRUE)
 fit_top_gof
 
 plot(fit_top_gof)
@@ -524,14 +525,13 @@ ubms::plot_effects(fit_j4, "state")
 
 ## Comparing occupancy between years
 
-Using the posterior_predict function in ubms, you can generate an equivalent posterior distribution of z, and latter to do a post-hoc analyses to test for a difference in mean occupancy probability between sites 2021 and sites 2022.
-
+Using the `posterior_predict` function in `ubms`, you can generate an equivalent posterior distribution of z, and latter to do a post-hoc analyses to test for a difference in mean occupancy probability between sites 2021 and sites 2022.
 
 ```{r}
 zpost <- posterior_predict(fit_j4, "z", draws=1000)
 dim(zpost)
 
-year_2021 <- rowMeans(zpost[,1:32], na.rm=TRUE)
+year_2021 <- rowMeans(zpost[,1:32], na.rm=TRUE) 
 year_2022 <- rowMeans(zpost[,33:55], na.rm=TRUE)
 
 plot_dat <- rbind(data.frame(group="year_2021", occ=mean(year_2021),
@@ -544,18 +544,127 @@ plot_dat <- rbind(data.frame(group="year_2021", occ=mean(year_2021),
 # Now plot the posterior distributions of the two means:
 
 
-ggplot(plot_dat, aes(x=group, y=occ)) +
+a <- ggplot(plot_dat, aes(x=group, y=occ)) +
   geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2) +
   geom_point(size=3) +
-  ylim(0,1) +
+  ylim(0.1, 0.85) +
   labs(x="Year", y="Occupancy + 95% UI") +
   theme_bw() +
   theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
         axis.text=element_text(size=12), axis.title=element_text(size=14))
 
+# print graph
+a
+
 
 ```
-It seems the difference in mean occupancy probability between years is not significant.
+
+It seems there is a reduction in mean occupancy probability, but the difference in mean occupancy probability between years is not significant.
+
+### Comparing against year in occupancy
+
+```{r}
+fit_j5 <- stan_occu(~scale(effort) ~scale(cattle) + year + (1|site), 
+                       data=umf, chains=3, iter=50000)
+
+fit_j6 <- stan_occu(~scale(effort) ~ year + (1|site), 
+                       data=umf, chains=3, iter=50000)
+
+# compare
+models2 <- list(Null = fit_j0,
+                effort_cattle = fit_j4,
+                effort_cattle_yr = fit_j5,
+                effort_yr = fit_j6)
+
+mods2 <- fitList(fits = models2)
+
+## see model selection as a table
+datatable( 
+  round(modSel(mods2), 3)
+  )
+
+```
+
+### Plot year in occupancy model
+
+First the plot extracting posteriors, second using year as covariate
+
+```{r}
+b <- ubms::plot_effects(fit_j6, "state", level=0.95)
+
+library(patchwork)
+a + b
+```
+
+It seems to be better to extract the years from the posteriors.
+
+### Lets make a Bayes two Sample t-test to check differences in posteriors of occupancy between years
+
+For this we use the old but reliable [`BayesianFirstAid` package](https://www.sumsar.net/blog/2014/01/bayesian-first-aid/). Notice you need to install the package from github. The goal of Bayesian First Aid is to bring in some of the benefits of cookbook solutions and make it easy to start doing Bayesian data analysis. The target audience is people that are curious about Bayesian statistics, that perhaps have some experience with classical statistics and that would want to see what reasonable Bayesian alternatives would be to their favorite statistical tests.
+
+```{r}
+posterior_totest <- data.frame(posterior_occu=
+                                 as.vector(c(year_2021, 
+                                             year_2022)))
+posterior_totest$year <- as.factor(c(rep("2021",1000), rep("2022",1000)))
+
+# 
+# devtools::install_github("rasmusab/bayesian_first_aid")
+library(BayesianFirstAid)
+fit <- bayes.t.test(year_2021, year_2022)
+print(fit)
+plot(fit)
+
+# traditional anova
+# anov <- glm(posterior_occu ~ year, data = posterior_totest)
+
+# Another Bayes t test
+# library(bayesAB)
+# AB1 <- bayesTest(as.vector(year_2021), 
+#                 as.vector(year_2022), 
+#                  priors = c('mu' = 0.5, 
+#                             'lambda' = 1, 
+#                             'alpha' = 3, 
+#                             'beta' = 1), 
+#                 distribution = 'normal')
+
+# summary(AB1)
+# plot(AB1)
+
+
+```
+
+### Lets make a similar test using Bayes Factors
+
+However this time we test if occupancy from the posteriors in 2022 is \< than occupancy from the posteriors in 2021.
+
+```{r}
+
+library(rstanarm)
+
+model <- stan_glm(
+  formula = posterior_occu ~ year,
+  data = posterior_totest,
+  prior = student_t(1, 0.3, autoscale = TRUE),
+  chains = 3, iter = 50000, warmup = 1000
+)
+
+
+library(bayestestR)
+
+My_first_BF <- bayesfactor_parameters(model, direction = "<")
+My_first_BF
+
+print(
+  effectsize::interpret_bf(exp(My_first_BF$log_BF[2]), include_value = TRUE)
+)
+
+#library(see)
+#plot(My_first_BF)
+
+```
+
+In fact occupancy from posteriors are different, and 2022 is \< than 2021.
 
 ## Package Citation
 

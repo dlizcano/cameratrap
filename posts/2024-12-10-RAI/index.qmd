@@ -1,73 +1,45 @@
 ---
-title: 'Esfuerzo de muestreo y RAI'
-subtitle: "Esfuerzo de muestreo y frecuencia de captura o abundancia relativa (RAI)"
+title: 'Esfuerzo de muestreo y RAI en Fototrampeo'
+subtitle: "Esfuerzo de muestreo y el indice de abundancia relativa (RAI) o frecuencia de captura"
 description: "Parte del Curso Introducción al Fototrampeo"
+lang: es  
 author: 
   - name: 'Diego J. Lizcano'
     orcid: 0000-0002-9648-0576
-    affiliation: "WildMon"
-    affiliation-url: "https://wildmon.ai/team"
+    affiliation: "Wildlife Conservation Society (WCS)"
+    affiliation-url: "https://www.wcs.org/our-work/regions/andes-amazon-orinoco"
   - name: 'Lain E. Pardo'
     orcid: 0000-0002-2533-6577
-    affiliation: "Panthera"
+    affiliation: "Fundación Panthera"
     affiliation-url: "https://panthera.org/colombia"
   - name: 'Angélica Diaz-Pulido'
     orcid: 0000-0003-4166-4084
-    affiliation: "IAvH"
+    affiliation: "Instituto Alexander von Humboldt (IAvH)"
     affiliation-url: "https://www.humboldt.org.co/"
 date: '2024-12-10'
 file-modified: Sys.Date()
-categories: [R, cameratrap, curso]
+categories: [R, fototrampeo, curso, IAR]
 image: 'img/preview.jpg'
 draft: false
 citation: true
-bibliography: C:/Users/silvi/Documents/GitHub/cameratrap/posts/2024-12-10-RAI/grateful-refs.bib
+bibliography: C:/CodigoR/CameraTrapCesar/posts/2024-12-10-RAI/grateful-refs.bib
 ---
 
-## Cargar Paquetes
-
-First we load some packages
-
-```{r setup, include=TRUE}
-
-library(grateful) # Facilitate Citation of R Packages
-library(patchwork) # The Composer of Plots
-library(readxl) # Read Excel Files
-library(sf) # Simple Features for R
-library(mapview) # Interactive Viewing of Spatial Data in R
-# library(terra) # Spatial Data Analysis
-library(readr) # Read Rectangular Text Data
-
-library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses 
-# library(adehabitatHR) # Home Range Estimation
-# library(agricolae) # Statistical Procedures for Agricultural Research
-# library(akima) # Interpolation of Irregularly and Regularly Spaced Data
-# library(fuzzySim) # Fuzzy Similarity in Species Distributions
-# library(MASS) # Support Functions and Datasets for Venables and Ripley's MASS
-library(RColorBrewer) # ColorBrewer Palettes
-library(DT) # A Wrapper of the JavaScript Library 'DataTables'
-# library(RAIeR) # Relative abundance index and encounter rate estimation cameratraps
-
-library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
-library(tidyverse) # Easily Install and Load the 'Tidyverse'
-
-# source("C:/CodigoR/CameraTrapCesar/R/organiza_datos.R")
-
-```
+Este post es parte de el curso Introducción al fototrampeo realizado en el Instituto de ciencias naturales (ICN), de la Universidad Nacional de Colombia en Bogota en Diciembre 2024.
 
 ## INTRODUCCIÓN
 
-El estudio de mamíferos medianos y grandes en bosques tropicales suele ser difícil ya que muchas de estas especies son crípticas, nocturnas y esquivas, dificultando su detección. Los métodos tradicionales requieren de la captura de los animales y suelen ser costosos, de difícil manejo y poco efectivas. Por esta razón, estas técnicas han sido reemplazadas ampliamente por la técnica del fototrampeo, la cual usa cámaras fijas que se activan para captar imágenes de animales en el momento que pasan frente a la cámara, mediante sensores infrarrojos.
+El estudio de mamíferos medianos y grandes en bosques tropicales suele ser difícil ya que muchas de estas especies son crípticas, nocturnas y esquivas, dificultando su detección. Los métodos tradicionales requieren de la captura de los animales y suelen ser costosos, de difícil manejo y poco efectivos a gran escala. Por esta razón, estas técnicas tradicionales han sido reemplazadas rápidamente por la técnica del fototrampeo, la cual usa cámaras fijas que se activan para captar imágenes de animales en el momento que pasan frente a la cámara, mediante sensores de movimiento y calor que activan la cámara.
 
-Las cámaras trampa son utilizadas en investigaciones biológicas como una herramienta importante para determinar distintos parámetros ecológicos como densidad, ocurrencia, riqueza, entre otros. Las ventajas de esta técnica son muy amplias, por lo que su uso es cada vez más frecuente. Por esta razón es importante conocer las características de los equipos, los alcances y limitaciones del empleo de cámaras, así como tener claridad sobre el tipo de datos arrojados con esta técnica y su interpretación. El éxito de esta técnica, como de cualquier otra, depende a su vez de un adecuado planteamiento de las preguntas de investigación y diseño de muestreo, así como una base conceptual sólida que permita alcanzar los objetivos de investigación.
+Las cámaras trampa son utilizadas en investigaciones biológicas como una herramienta importante para determinar distintos parámetros ecológicos como la densidad, ocurrencia, ocupación y riqueza, entre otros. Las ventajas de esta técnica son amplias, por lo que su uso es cada vez más frecuente. Por esta razón es importante conocer las características de los equipos, los alcances y limitaciones del empleo de cámaras, así como tener claridad sobre el tipo de datos proporcionados por esta técnica y su correcta interpretación. El éxito de esta técnica, como de cualquier otra, depende a su vez de un adecuado planteamiento de las preguntas de investigación y del diseño de muestreo, así como el empleo de una base conceptual sólida que permita alcanzar los objetivos planteados.
 
-En este curso queremos hacer una introducción general al fototrampeo donde los participantes entiendan como funcionan las cámaras trampa, que consideraciones se deben tener para el diseño de un estudio con fototrampeo, así como una introducción a tres análisis básicos (estimación de riqueza, abundancia relativa y horarios de actividad).
+En este curso queremos hacer una introducción general al fototrampeo donde los participantes entiendan como funcionan las cámaras trampa, que consideraciones se deben tener en cuenta para el diseño de un estudio con fototrampeo, así como una introducción a tres análisis básicos (abundancia relativa, estimación de riqueza y patrones de actividad). En este post haremos énfasis en la abundancia relativa. La estimación de riqueza se puede ver en [éste enlace](https://dlizcano.github.io/cameratrap/posts/2024-12-15-riqueza/index.html). Los patrones de actividad seran objeto de un próximo post donde trataré el tema con bastante profundidad.
 
 ## OBJETIVOS
 
 1.  Capacitar estudiantes de pregrado y personas interesadas en entender el uso y los alcances de la técnica del fototrampeo.
 
-2.  Entender de manera general como se diseña un estudio con fototrampeo y como se analizan e interpretan los datos derivados con énfasis en riqueza, abundancia relativa y patrones de actividad.
+2.  Entender de manera general como se diseña un estudio con fototrampeo y como se estructuran e interpretan los datos derivados, haciendo con énfasis en lo basico: riqueza, abundancia relativa y patrones de actividad.
 
 ## METODOLOGÍA
 
@@ -75,7 +47,9 @@ El curso está estructurado en dos grandes temas. El primero concerniente a la t
 
 ## Libro
 
-El curso incluye el Libro Fototrampeo en R de Salvador Mandujano [![Fototrampeo en R](img/libro.png)](https://github.com/SMandujanoR/Foto-trampeo-R-Vol_I)
+El curso incluye una copia impresa del Libro Fototrampeo en R de Salvador Mandujano:
+
+[![Fototrampeo en R](img/libro.png)](https://github.com/SMandujanoR/Foto-trampeo-R-Vol_I)
 
 ```{r}
 #| label: renv
@@ -90,27 +64,56 @@ library(styler) # Non-Invasive Pretty Printing of R Code
 
 ## Indice de Abundancia Relativa (RAI)
 
-> Número de fotos por unidad de esfuerzo
+> Recuerda que el RAI es el número de fotos por unidad de esfuerzo de muestreo y puede ser expresado con la siguiente formula
 
 $$
 RAI = \dfrac{Número de fotos independientes}{dias de camara * 100}
 $$
 
+y ten muy encuenta que:
+
 ::: callout-important
 ## RAI no es exactamente un buen estimado de abundancia
 
-Por eso mejor llamarla *Frecuencia de Captura* (Capture Rate).
+Por eso es mucho mejor llamarla *Frecuencia de Captura* (Capture Rate).
 :::
 
-Pueden ver una revision muy interesante en el articulo:
+Pueden ver una revision muy interesante del concepto de abundancia relativa en el articulo:
 
-[![Índice de abundancia relativa y tasa de encuentro con trampas cámara](img/RAI_Mandujano.jpg)](https://doi.org/10.47603/mano.v10n1.389)
+::: {#fig-article}
+[![Índice de abundancia relativa y tasa de encuentro con trampas cámara](img/RAI_Mandujano.jpg)](https://doi.org/10.47603/mano.v10n1.389) link to [artículo](https://doi.org/10.47603/mano.v10n1.389).
+:::
 
 ## Veamos un ejemplo
 
+### Cargar Paquetes
+
+Primero cargamos algunos paquetes de R
+
+```{r setup, include=TRUE}
+
+library(grateful) # Facilitate Citation of R Packages
+library(patchwork) # The Composer of Plots
+library(readxl) # Read Excel Files
+library(sf) # Simple Features for R
+library(mapview) # Interactive Viewing of Spatial Data in R
+library(tmap) #nice mapr in R
+library(tmaptools) #expands tmap
+# library(terra) # Spatial Data Analysis
+library(readr) # Read Rectangular Text Data
+library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses 
+library(RColorBrewer) # ColorBrewer Palettes
+library(DT) # A Wrapper of the JavaScript Library 'DataTables'
+library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
+library(tidyverse) # Easily Install and Load the 'Tidyverse'
+
+# source("C:/CodigoR/CameraTrapCesar/R/organiza_datos.R")
+
+```
+
 ### Carguemos los datos
 
-Son dos archivos uno de las camaras y otro de las especies.
+Son dos archivos uno de las cámaras y otro de las especies.
 
 ```{r warning=FALSE}
 
@@ -118,9 +121,9 @@ Son dos archivos uno de las camaras y otro de las especies.
 # library(hrbrthemes)
 library(viridis)
 
-cameras <- read.csv("C:/Users/silvi/Documents/GitHub/cameratrap/posts/2024-12-10-RAI/data/survey_metadata_sp_rich.csv")
+cameras <- read.csv("C:/CodigoR/CameraTrapCesar/posts/2024-12-10-RAI/data/survey_metadata_sp_rich.csv")
 # sp recs
-sp_rec <- read.csv2("C:/Users/silvi/Documents/GitHub/cameratrap/posts/2024-12-10-RAI/data/FAZ_sp_rec_only_mammals_indep_with_generics.csv", encoding = "LATIN1")
+sp_rec <- read.csv2("C:/CodigoR/CameraTrapCesar/posts/2024-12-10-RAI/data/FAZ_sp_rec_only_mammals_indep_with_generics.csv", encoding = "LATIN1")
 
 # Delete cams that were not active
 cameras1 <- cameras %>% 
@@ -135,30 +138,36 @@ unique(not_in_cams$deployment_id) #OK
 
 #### Camaras
 
+Veamos las cámaras en una tabla.
+
 ```{r}
-datatable(cameras)
+datatable(head(cameras))
 ```
 
 #### Especies
+
+Veamos las especies.
 
 ```{r}
 datatable(sp_rec)
 ```
 
-### Usemos las funciones de camtrapR
+### Usemos las funciones de `camtrapR`
 
-Resulta en un listado de 5 partes: 
+Estas funciones nos permiten organizar y manipular las tablas para obtener 5 tablas derivadas. En este caso usaremos la funcion `survey_rep`, pero tenga en cuenta que esta función pronto será reemplazada en una proxima version de `camtrapR`.
 
-- reportTest[[1]] esfuerzo_muestreo. camera trap operation times and image date ranges 
-- reportTest[[2]] number of species by station 
-- reportTest[[3]] number of events and number of stations by species 
-- reportTest[[4]] registros_especies. number of species events by station 
-- reportTest[[5]] number of species events by station including 0s (non-observed species)
+Resultando en una lista de R que consta de 5 partes:
+
+-   survey_rep\[\[1\]\] esfuerzo_muestreo. camera trap operation times and image date ranges
+-   survey_rep\[\[2\]\] number of species by station
+-   survey_rep\[\[3\]\] number of events and number of stations by species
+-   survey_rep\[\[4\]\] registros_especies. number of species events by station
+-   survey_rep\[\[5\]\] number of species events by station including 0s (non-observed species)
 
 ```{r}
-#now build the camp op
+# first fix dates
 sp_rec$start_time <- as.POSIXct(sp_rec$start_time, format = "%Y-%m-%d %H:%M") #     
-
+# make the survey report
 survey_rep <- surveyReport(recordTable = sp_rec,
                                CTtable = cameras1,
                                speciesCol = "spanish_common_name", 
@@ -174,18 +183,23 @@ survey_rep <- surveyReport(recordTable = sp_rec,
 
 ### Calculemos el RAI
 
-Recuerda que en realidad es mas tasa de captura que de abundancia.
+::: callout-tip
+Recuerda que el RAI es en realidad más una tasa de captura que una abundancia.
+:::
 
-#### primero unimos las dos tablas
+#### Primero unimos las dos tablas
+
+Unimos las el esfuerzo de muestreo y los registros de las especies.
 
 ```{r}
-esfuerzo_muestreo <- survey_rep[[1]]
-n_activas <- esfuerzo_muestreo[c("deployment_id", "n_nights_active")]
+esfuerzo_muestreo <- survey_rep[[1]] |> left_join(cameras)
+n_activas <- esfuerzo_muestreo[c("deployment_id", "n_nights_active",
+                                 "longitude", "latitude")]
 wildlife.data <- merge(survey_rep[[4]], n_activas, all.y = T)
-head(datatable(wildlife.data))# 
+datatable(head(wildlife.data))# 
 ```
 
-#### renombramos algunas columnas
+#### Renombramos algunas columnas
 
 ```{r}
 names(wildlife.data)[names(wildlife.data) == "deployment_id"] <- "Camera"
@@ -194,30 +208,53 @@ names(wildlife.data)[names(wildlife.data) == "n_nights_active"] <- "Effort"
 names(wildlife.data)[names(wildlife.data) == "spanish_common_name"] <- "common_name"
 ```
 
+#### Veamos en un mapa el esfuerzo de cada camara
+
+```{r}
+# primero convertimos la tabla a un objeto sf
+Efort_map <- wildlife.data |> 
+  select(c("Camera", "longitude", "latitude", "Effort")) |> 
+  st_as_sf(coords = c('longitude', 'latitude'), crs = 4326)
+# mapview
+mapview(Efort_map, 
+        alpha = 0,
+        map.types = "Esri.WorldImagery",
+        cex = "Effort")
+
+```
+
+
 #### RAI general por especie
 
-El RAI general que se calcula agrupando toda la información de las cámaras por especie.
+El RAI general que se calcula agrupando toda la información de las cámaras por especie y es un valor que tiene en cuenta los registros de cada especie dividido por el esfuerzo.
 
 ```{r}
 RAI <- wildlife.data |> group_by(common_name) |> mutate (RAI_general=round ( (sum(Events) / sum(Effort) ) * 100, 2)) |> ungroup()
-datatable(RAI)
+datatable(head(RAI))
 ```
 
-#### RAI por especie por camara
 
-RAI alternativo
+
+#### RAI alternativo
+
+El RAI alternativo se calcula por especie por camara y es un valor para cada especie en cada camara.
+
+
 
 ```{r}
 RAI2 <- RAI |> group_by(common_name) |> mutate (RAI_camara=round ( Events / Effort * 100, 2)) |> ungroup()
-datatable(RAI2)
+# make common_name factor
+RAI2$common_name <- as.factor(RAI2$common_name)
+datatable(head(RAI2))
 ```
 
-### Veamolo como grafica
+### Veamolo como graficas
+
 ```{r}
 
 # Barplot
 ggplot(RAI, aes(x=reorder(common_name, RAI_general), y=RAI_general)) + 
-  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity") +  ggtitle("RAI general") +
   coord_flip()
 
 # Barplot
@@ -237,8 +274,43 @@ RAI2 %>%
 
 ```
 
+### Veamos el RAI alternativo como un mapa
+
+Para esto usaremos las facilidades que ofrece el paquete `tmap`. Los puntos negros son las cámaras y los rojos el RAI alternativo para cada especie.
 
 
+
+```{r}
+#| column: screen
+#| out-width: 100%
+#| fig-format: svg
+#| warning: false
+######| layout-nrow: 1
+#### column: screen-inset-shaded
+
+# primero convertimos el RAI2 a un sf
+RAI2 <- RAI2 |> st_as_sf(coords = c('longitude', 'latitude'), crs = 4326)
+
+# veamos un mapa por especie
+tm_shape(RAI2, bbox = tmaptools::bb(RAI2, ext = 1.5))  + 
+  tm_basemap("Esri.WorldImagery") + # usa basemap
+    tm_symbols(shape = 1, col = "black", fill = "black",size =0.2) + #punto negro
+  tm_shape(RAI2, bbox = tmaptools::bb(RAI2, ext = 1.5))  + 
+    tm_bubbles(fill = "red", col = "red", size = "RAI_camara", scale = 1.5) +
+    tm_facets(by = "common_name") + #, ncol = 5) +
+  tm_tiles("Esri_WorldImagery") +
+  tm_legend_hide() 
+
+```
+
+
+> Facil no?
+
+Normalmente el trabajo con datos de fototrampeo involucra 80% del tiempo ajustando los datos y las tablas y tan solo en 20% del tiempo corriendo el analisis.
+
+## Foto de los participantes del curso:
+
+![](img/curso_fototrampeo.jpg)
 
 ## Package Citation
 

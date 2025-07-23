@@ -181,7 +181,7 @@ loadproject <- function(path_to_file){
   
   image <- read_excel(path_to_file, 
                         sheet = "Image") |> 
-    select(!c(ID, Location, "IUCN Identification Number", "Animal recognizable (Y/N)", "individual Animal notes"  )) |> 
+    select(!c(ID, Location, "IUCN Identification Number", "individual Animal notes"  )) |> 
     rename("scientificName" = "Genus Species")
   
   data1 <-  cameras |> left_join(deployment) # join first two
@@ -402,6 +402,6 @@ data_by_country <- function(country="Argentina"){
   
   return(image_Pais) # return the join table
   
-}
+} # end of function data_by_country
 
 

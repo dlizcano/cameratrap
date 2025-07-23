@@ -22,6 +22,7 @@ ee_check() # Check non-R dependencies
 # py_install("geemap")
 gm <- import("geemap")
 
+### time TimeBand
 createTimeBand <-function(img) {
   year <- ee$Date(img$get('system:time_start'))$get('year')$subtract(1991L) 
   ee$Image(year)$byte()$addBands(img)
@@ -56,18 +57,21 @@ Map$addLayer(
 
 
 
-################
-
-#Land Cover  100m global landcover dataset.
+################################
+# Land Cover  100m global landcover dataset.
 # https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_Landcover_100m_Proba-V-C3_Global#bands
+################################
 
 LC_dataset <- ee$Image("COPERNICUS/Landcover/100m/Proba-V-C3/Global/2019")$select('discrete_classification')
 # plot the layer to see what it looks like before moving on: 
 Map$setCenter(-88.6, 26.4, 1);
 Map$addLayer(LC_dataset, {}, "Land Cover");
 
-#### extract using sf object
-habs <- ee_extract(LC_dataset, datos_PCF_sf) # datos_PCF_sf  coming from cameras
+##################################
+#### extract using sf object #### 
+##################################
+
+habs <- ee_extract(LC_dataset, CToperation_sf) # datos_PCF_sf is sf coming from cameras
 # Read in the LCC key
 codes <- read.csv("C:/CodigoR/CameraTrapCesar/data/LCC_codes.csv")
 
@@ -81,6 +85,9 @@ datos_PCF_sf$lcc_habitats <- habs$hab_code
 # Let’s repeat this process with a continuous variable like biomass. We will use the Global Aboveground and Belowground Biomass Carbon Density Maps.
 
 biomass <- ee$ImageCollection("NASA/ORNL/biomass_carbon_density/v1");
+
+# ee.ImageCollection().filterDate()  # Javascript
+# ee$ImageCollection()$filterDate()  # R
 
 # Specify the layer we want to plot
 bio = biomass$first()
@@ -128,14 +135,61 @@ Map$addLayer(gpa, {}, "default display")
 
 
 
+######################################################
+# Hansen Global Forest Change dataset
+######################################################
+
+### this is not a collection. It is an image
+gfc2023 = ee$Image("UMD/hansen/global_forest_change_2023_v1_11")
+ee_print(gfc2023)
+class(gfc2023)
 
 
 
+# Specify the layer we want to plot
+gfc = gfc2023$select("treecover2000")
+# Set up the colors for the visualization
+viz_gfc <- list(
+  bands="treecover2000",
+  max = 100,
+  min = 0,
+  palette = c('#0c0c0c', '#071aff', '#ff0000', '#ffbd03', '#fbff05', '#fffdfd')
+)
+
+# set center
+Map$setCenter(-77.1390, 7.83318, 7);
+Map$addLayer(eeObject = gfc, visParams = viz_gfc)
+
+# Extract the data using ee_extract:
+tmp <- ee_extract(gfc, katios_sf,
+                  scale = 100)
+
+# paste to katios_sf
+katios_sf$treecover2000 <- tmp$treecover2000
 
 
 
+###  set region to download
 
+region.katios <- ee$Geometry$Rectangle(
+  coords = c(-77.18, 7.800, -77.11, 7.89),
+  proj = "EPSG:4326",
+  geodesic = FALSE
+)
 
+Map$centerObject(region.katios, 10)
+
+### download raster through Google Drive
+require(terra)
+
+gfc.raster <- ee_as_rast(gfc, 
+                      region=region.katios,
+                      via = "drive",
+                      scale = 100) # 100 meters
+
+class(gfc.raster)
+# gfc.raster <- rast(gfc.raster)  # convert to terra
+plot(gfc.raster)
 
 
 

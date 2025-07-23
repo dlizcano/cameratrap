@@ -6,9 +6,10 @@ author:
   - name: 'Diego J. Lizcano'
     orcid: 0000-0002-9648-0576
     affiliation: "WildMon"
+    affiliation-url: "https://wildmon.ai/team"
 date: '2024-07-27'
 file-modified: Sys.Date()
-categories: [R, occupancy, ubms]
+categories: [R, occupancy, ubms, unmarked]
 image: 'img/preview.jpg'
 draft: false
 citation: true
@@ -44,9 +45,9 @@ library(tidyverse) # Easily Install and Load the 'Tidyverse'
 
 ## Organize the data
 
-The workflow starts with package `unmarked` and continue with the package `ubms` for model building, selection and prediction. The first step to perform the analysis is to organize data following the `unmarked` package. The data should have detection, non-detection records along with the covariates.
+The workflow starts with package [`unmarked`](https://biodiverse.github.io/unmarked/) for organize data and continue with the package [`ubms`](https://biodiverse.github.io/ubms/) for model building, selection and prediction. The first step to perform the analysis is to organize data following the `unmarked` package. The data should have detection, non-detection records along with the covariates.
 
-See the `unmarkedFrameOccu` function for details typing:  ?unmarkedFrameOccu in your R console.
+See the `unmarked::unmarkedFrameOccu` function for details typing:  ?unmarkedFrameOccu in your R console.
 
 ```{r}
 #| label: renv
@@ -80,7 +81,12 @@ datatable(head(katios1))
 ### View as map
 
 ```{r}
+#| fig-cap: "Cmeras location."
 
+# Load Katios National Park shapefile
+katios_np <- read_sf("C:/CodigoR/CameraTrapCesar/data/katios/shp/WDPA_WDOECM_Nov2024_Public_61610_shp-polygons.shp")
+
+# make projection
 projlatlon <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 katios_sf <-  st_as_sf(x = katios1 |> distinct(Longitude, Latitude, camera),
@@ -88,7 +94,8 @@ katios_sf <-  st_as_sf(x = katios1 |> distinct(Longitude, Latitude, camera),
                                     "Latitude"),
                          crs = projlatlon)
 
-mapview(katios_sf)#, zcol="species")
+mapview(katios_np, alpha.regions=0.1) + 
+mapview(katios_sf, zcol="camera")
 
 ```
 
@@ -264,23 +271,24 @@ Lets use the `unmarked` package to make an unmarkedFrameOccu object.
 umf <- unmarkedFrameOccu(y=tbairdi, 
                          siteCovs=data.frame(
                            per_tree_cov=katios_sf$per_tree_cov)
-                           #road_den=sites$roads),
+                           # road_den=sites$roads),
                          # obsCovs=list(effort=ej)
                       )
 
 plot(umf)
 
+unmarked::summary(umf)
 ```
 
 ## Fit models
 
-lets use `ubms` package to fit models. We contrast the null model (no covariates) against a model with percent tree cover to explain the occupancy. For this example we are not using covariates for the detection part. 
+lets use `ubms` package to fit several models. We contrast the null model (no covariates) against a model with percent tree cover to explain the occupancy. For this example we are not using covariates for the detection part. 
 
 ```{r}
 # fit_0 <- occu(~1~1, data=umf) # unmarked
 
-fit_j0 <- stan_occu(~1~1, data=umf, chains=3, iter=10000, cores=3)
-fit_j2 <- stan_occu(~1~scale(per_tree_cov), data=umf, chains=3, iter=10000, cores=3)
+fit_j0 <- stan_occu(~1~1, data=umf, chains=3, iter=100000, cores=3)
+fit_j2 <- stan_occu(~1~scale(per_tree_cov), data=umf, chains=3, iter=100000, cores=3)
 
 
 
@@ -368,6 +376,7 @@ The error band is large but there is a clear trend.
 Taking in to account spatial autocorrelation.
 
 ```{r}
+#| fig-cap: "Spatial autocorrelation."
 # convert to UTM
 katios_utm = st_transform(katios_sf, 21818)
 katios_cord <- st_coordinates(katios_utm)
@@ -393,13 +402,15 @@ Lets use a raster map with percent tree cover to predict the occupancy and see t
 ```{r}
 #| fig-cap: "Predicted occupancy map."
 #| fig-alt: "Using the percent tree cover as a spatial predictor"
+
 # cut large raster 
 box <- ext(-77.18,-77.11, 7.800, 7.89) # make a box xmin, xmax, ymin, ymax
 library(raster)
 per_tree_cov_cut <- raster(crop(per_tree_cov, box))# cut raster using the box
 # put correct name
 names(per_tree_cov_cut) <- "per_tree_cov"
-# predict
+
+# predict in ubms
 map_occupancy <- ubms::predict(fit_j2,
                                submodel="state",
                                newdata=per_tree_cov_cut,
@@ -411,7 +422,9 @@ katios_occu[katios_occu >= 0.9] <- NA # convert river to NA
 # make a palette 9 colors yellow to green
 pal <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, "YlGn"))
 # plot map
-mapview(katios_occu, col.regions= pal, alpha = 0.5) + mapview(katios_sf, cex=2)
+mapview(katios_np, alpha.regions=0.1) +
+mapview(katios_occu, col.regions= pal, alpha = 0.5) + mapview(katios_sf, cex=2) 
+
 
 ```
 
