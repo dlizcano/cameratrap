@@ -13,7 +13,7 @@ author:
     affiliation-url: "https://procat-conservation.org/"
 date: '2025-06-01'
 file-modified: Sys.Date()
-categories: [R, occupancy, soOccupancy, spatial]
+categories: [R, occupancy, spOccupancy, spatial]
 image: 'img/preview.jpg'
 draft: false
 citation: true
@@ -71,6 +71,7 @@ library(readr) # read csv files
 library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses 
 library(spOccupancy)
 library(MCMCvis) # Markov chains viewer
+library(bayesplot)
 library(DT) # nice tables
 
 library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
@@ -305,19 +306,6 @@ Notice we collapsed the events to 15 days in the 2021 sampling season, and to 25
 ```{r}
 
 # 1. Data prep ------------------------------------------------------------
-# Read in the data source (reads in an object called data.list)
-load("C:/CodigoR/CameraTrapCesar/data/ribeiroJrEtAl2018Data.rda")
-# Check out the data list structure. Detection-nondetection data y
-# are currently formatted for multiple species models. 
-str(data.list)
-# Filter the detection-nondetection data to grab species of interest 
-# (Crossodactylus caramaschii)
-sp.indx <- which(dimnames(data.list$y)[[1]] == 'sCROCAR')
-# Create copy of data list
-data.crocar <- data.list
-data.crocar$y <- data.crocar$y[sp.indx, , ]
-str(data.crocar)
-
 
 # transform to utm
 datos_sf_2021_utm <- datos_jaguar_sf  |> # filter(samp_year==2021) |>
@@ -336,6 +324,16 @@ jaguar.data$det.covs <- list(effort=jaguar[10:15])
 
 
 ```
+
+#### Notice the structure of the data
+
+It is a list!
+
+```{r}
+glimpse(jaguar.data)
+```
+
+with the names `{r} names(jaguar.data)`.
 
 ### Fit models
 
@@ -361,7 +359,7 @@ out.sp <- spPGOcc(occ.formula = ~ scale(per_tree_cov) + scale(roads) +
              n.neighbors = 5,
                  n.batch = 400, 
                  batch.length = 15,
-	           n.samples = 50000, 
+	           n.samples = 55000, 
 	           n.thin = 2, 
 	           n.burn = 5000, 
 	           n.chains = 3,
@@ -422,11 +420,26 @@ MCMCplot(out.sp$alpha.samples, ref_ovl = TRUE, ci = c(50, 95))
 
 ```
 
-Looking at the summary of `fit_j4`, we conclude MCMC chains have converged if all R\^\>1.05 To visualize convergence, look at the traceplots:
+look at the traceplots:
 
 ```{r}
-# traceplot(fit_j4, pars=c("beta_state", "beta_det"))
+MCMCtrace(out.sp$beta.samples, params = c("scale(per_tree_cov)"), type = 'trace', pdf = F, Rhat = TRUE, n.eff = TRUE)
 
+### density
+MCMCtrace(out.sp$beta.samples, params = c("scale(per_tree_cov)"), ISB = FALSE, pdf = F, exact = TRUE, post_zm = TRUE, type = 'density', Rhat = TRUE, n.eff = TRUE, ind = TRUE)
+
+
+MCMCtrace(out.sp$theta.samples, type = 'both', pdf = F, Rhat = FALSE, n.eff = TRUE)
+
+
+
+```
+
+
+### Look at rhat
+
+```{r}
+print(out.sp$rhat)
 ```
 
 ### Prediction 
