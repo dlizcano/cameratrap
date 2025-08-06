@@ -1,0 +1,491 @@
+---
+title: 'Spatial, single-species occupancy model'
+subtitle: "Dealing with spatial autocorrelation with the `spOccupancy` package"
+description: "The package `spOccupancy` accommodate spatial autocorrelation efficiently in a workflow completely in R (no Bayesian programming languages necessary)"
+author: 
+  - name: 'Diego J. Lizcano'
+    orcid: 0000-0002-9648-0576
+    affiliation: "WildMon"
+    affiliation-url: "https://wildmon.ai/team"
+  - name: 'José F. González-Maya'
+    orcid: 0000-0002-8942-5157
+    affiliation: "ProCat"
+    affiliation-url: "https://procat-conservation.org/"
+date: '2025-06-01'
+file-modified: Sys.Date()
+categories: [R, occupancy, soOccupancy, spatial]
+image: 'img/preview.jpg'
+draft: false
+citation: true
+bibliography: 
+ - C:/CodigoR/CameraTrapCesar/posts/2025-06-01-spatial-single-species-occupancy/grateful-refs.bib
+ - C:/CodigoR/CameraTrapCesar/posts/2025-06-01-spatial-single-species-occupancy/doc_citations.bib
+---
+
+## Shoud I use a spatial model?
+
+In principle Yes!. Specially if you are using geographical covariates. Imperfect detection and spatial autocorrelation are two important issues to deal with in ecological sampling. 
+
+## What is spatial autocorrelation?
+
+Things closer together in space tend to be more similar than things farther
+apart. 
+
+### What leads to spatial autocorrelation in species distributions? 
+
+- Environmental drivers
+- Biotic factors (e.g., dispersal, conspecific attraction).
+
+In the past the way to incorporate spatial autocorrelation in your occupancy model was coding in BUGS or JAGS. 
+
+
+this code was adapted from: https://github.com/doserjef/acoustic-spOccupancy-22/blob/main/code/single-species-example.R
+
+
+```{r}
+#| label: renv
+#| include: false
+# https://www.joelnitta.com/posts/2024-01-11_using_renv_with_blog/
+# library(renv)
+# renv::use(lockfile = "renv.lock")
+
+library(quarto) # R Interface to 'Quarto' Markdown Publishing System
+library(styler) # Non-Invasive Pretty Printing of R Code
+```
+
+## Load packages
+
+First we load some packages
+
+```{r setup, include=TRUE}
+
+library(grateful) # Facilitate Citation of R Packages
+library(patchwork) # The Composer of Plots
+library(readxl) # Read Excel Files
+library(sf) # Simple Features for R
+library(mapview) # Interactive Viewing of Spatial Data in R
+library(terra) # Spatial Data Analysis
+library(elevatr) # Access Elevation Data from Various APIs
+library(readr) # read csv files 
+
+library(camtrapR) # Camera Trap Data Management and Preparation of Occupancy and Spatial Capture-Recapture Analyses 
+library(spOccupancy)
+library(MCMCvis) # Markov chains viewer
+library(DT) # nice tables
+
+library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
+library(tidyverse) # Load the 'Tidyverse'
+
+
+```
+
+## Load data
+
+The data set is [downloaded from Initiative Monitoreo Katios in Wildlife insights](https://app.wildlifeinsights.org/initiatives/2000172/Monitoreo-Katios) were we sampled with an array of 30 cameras on two consecutive years in Katios National Park in Colombia.
+
+[![Initiative Monitoreo Katios](img/initiative.jpg)](https://app.wildlifeinsights.org/initiatives/2000172/Monitoreo-Katios)
+
+```{r warning=FALSE}
+
+path <- "C:/CodigoR/CameraTrapCesar/data/katios/"
+cameras <- read_csv(paste(path, "cameras.csv", sep=""))
+deployment <- read_csv(paste(path, "deployments.csv", sep=""))
+images <- read_csv(paste(path, "images.csv", sep=""))
+project <- read_csv(paste(path, "projects.csv", sep=""))
+
+# join_by(project_id, camera_id, camera_name)`
+cam_deploy <- cameras |> left_join(deployment) |> 
+  dplyr::mutate(year=lubridate::year(start_date)) #|> filter(year== 2023)
+cam_deploy_image <- images  |> 
+  left_join(cam_deploy) |> 
+  mutate(scientificName= paste(genus, species, sep = " ")) |> 
+   mutate(deployment_id_cam=paste(deployment_id, camera_id, sep = "-")) #|> 
+  # filter(year==2022)
+
+
+```
+
+## Convert to sf and view the map
+
+```{r}
+
+datos_distinct <- cam_deploy_image |> distinct(longitude, latitude, deployment_id, samp_year) |> as.data.frame()
+
+# Fix NA camera 16
+datos_distinct[16,] <- c( -77.2787,	7.73855, 
+                      "CT-K1-31-124", 2021)
+
+projlatlon <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+datos_sf <-  st_as_sf(x = datos_distinct,
+                         coords = c("longitude", 
+                                    "latitude"),
+                         crs = projlatlon) 
+
+mapview(st_jitter(datos_sf, 0.00075) , zcol="samp_year")
+
+```
+
+Notice we used the function `st_jitter()` because the points are on top of the previous year.
+
+## Extract site covariates
+
+Using the coordinates of the `sf` object (datos_sf) we put the cameras on top of the covaraies and with the function `terra::extract()` we get the covariate value.
+
+In this case we used as covariates:
+
+-   Cattle distribution as number of cows per 10 square kilometer [@Gilbert2018].
+-   Percent of tree cover from [MODIS product 44B](https://lpdaac.usgs.gov/products/mod44bv006/).
+-   Road density from [@Meijer2018].
+-   Land cover types from [MODIS](https://lpdaac.usgs.gov/products/mcd12q1v006/).
+
+```{r}
+#load rasters
+per_tree_cov <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/Veg_Cont_Fields_Yearly_250m_v61/Perc_TreeCov/MOD44B_Perc_TreeCov_2021_065.tif")
+road_den <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/RoadDensity/grip4_total_dens_m_km2.asc")
+# elev <- rast("D:/CORREGIDAS/elevation_z7.tif")
+landcov <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/LandCover_Type_Yearly_500m_v61/LC1/MCD12Q1_LC1_2021_001.tif") 
+cattle <- rast("C:/CodigoR/WCS-CameraTrap/raster/latlon/Global cattle distribution/5_Ct_2010_Da.tif")
+#river <- st_read("F:/WCS-CameraTrap/shp/DensidadRios/MCD12Q1_LC1_2001_001_RECLASS_MASK_GRID_3600m_DensDrenSouthAmer.shp")
+
+# get elevation map
+# elevation_detailed <- rast(get_elev_raster(sites, z = 10, clip="bbox", neg_to_na=TRUE))
+# elevation_detailed <- get_elev_point (datos_sf, src="aws", overwrite=TRUE)
+
+
+# extract covs using points and add to sites
+# covs <- cbind(sites, terra::extract(SiteCovsRast, sites))
+per_tre <- terra::extract(per_tree_cov, datos_sf)
+roads <- terra::extract(road_den, datos_sf)
+# eleva <- terra::extract(elevation_detailed, sites)
+land_cov <- terra::extract(landcov, datos_sf)
+cattle_den <-  terra::extract(cattle, datos_sf)
+
+#### drop geometry 
+sites <- datos_sf %>%
+  mutate(lat = st_coordinates(.)[,1],
+         lon = st_coordinates(.)[,2]) %>%
+  st_drop_geometry() |> as.data.frame()
+
+# remove decimals convert to factor
+sites$land_cover <-  factor(land_cov$MCD12Q1_LC1_2021_001)
+# sites$elevation <-  eleva$file3be898018c3
+sites$per_tree_cov <- per_tre$MOD44B_Perc_TreeCov_2021_065 
+#  fix 200 isue
+ind <- which(sites$per_tree_cov== 200)
+sites$per_tree_cov[ind] <- 0
+
+# sites$elevation <- elevation_detailed$elevation
+sites$roads <- roads$grip4_total_dens_m_km2
+sites$cattle <- cattle_den[,2]
+
+
+# write.csv(sites, "C:/CodigoR/CameraTrapCesar/data/katios/stacked/site_covs.csv")
+
+
+
+```
+
+
+### First year 2021
+
+Here we use the function `detectionHistory()` from the package `camtrapR` to generate species detection histories that can be used later in occupancy analyses, with package `unmarked` and `ubms`. `detectionHistory()` generates detection histories in different formats, with adjustable occasion length and occasion start time and effort covariates. Notice we first need to get the camera operation dates using the function `cameraOperation()`.
+
+```{r}
+
+# filter first year and make uniques
+
+CToperation_2021  <- cam_deploy_image |> #multi-season data
+  filter(samp_year==2021) |> 
+  group_by(deployment_id) |> 
+  mutate(minStart=min(start_date), maxEnd=max(end_date)) |> 
+  distinct(longitude, latitude, minStart, maxEnd, samp_year) |> 
+  ungroup() |> as.data.frame()
+
+
+# Fix NA camera 16
+CToperation_2021[16,] <- c("CT-K1-31-124", -77.2787,	7.73855, 
+                      "2021-10-10", "2021-12-31", 2021)
+
+# make numeric sampling year
+CToperation_2021$samp_year <- as.numeric(CToperation_2021$samp_year)
+
+# camera operation matrix for _2021
+# multi-season data. Season1
+camop_2021 <- cameraOperation(CTtable= CToperation_2021, # Tabla de operación
+                         stationCol= "deployment_id", # Columna que define la estación
+                         setupCol= "minStart", #Columna fecha de colocación
+                         retrievalCol= "maxEnd", #Columna fecha de retiro
+                         sessionCol = "samp_year", # multi-season column
+                         #hasProblems= T, # Hubo fallos de cámaras
+                         dateFormat= "%Y-%m-%d")#, #, # Formato de las fechas
+                         #cameraCol="CT")
+                         #sessionCol= "samp_year")
+
+# Generar las historias de detección ---------------------------------------
+## remove plroblem species
+# ind <- which(datos_PCF$Species=="Marmosa sp.")
+# datos_PCF <- datos_PCF[-ind,]
+
+# filter y1
+datay_2021 <- cam_deploy_image |> filter(samp_year ==2021) # |> 
+  # filter(samp_year==2022) 
+
+DetHist_list_2021 <- lapply(unique(datay_2021$scientificName), FUN = function(x) {
+  detectionHistory(
+    recordTable         = datay_2021, # Tabla de registros
+    camOp                = camop_2021, # Matriz de operación de cámaras
+    stationCol           = "deployment_id",
+    speciesCol           = "scientificName",
+    recordDateTimeCol    = "timestamp",
+    recordDateTimeFormat  = "%Y-%m-%d %H:%M:%S",
+    species              = x,     # la función reemplaza x por cada una de las especies
+    occasionLength       = 15, # Colapso de las historias a días
+    day1                 = "station", #inicie en la fecha de cada survey
+    datesAsOccasionNames = FALSE,
+    includeEffort        = TRUE,
+    scaleEffort          = FALSE,
+    unmarkedMultFrameInput=TRUE,
+    timeZone             = "America/Bogota" 
+    )
+  }
+)
+
+# names
+names(DetHist_list_2021) <- unique(datay_2021$scientificName)
+
+# Finalmente creamos una lista nueva donde estén solo las historias de detección
+ylist_2021 <- lapply(DetHist_list_2021, FUN = function(x) x$detection_history)
+# y el esfuerzo
+effortlist_2021 <- lapply(DetHist_list_2021, FUN = function(x) x$effort)
+
+### Danta, Jaguar
+which(names(ylist_2021) =="Tapirus bairdii")
+which(names(ylist_2021) =="Panthera onca") 
+
+
+```
+
+
+
+## Fitting a spatial model for the Jaguar
+
+
+
+### Load the data
+
+```{r}
+jaguar <- read.csv("C:/CodigoR/CameraTrapCesar/data/katios/stacked/y_jaguar_stacked.csv") |> filter(year==2021) 
+
+# remove NA
+jaguar <- jaguar[-15,]
+
+
+projlatlon <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+datos_jaguar_sf <-  st_as_sf(x = jaguar,
+                         coords = c("lon", 
+                                    "lat"),
+                         crs = projlatlon) 
+
+
+```
+
+#### Look at the data
+
+```{r}
+
+datatable(head(jaguar))
+```
+
+Notice we collapsed the events to 15 days in the 2021 sampling season, and to 25 days in the 2022 sampling season, to end with 6 repeated observations in de matrix. In the matrix o1 to o6 are observations and e1 to e6 are sampling effort (observation-detection covariates). Land_cover, per_tree_cov and roads are site covariates (occupancy covariate).
+
+### Load and prepare data
+
+```{r}
+
+# 1. Data prep ------------------------------------------------------------
+# Read in the data source (reads in an object called data.list)
+load("C:/CodigoR/CameraTrapCesar/data/ribeiroJrEtAl2018Data.rda")
+# Check out the data list structure. Detection-nondetection data y
+# are currently formatted for multiple species models. 
+str(data.list)
+# Filter the detection-nondetection data to grab species of interest 
+# (Crossodactylus caramaschii)
+sp.indx <- which(dimnames(data.list$y)[[1]] == 'sCROCAR')
+# Create copy of data list
+data.crocar <- data.list
+data.crocar$y <- data.crocar$y[sp.indx, , ]
+str(data.crocar)
+
+
+# transform to utm
+datos_sf_2021_utm <- datos_jaguar_sf  |> # filter(samp_year==2021) |>
+  st_transform(crs =21891) #|> left_join(jaguar)
+
+jaguar_covs <- jaguar[,c(8,9,16:19)]
+#jaguar_covs$year <- as.factor(jaguar_covs$year)
+
+
+jaguar.data <- list()
+jaguar.data$coords <- st_coordinates(datos_sf_2021_utm)
+jaguar.data$y <- jaguar[,2:7]
+jaguar.data$occ.covs <- jaguar_covs
+jaguar.data$det.covs <- list(effort=jaguar[10:15])
+
+
+
+```
+
+### Fit models
+
+```{r}
+# 2. Model fitting --------------------------------------------------------
+# Fit a non-spatial, single-species occupancy model. 
+out <- PGOcc(occ.formula = ~ scale(per_tree_cov) + scale(roads) + 
+	                           scale(cattle), 
+             det.formula = ~ scale(effort), 
+	           data = jaguar.data, 
+	           n.samples = 50000, 
+	           n.thin = 2, 
+	           n.burn = 5000, 
+	           n.chains = 3,
+	           n.report = 500)
+
+summary(out)
+# Fit a spatial, single-species occupancy model.
+out.sp <- spPGOcc(occ.formula = ~ scale(per_tree_cov) + scale(roads) + 
+	                           scale(cattle), 
+             det.formula = ~ scale(effort), 
+	           data = jaguar.data, 
+             n.neighbors = 5,
+                 n.batch = 400, 
+                 batch.length = 15,
+	           n.samples = 50000, 
+	           n.thin = 2, 
+	           n.burn = 5000, 
+	           n.chains = 3,
+	           n.report = 500)
+
+summary(out.sp)
+```
+
+
+###  Model validation
+
+```{r}
+# 3. Model validation -----------------------------------------------------
+# Perform a posterior predictive check to assess model fit. 
+ppc.out <- ppcOcc(out, fit.stat = 'freeman-tukey', group = 1)
+ppc.out.sp <- ppcOcc(out.sp, fit.stat = 'freeman-tukey', group = 1)
+# Calculate a Bayesian p-value as a simple measure of Goodness of Fit.
+# Bayesian p-values between 0.1 and 0.9 indicate adequate model fit. 
+summary(ppc.out)
+summary(ppc.out.sp)
+
+# ## see model selection as a table
+# datatable( 
+#   round(modSel(mods), 3)
+#   )
+
+```
+
+### Model comparison
+
+```{r}
+# 4. Model comparison -----------------------------------------------------
+# Compute Widely Applicable Information Criterion (WAIC)
+# Lower values indicate better model fit. 
+waicOcc(out)
+waicOcc(out.sp)
+```
+
+> Best model is out.sp *(out.sp)* which deals with spatial autocorrelation.
+
+### Posterior summaries
+
+```{r}
+# 5. Posterior summaries --------------------------------------------------
+# Concise summary of main parameter estimates
+summary(out.sp)
+# Take a look at objects in resulting object
+names(out.sp)
+str(out.sp$beta.samples)
+# Probability the effect of tree cover on occupancy is positive
+mean(out.sp$beta.samples[, 1] > 0)
+# Create simple plot summaries using MCMCvis package.
+# Occupancy covariate effects ---------
+MCMCplot(out.sp$beta.samples, ref_ovl = TRUE, ci = c(50, 95))
+# Detection covariate effects --------- 
+MCMCplot(out.sp$alpha.samples, ref_ovl = TRUE, ci = c(50, 95))
+
+
+```
+
+Looking at the summary of `fit_j4`, we conclude MCMC chains have converged if all R\^\>1.05 To visualize convergence, look at the traceplots:
+
+```{r}
+# traceplot(fit_j4, pars=c("beta_state", "beta_det"))
+
+```
+
+### Prediction 
+
+across per_tree_cov 
+
+```{r}
+# 6. Prediction -----------------------------------------------------------
+# Predict occupancy along a gradient of forest cover.  
+# Create a set of values across the range of observed forest values
+forest.pred.vals <- seq(min(jaguar.data$occ.covs$per_tree_cov), 
+			                  max(jaguar.data$occ.covs$per_tree_cov), 
+			                  length.out = 100)
+
+# Scale predicted values by mean and standard deviation used to fit the model
+forest.pred.vals.scale <- (forest.pred.vals - mean(jaguar.data$occ.covs$per_tree_cov)) / sd(jaguar.data$occ.covs$per_tree_cov)
+
+# Predict occupancy across forest values at mean values of all other variables
+pred.df <- as.matrix(data.frame(intercept = 1, forest = forest.pred.vals.scale, roads = 0, cattle = 0))
+
+out.pred <- predict(out, pred.df)
+str(out.pred)
+psi.0.quants <- apply(out.pred$psi.0.samples, 2, quantile, 
+		                  prob = c(0.025, 0.5, 0.975))
+psi.plot.dat <- data.frame(psi.med = psi.0.quants[2, ], 
+			                     psi.low = psi.0.quants[1, ], 
+			                     psi.high = psi.0.quants[3, ], 
+                           forest = forest.pred.vals)
+ggplot(psi.plot.dat, aes(x = forest, y = psi.med)) + 
+  geom_ribbon(aes(ymin = psi.low, ymax = psi.high), fill = 'grey70') +
+  geom_line() + 
+  theme_bw() + 
+  scale_y_continuous(limits = c(0, 1)) + 
+  labs(x = 'Forest (% tree cover)', y = 'Occupancy Probability') 
+```
+
+
+
+
+
+
+## Package Citation
+
+```{r }
+pkgs <- cite_packages(output = "paragraph", out.dir = ".") #knitr::kable(pkgs)
+pkgs
+
+```
+
+## Session info
+
+<details>
+
+<summary>Session info</summary>
+
+```{r sessioninfo, echo = FALSE}
+#| label: sessioninfo
+options(width = 120)
+devtools::session_info()
+```
+
+</details>
