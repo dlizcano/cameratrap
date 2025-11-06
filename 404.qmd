@@ -1,9 +1,13 @@
 ---
 title: "404"
+site-path: "/cameratrap/"
+comments: false
 ---
 
-# Oh no! That page is nowhere to be found <i class="fas fa-search pr2"></i>
+# Oh no! That page is not here...
 
-It might have been removed, renamed, or has mysteriously disappeared. 
+<img src="/img/ConfusedMonkey.gif" alt="monkey" width="300"/>
+
+It might have been removed, renamed, or has mysteriously disappeared.
 
 Go back to the [homepage](/) to try finding it again, or try using the search feature.
