@@ -2,8 +2,10 @@
 
 <!-- badges: start -->
 
-[![Quarto Publish](https://github.com/dlizcano/cametrapcesar/actions/workflows/publish.yml/badge.svg)](https://github.com/dlizcano/cametrapcesar/actions/workflows/publish.yml)
+[![Quarto Publish](https://github.com/dlizcano/cameratrap/actions/workflows/publish.yml/badge.svg)](https://github.com/dlizcano/cameratrap/actions/workflows/publish.yml)
 
 <!-- badges: end -->
 
-This is the git repository for my [R analysis website](https://dlizcano.github.io/cametrapcesar).
+This is the GitHub repository for my [Camera Trap Blog](https://dlizcano.github.io/cametrap).
+
+
