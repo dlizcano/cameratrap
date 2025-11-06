@@ -19,7 +19,7 @@ about:
       href: https://dlizcano.github.io/
 ---
 
-Hi, my name is Diego Lizcano. As a _wildlife ecologist_, the [R statistical computing language](https://www.r-project.org/) is an important part of my daily workflow. I mainly use R for data analysis, modelling, and data manipulation.
+Hi, my name is Diego Lizcano. As a *wildlife ecologist*, the [R statistical computing language](https://www.r-project.org/) is an important part of my daily workflow. I mainly use R for data analysis, modelling, data manipulation and reporting.
 
 <img src="/img/me2024.jpg" alt="drawing" width="400"/>
 
@@ -27,21 +27,20 @@ Hi, my name is Diego Lizcano. As a _wildlife ecologist_, the [R statistical comp
 
 I am currently working as a data annalist for [WCS Andes-Amazon-Orinoco Region](http://www.wcs.org)
 
-**Some researches I am currently working on:**
+**Some research I am currently working on:**
 
-- Jaguar detection and occupancy analysis
+-   Jaguar detection and occupancy modeling
 
-- WCS Strongholds 
+-   WCS Strongholds analysis
 
 **I am always looking for new collaborations.** Do not hesitate to contact me!
 
 ## Scientific interests (no specific order)
 
-- Mammal ecology
+-   Mammal ecology
 
-- Cameratrap data analysis  
+-   Camera trap data analysis
 
-- Acoustics
+-   Acoustics
 
-- Ecological modeling 
-
+-   Ecological modeling

@@ -2,21 +2,23 @@ project:
   type: website
 
 website:
-  comments:
-    utterances:
-      repo: dlizcano/dlizcano.github.io
-  page-navigation: true
   title: "Camera Trap Blog"
-  site-url: "https://dlizcano.github.io/cametrapcesar"
-  description: "Cameratrap | Data visualization | R enthousiast"
+  site-url: "https://dlizcano.github.io/cametrap"
+  favicon: favicon.png
+  description: "Cameratrap | Occupancy model | Data visualization | R enthousiast"
   cookie-consent: false
   twitter-card: true
   open-graph:
     site-name: "Camera Trap Blog"
+  comments:
+    utterances:
+      repo: dlizcano/dlizcano.github.io
+  page-navigation: true
+  back-to-top-navigation: true
   navbar:
     right:
       - dataexploration.qmd
-      - diversity.qmd
+      - biodiversity.qmd
       - about.qmd
       - icon: github
         href: https://github.com/dlizcano
@@ -24,6 +26,19 @@ website:
         href: https://twitter.com/dlizcano
       - icon: rss
         href: index.xml
+  page-footer:
+    background: gray
+    left: This Camera Trap Blog is licensed under <br>[{{< fa brands creative-commons >}} {{< fa brands creative-commons-by >}} Creative Commons CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)</span>
+    right: Built with {{< fa heart title="a heart" >}}, [{{< fa brands r-project >}}](https://www.r-project.org/about.html) and 
+      [![](https://quarto.org/quarto.png){fig-alt="Quarto" width=65px}](https://quarto.org/) 
+    center: |
+     <a class="link-light me-1" href="https://bsky.app/profile/dlizcano.bsky.social" title="Bluesky" target="_blank" rel="noopener">{{< fa brands bluesky >}}</a>
+     <a class="link-light me-1" href="https://linkedin.com/in/lizcano" title="LinkedIn" target="_blank" rel="noopener">{{< fa brands linkedin >}}</a>
+     <a class="link-light me-1" href="https://github.com/dlizcano" title="github" target="_blank" rel="noopener">{{< fa brands github >}}</a>
+     <a class="link-light me-1" href="https://orcid.org/0000-0002-9648-0576" title="orcid" target="_blank" rel="noopener">{{< fa brands orcid >}}</a>
+     <a class="link-light me-1" href="https://scholar.google.com/citations?user=P6110SYAAAAJ&hl=en" title="Google Scholar" target="_blank"rel="noopener">{{< fa brands google-scholar >}}</a>
+
+
 format:
   html:
     toc: true
@@ -36,12 +51,16 @@ format:
     code-fold: true
     highlight-style: arrow
     mainfont: Fira Sans
-    fig-dpi: 600
+    fig-dpi: 350
     fig-align: center
     fig-width: 8
-    fig-asp: 0.618 # 1 / pi
+    fig-asp: 0.75 # 1 / pi
     fig-format: png
 
+
+
+editor: visual
+lightbox: true
 
 knitr:
   opts_chunk:
