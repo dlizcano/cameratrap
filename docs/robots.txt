@@ -1,1 +1,1 @@
-Sitemap: https://dlizcano.github.io/cametrap/sitemap.xml
+Sitemap: https://dlizcano.github.io/cameratrap/sitemap.xml
