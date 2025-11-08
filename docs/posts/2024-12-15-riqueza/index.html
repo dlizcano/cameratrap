@@ -4,11 +4,9 @@
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.8.25">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta name="author" content="Diego J. Lizcano">
-<meta name="author" content="Camilo Fernández-Rodríguez">
-<meta name="author" content="Katherine Pérez-Gómez">
+<meta name="author" content="Diego Lizcano">
 <meta name="dcterms.date" content="2024-06-25">
-<meta name="description" content="Uso de los paquetes vegan y iNext para analizar la diversidad con datos de fototrampeo">
+<meta name="description" content="Diego Lizcano is a Biodiversity scholar, researcher, and consultant. He studies and teaches ecology and conservation, biodiversity monitoring, mammals. Key words: Biodiversity monitoring, biodiversiuty conservation, occupancy modeling, R, camera trap, Colombia">
 <title>Riqueza de especies – Camera Trap Blog</title>
 <style>
 code{white-space: pre-wrap;}
@@ -132,14 +130,28 @@ div.csl-indent {
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
-}</script><style>
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-2XMZ0PKMPK"></script><script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-2XMZ0PKMPK', { 'anonymize_ip': true});
+</script><style>
 
       .quarto-title-block .quarto-title-banner {
         background-image: url(img/banner.jpg);
 background-size: cover;
       }
 </style>
-<link href="../../site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<!-- 
+Load Academicons v1: https://jpswalsh.github.io/academicons/
+--><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<!---
+The following code are needed to show dimension citation and altmetrics.
+https://api.altmetric.com/embeds.html
+https://badge.dimensions.ai/
+---><script type="text/javascript" src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script><script async="" src="https://badge.dimensions.ai/badge.js" charset="utf-8"></script><script type="text/javascript" src="//cdn.plu.mx/widget-popup.js"></script><link href="../../site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
 <script src="../../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><link href="../../site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
 <script src="../../site_libs/datatables-binding-0.34.0/datatables.js"></script><script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><link href="../../site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
 <link href="../../site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
@@ -153,13 +165,13 @@ background-size: cover;
 <link rel="stylesheet" href="../../styles.css">
 <meta property="og:title" content="Riqueza de especies – Camera Trap Blog">
 <meta property="og:description" content="Uso de los paquetes vegan y iNext para analizar la diversidad con datos de fototrampeo">
-<meta property="og:image" content="https://dlizcano.github.io/cametrap/posts/2024-12-15-riqueza/img/preview.png">
+<meta property="og:image" content="https://dlizcano.github.io/cameratrap/posts/2024-12-15-riqueza/img/preview.png">
 <meta property="og:site_name" content="Camera Trap Blog">
 <meta property="og:image:height" content="408">
 <meta property="og:image:width" content="661">
 <meta name="twitter:title" content="Riqueza de especies – Camera Trap Blog">
 <meta name="twitter:description" content="Uso de los paquetes vegan y iNext para analizar la diversidad con datos de fototrampeo">
-<meta name="twitter:image" content="https://dlizcano.github.io/cametrap/posts/2024-12-15-riqueza/img/preview.png">
+<meta name="twitter:image" content="https://dlizcano.github.io/cameratrap/posts/2024-12-15-riqueza/img/preview.png">
 <meta name="twitter:image-height" content="408">
 <meta name="twitter:image-width" content="661">
 <meta name="twitter:card" content="summary_large_image">
@@ -1479,12 +1491,12 @@ Zhu, Hao. 2024. <em><span class="nocase">kableExtra</span>: Construct Complex Ta
     Pérez-Gómez, Katherine},
   title = {Riqueza de Especies},
   date = {2024-06-25},
-  url = {https://dlizcano.github.io/cametrap/posts/2024-12-15-riqueza/},
+  url = {https://dlizcano.github.io/cameratrap/posts/2024-12-15-riqueza/},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-j._lizcano2024" class="csl-entry quarto-appendix-citeas" role="listitem">
 J. Lizcano, Diego, Camilo Fernández-Rodríguez, and Katherine
-Pérez-Gómez. 2024. <span>“Riqueza de Especies.”</span> June 25, 2024. <a href="https://dlizcano.github.io/cametrap/posts/2024-12-15-riqueza/">https://dlizcano.github.io/cametrap/posts/2024-12-15-riqueza/</a>.
+Pérez-Gómez. 2024. <span>“Riqueza de Especies.”</span> June 25, 2024. <a href="https://dlizcano.github.io/cameratrap/posts/2024-12-15-riqueza/">https://dlizcano.github.io/cameratrap/posts/2024-12-15-riqueza/</a>.
 </div></div></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right
@@ -1571,7 +1583,7 @@ Pérez-Gómez. 2024. <span>“Riqueza de Especies.”</span> June 25, 2024. <a h
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/dlizcano\.github\.io\/cametrap");
+        var filterRegex = new RegExp("https:\/\/dlizcano\.github\.io\/cameratrap");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
