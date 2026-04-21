@@ -1,9 +1,17 @@
 project:
   type: website
 
+# Meta
+description-meta: "Diego Lizcano is a Biodiversity scholar, researcher, and consultant. He studies and teaches ecology and conservation, biodiversity monitoring, mammals. Key words: Biodiversity monitoring, biodiversiuty conservation, occupancy modeling, R, camera trap, Colombia"
+author-meta: "Diego Lizcano"
+
 website:
+  google-analytics:
+    tracking-id: "G-2XMZ0PKMPK" # Replace with your own actual GA4 tracking ID
+    anonymize-ip: true
   title: "Camera Trap Blog"
-  site-url: "https://dlizcano.github.io/cametrap"
+  llms-txt: true # add llms.txt to the site
+  site-url: "https://dlizcano.github.io/cameratrap"
   favicon: favicon.png
   description: "Cameratrap | Occupancy model | Data visualization | R enthousiast"
   cookie-consent: false
@@ -56,6 +64,7 @@ format:
     fig-width: 8
     fig-asp: 0.75 # 1 / pi
     fig-format: png
+    include-in-header: "files/includes/_academic.qmd" # badges
 
 
 

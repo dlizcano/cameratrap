@@ -7,5 +7,3 @@
 <!-- badges: end -->
 
 This is the GitHub repository for my [Camera Trap Blog](https://dlizcano.github.io/cametrap).
-
-

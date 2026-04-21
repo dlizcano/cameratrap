@@ -1,0 +1,20 @@
+# Camera Trap Blog
+
+> Cameratrap | Occupancy model | Data visualization | R enthousiast
+
+## Pages
+
+- [Shaping Wildlife Insights Data](https://dlizcano.github.io/cameratrap/posts/2026-01-01-wildlifeinsights-to-detections/index.llms.md)
+- [Riqueza de especies](https://dlizcano.github.io/cameratrap/posts/2024-12-15-riqueza/index.llms.md)
+- [Single Season Occupancy Model](https://dlizcano.github.io/cameratrap/posts/2024-07-29-sigle-season-occupancy/index.llms.md)
+- [A multi-species (species interactions) occupancy model](https://dlizcano.github.io/cameratrap/posts/2024-07-05-multi-species-interacting-occupancy/index.llms.md)
+- [Multispecies occupancy model](https://dlizcano.github.io/cameratrap/posts/2024-06-20-multispecies-occupancy/index.llms.md)
+- [index](https://dlizcano.github.io/cameratrap/index.llms.md)
+- [Biodiversity](https://dlizcano.github.io/cameratrap/biodiversity.llms.md)
+- [About](https://dlizcano.github.io/cameratrap/about.llms.md)
+- [Data exploration](https://dlizcano.github.io/cameratrap/dataexploration.llms.md)
+- [A calendar to visualize camera trap data](https://dlizcano.github.io/cameratrap/posts/2024-06-15-visualizing-the-data/index.llms.md)
+- [Species diversity](https://dlizcano.github.io/cameratrap/posts/2024-06-25-species-diversity/index.llms.md)
+- [“Stacked” Models](https://dlizcano.github.io/cameratrap/posts/2024-07-17-stackmodel/index.llms.md)
+- [Esfuerzo de muestreo y RAI en Fototrampeo](https://dlizcano.github.io/cameratrap/posts/2024-12-10-RAI/index.llms.md)
+- [Spatial, single-species occupancy model](https://dlizcano.github.io/cameratrap/posts/2025-06-01-spatial-single-species-occupancy/index.llms.md)

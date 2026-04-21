@@ -34,6 +34,42 @@ This information is not just interesting—it's the foundation for effective, sc
 
 ### 5. They Tell a Powerful Story
 
-Finally, camera traps serve as a powerful tool for public outreach. The captivating images and videos of a mother Jaguar with her cubs, a majestic tiger, a tapir and baby can be shared on social media, presented in documentaries, and in educational programs. **They help people feel a personal connection to wildlife**, inspiring a sense of wonder and urgency to protect these magnificent creatures.  
+Finally, camera traps serve as a powerful tool for public outreach. The captivating images and videos of a mother Jaguar with her cubs, a majestic tiger, a tapir and baby can be shared on social media, presented in documentaries, and in educational programs. **They help people feel a personal connection to wildlife**, inspiring a sense of wonder and urgency to protect these magnificent creatures.
 
 In a world facing a global biodiversity crisis, camera traps offer hope. They provide us with the evidence, insights, and inspiration we need to make informed decisions and ensure that the planet's incredible wildlife will thrive for generations to come.
+
+## My Contribution
+
+### Early Works
+
+<!--Include academic icons and altmetric badges-->
+{{< include /files/includes/_academic.qmd >}}
+
+<!--This is my personal clarity, please delete or replace with your own clarity-->
+{{< include /files/includes/_msclarity.qmd >}}
+
+My experience with camera traps dates back to the very first models—those that still relied on film and offered only 36 exposures. We've come a long way since then!
+
+Despite the technological limitations, those early cameras were crucial. They allowed us to capture the first photographic records of the elusive mountain tapir (*Tapirus pinchaque*) and, using those images, we were able to describe their activity patterns. This pioneering work was published in the following article:  
+
+![Mountain Tapir picture](https://www.tapirday.org/uploads/4/4/7/5/44751977/6064933_orig.jpg){width="550"}
+
+**Lizcano DJ**, and Cavelier J. 2000. Daily and seasonal activity of the mountain tapir (*Tapirus pinchaque*) in the Central Andes of Colombia. Journal of Zoology. 252(4):429-435. [doi:10.1111/j.1469-7998.2000.tb01225.x](https://doi.org/10.1111/j.1469-7998.2000.tb01225.x)<span class="__dimensions_badge_embed__" data-doi="10.1111/j.1469-7998.2000.tb01225.x" data-style="large_rectangle"></span> <div data-badge-popover="right" data-badge-type="1" data-doi="10.1111/j.1469-7998.2000.tb01225.x" data-hide-no-mentions="true" class="altmetric-embed"></div>.      
+
+
+A decade later, I had the opportunity to collaborate with the [Tropical Ecology and Assessment Network (TEAM)](https://www.wildlifeinsights.org/team-network), utilizing data collected by Johana Hurtado in Costa Rica. This partnership resulted in the publication of an amazing work:
+
+![Occupancy map](https://journals.plos.org/plosone/article/figure/image?size=large&id=10.1371/journal.pone.0073707.g001){width="550"}
+
+Ahumada JA, Hurtado J, **Lizcano D.** 2013. Monitoring the Status and Trends of Tropical Forest Terrestrial Vertebrate Communities from Camera Trap Data: A Tool for Conservation. PLoS ONE 8(9): e73707. [doi:10.1371/journal.pone.0073707](https://doi.org/10.1371/journal.pone.0073707)<span class="__dimensions_badge_embed__" data-doi="10.1371/journal.pone.0073707" data-style="large_rectangle"></span> <div data-badge-popover="right" data-badge-type="1" data-doi="10.1371/journal.pone.0073707" data-hide-no-mentions="true" class="altmetric-embed"></div>     
+
+### More Recently
+
+More recently, I have focused my efforts on promoting the use of camera traps and their analytical methods within the Spanish-speaking community.   
+
+
+Andrade-Ponce G, Cepeda-Duque JC, Mandujano S, Velásquez-C KL, Gómez-Valencia B, y **Lizcano DJ.** 2021. Modelos De ocupación Para Datos De cámaras Trampa. Mammalogy Notes 7 (1), 200. [doi:10.47603/mano.v7n1.200](https://doi.org/10.47603/mano.v7n1.200)<span class="__dimensions_badge_embed__" data-doi="10.47603/mano.v7n1.200" data-style="large_rectangle"></span> <div data-badge-popover="right" data-badge-type="1" data-doi="10.47603/mano.v7n1.200" data-hide-no-mentions="true" class="altmetric-embed"></div>.      
+
+
+
+**Lizcano DJ.** 2018. Trampas cámara Como Herramienta Para Estudiar Mamíferos Silvestres. Mammalogy Notes 5 (1-2), 31-35.  [doi:10.47603/manovol5n1.31-35](https://doi.org/10.47603/manovol5n1.31-35)<span class="__dimensions_badge_embed__" data-doi="10.47603/manovol5n1.31-35" data-style="large_rectangle"></span> <div data-badge-popover="right" data-badge-type="1" data-doi="10.47603/manovol5n1.31-35" data-hide-no-mentions="true" class="altmetric-embed"></div>.  

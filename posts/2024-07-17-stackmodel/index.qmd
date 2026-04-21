@@ -30,7 +30,7 @@ Multi-season (or dynamic) models are commonly used to estimate colonization and/
 
 One of the advantages of the package `ubms` is that it is possible to include random effects easily in your models, using the same syntax as `lme4` (Bates et al. 2015). For example, if you have a group or site covariate, you can fit a model with random intercepts by group-site by including + (1\|site) in your parameter formula. Random slopes, or a combination of random slopes and intercepts, are also possible.
 
-To illustrate the use of random effects using the package `ubms`, in this post, we fit a model using a “stacked” model approach. Additionally in `ubms` you can instead include, for example, random site intercepts to account for possible pseudoreplication.
+To illustrate the use of random effects using the package `ubms`, in this post, we fit a model using a “stacked” model approach. Additionally in `ubms` you can instead include, for example, random site intercepts to account for possible pseudoreplication, or handle the temporal autocorrelation structure of o two-three year dataset. 
 
 Recently (February 2025) [version 1.5.0 of `unmarked`](https://github.com/biodiverse/unmarked/releases/tag/v1.5.0) also incorporated random effects and community models.
 
@@ -674,7 +674,7 @@ pkgs
 
 ```
 
-## Sesion info
+## Session info
 
 <details>
 

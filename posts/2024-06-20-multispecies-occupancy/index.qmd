@@ -6,6 +6,7 @@ author:
   - name: 'Diego J. Lizcano'
     orcid: 0000-0002-9648-0576
     affiliation: "WildMon"
+    affiliation-url: "https://wildmon.ai/team"
 date: '2024-06-23'
 file-modified: Sys.Date()
 categories: [R, occupancy, JAGS, camtrapR]
@@ -63,15 +64,13 @@ library(tidyverse) # Easily Install and Load the 'Tidyverse'
 
 ## Load data
 
-The data set is i a excel file so we use read_excel function  to load it.
+The data set is i a excel file so we use read_excel function to load it.
 
 ```{r warning=FALSE}
 
 datos <- read_excel("C:/CodigoR/CameraTrapCesar/data/CT_Cesar.xlsx")
 
 ```
-
-
 
 ## Selecting Just CT_Becerril 2021
 
@@ -98,10 +97,9 @@ CToperation  <- datos_PCF |> filter(Year==2021) |> group_by(Station) |>
 
 ```
 
+## Generating cameraOperation and making detection histories for all the species.
 
-## Generating cameraOperation and making detection histories for all the species. 
-
-The package CamtrapR has the function 'cameraOperation' which makes a table of cameras (stations) and dates (setup, puck-up), this table is key to generate the detection histories using the function 'detectionHistory' in the next step. 
+The package CamtrapR has the function 'cameraOperation' which makes a table of cameras (stations) and dates (setup, puck-up), this table is key to generate the detection histories using the function 'detectionHistory' in the next step.
 
 ```{r }
 # Generamos la matríz de operación de las cámaras
@@ -150,8 +148,8 @@ ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
 
 ```
 
-
 ## Preparing spatial covariates
+
 ### make sf object, get elevation and derive terrain (slope and roughness).
 
 We use the lat and long to make a sf object with the camera locations.
@@ -185,7 +183,7 @@ mapview(elev) + mapview(datos_PCF_sf)
 
 ### Extract values from the rasters
 
-We use the camera locations to extract the raster (elevations, slope and roughness) information. 
+We use the camera locations to extract the raster (elevations, slope and roughness) information.
 
 ```{r}
 
@@ -199,9 +197,10 @@ covs <- terra::extract(cos_rast, datos_PCF_sf)
 ```
 
 ## Multispecies occupancy model
+
 ### Preparing the model
 
-Now  we have all ready to make our model.  We put the data of the species, and the covariates in a list. 
+Now we have all ready to make our model. We put the data of the species, and the covariates in a list.
 
 ```{r}
 
@@ -225,7 +224,8 @@ modelfile <- (fileext = "modoccu.txt")
 ```
 
 ### Generating the model
-We use the function 'communityModel' to setup our model, selecting which covariates is for detection or occupancy and if it is fixed or random effect. 
+
+We use the function 'communityModel' to setup our model, selecting which covariates is for detection or occupancy and if it is fixed or random effect.
 
 ```{r}
 
@@ -242,7 +242,6 @@ summary(comu_model)
 
 
 ```
-
 
 ### Running the model
 
@@ -277,9 +276,10 @@ load("C:/CodigoR/CameraTrapCesar/posts/2024-06-20-multispecies-occupancy/result/
 
 ```
 
-
 ### See the results
+
 #### As a table
+
 ```{r}
 
 # Resultados --------------------------------------------------------------
@@ -292,6 +292,7 @@ DT::datatable(round(summary(fit.commu)$statistics, 3))
 ```
 
 #### As graphs
+
 ```{r}
 # Gráficos de predicción y de coeficientes
 
@@ -401,13 +402,14 @@ plotN
 ```
 
 ### Spatial prediction
+
 #### Occupancy
 
-Just like magic `camtrapR` allow us to make predictions using a raster object, obtaining maps of richness and occupancy per species. 
+Just like magic `camtrapR` allow us to make predictions using a raster object, obtaining maps of richness and occupancy per species.
 
 > Be aware if you used a large number in interations for better fit in the Running model part, you can get the Error: cannot locate a vector size 467.8 Gb
 
-Here we are plotting only the first 9 species for space reasons. 
+Here we are plotting only the first 9 species for space reasons.
 
 ```{r}
 #| echo: true
@@ -432,7 +434,6 @@ plot(predictions_psi$mean, zlim = c(0,1),
        asp = 1)  
   
 ```
-
 
 ```{r}
 #| echo: false
@@ -488,7 +489,7 @@ plot(predictions_rich, zlim = c(0,1),
        asp = 1)  
 
 ```
- 
+
 An additional option to avoid the out of memory issue is to aggregate the pixel size in the raster object before making the prediction.
 
 ```{r}
@@ -498,7 +499,6 @@ An additional option to avoid the out of memory issue is to aggregate the pixel 
 agregated_raster <- aggregate(old_raster, fact = 10) # aggregate 10 pixels in one
 
 ```
-
 
 ## Package Citation
 
@@ -510,10 +510,8 @@ pkgs
 
 ## Sesion info
 
-
-
 <details>
-  
+
 <summary>Session info</summary>
 
 ```{r sessioninfo, echo = FALSE}
@@ -523,6 +521,3 @@ devtools::session_info()
 ```
 
 </details>
-
-
-

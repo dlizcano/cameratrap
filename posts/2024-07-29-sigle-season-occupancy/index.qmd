@@ -47,7 +47,7 @@ library(tidyverse) # Easily Install and Load the 'Tidyverse'
 
 The workflow starts with package [`unmarked`](https://biodiverse.github.io/unmarked/) for organize data and continue with the package [`ubms`](https://biodiverse.github.io/ubms/) for model building, selection and prediction. The first step to perform the analysis is to organize data following the `unmarked` package. The data should have detection, non-detection records along with the covariates.
 
-See the `unmarked::unmarkedFrameOccu` function for details typing:  ?unmarkedFrameOccu in your R console.
+See the `unmarked::unmarkedFrameOccu` function for details typing: ?unmarkedFrameOccu in your R console.
 
 ```{r}
 #| label: renv
@@ -180,7 +180,7 @@ f.matrix.creator<-function(data){
 }
 ```
 
-### Apply the function to get _Tapirus bairdii_ detection matrix
+### Apply the function to get *Tapirus bairdii* detection matrix
 
 ```{r}
 
@@ -237,10 +237,9 @@ sites$cattle <- cattle_den[,2]
 
 ### Lets extract percent tree cover 2012 to be used as site covariate
 
-The covariate is coming from MODIS. MOD44B Version 6 Vegetation Continuous Fields (VCF).
-[https://lpdaac.usgs.gov/products/mod44bv006/](https://lpdaac.usgs.gov/products/mod44bv006/)
+The covariate is coming from MODIS. MOD44B Version 6 Vegetation Continuous Fields (VCF). <https://lpdaac.usgs.gov/products/mod44bv006/>
 
-We plot the cameras as sf object on top the map and extract the values using the function `terra::extract` 
+We plot the cameras as sf object on top the map and extract the values using the function `terra::extract`
 
 ```{r}
 # load the raster map
@@ -258,12 +257,9 @@ katios_sf$per_tree_cov <- per_tre$MOD44B_Perc_TreeCov_2012_065
 
 ```
 
-
-
 ## Create unmarked frame object
 
 Lets use the `unmarked` package to make an unmarkedFrameOccu object.
-
 
 ```{r}
 #| fig-cap: "Sites against days (observation)"
@@ -282,7 +278,7 @@ unmarked::summary(umf)
 
 ## Fit models
 
-lets use `ubms` package to fit several models. We contrast the null model (no covariates) against a model with percent tree cover to explain the occupancy. For this example we are not using covariates for the detection part. 
+lets use `ubms` package to fit several models. We contrast the null model (no covariates) against a model with percent tree cover to explain the occupancy. For this example we are not using covariates for the detection part.
 
 ```{r}
 # fit_0 <- occu(~1~1, data=umf) # unmarked
@@ -312,9 +308,7 @@ datatable(
 
 ```
 
-
 The model p(.)psi(per_tree_cov) is the "better".
-
 
 #### Estimates for the null model
 
@@ -325,13 +319,13 @@ Estimated values for the null model `p(.)psi(.)` are: `{r} plogis(coef(fit_j0))`
 ```{r}
 fit_j2
 ```
-we conclude MCMC chains have converged if all R>1.05  
-Convergence here is not that good...
 
+we conclude MCMC chains have converged if all R\>1.05\
+Convergence here is not that good...
 
 ### Model convergence
 
-Let see the chains. 
+Let see the chains.
 
 ```{r}
 #| fig-cap: "Chains trace plot. The chains should be converging"
@@ -355,8 +349,8 @@ fit_top_gof
 # plot(fit_top_gof)
 
 ```
-0.14 is not that bad. 
 
+0.14 is not that bad.
 
 ### Model inference
 
@@ -369,6 +363,7 @@ No covariate for detection, and percent of forest tree cover in occupancy.
 ubms::plot_effects(fit_j2, "state")
 
 ```
+
 The error band is large but there is a clear trend.
 
 ### Spatial model
@@ -427,7 +422,6 @@ mapview(katios_occu, col.regions= pal, alpha = 0.5) + mapview(katios_sf, cex=2)
 
 
 ```
-
 
 ## Package Citation
 

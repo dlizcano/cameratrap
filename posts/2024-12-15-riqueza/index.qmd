@@ -348,9 +348,9 @@ plot(pool)
 
 ### Rango Abundancia Dominancia
 
-Un enfoque alternativo para la distribución de la abundancia de especies es representar gráficamente las abundancias logarítmicas en orden decreciente o en función de los rangos de especies. Estos tambien son conocidos como Whittaker plots. 
+Un enfoque alternativo para la distribución de la abundancia de especies es representar gráficamente las abundancias logarítmicas en orden decreciente o en función de los rangos de especies. Estos tambien son conocidos como Whittaker plots.
 
-Las curvas de Rango Abundancia Dominancia muestran la abundancia logarítmica de las especies en función de su orden jerárquico. Se supone que estos gráficos son eficaces para analizar los tipos de distribución de la abundancia en las comunidades. 
+Las curvas de Rango Abundancia Dominancia muestran la abundancia logarítmica de las especies en función de su orden jerárquico. Se supone que estos gráficos son eficaces para analizar los tipos de distribución de la abundancia en las comunidades.
 
 ```{r}
 k <- sample(nrow(mat_vegan), 1)
@@ -367,9 +367,9 @@ plot(mod)
 
 ### Diversidad de Hill usando el paquete `vegan`
 
-La función `renyi` encuentra diversidades de Rényi en las  escala del número de Hill correspondiente.
+La función `renyi` encuentra diversidades de Rényi en las escala del número de Hill correspondiente.
 
-Calculemos las curvas de acumulación de especies para todos los los sitios. 
+Calculemos las curvas de acumulación de especies para todos los los sitios.
 
 ```{r}
 # data(BCI)
@@ -379,7 +379,7 @@ plot(mod2)
 
 ```
 
-Ahora comparemos los sitios 1 al 18 que corresponden la Paz Manaure Vs. Beccerril que son los sitios  19 al 41. Note que el sitio 12 no tiene ninguna especie, asi que debe ser eliminado. 
+Ahora comparemos los sitios 1 al 18 que corresponden la Paz Manaure Vs. Beccerril que son los sitios 19 al 41. Note que el sitio 12 no tiene ninguna especie, asi que debe ser eliminado.
 
 ```{r}
 # sitios 19 a 41
@@ -396,13 +396,13 @@ plot(mod4, as.table=TRUE, col = c(1, 2, 2))
 ```
 
 Las graficas tambien se pueden ver en 3D
+
 ```{r}
 
 par(mfrow = c(1, 2))
 persp(mod3)
 persp(mod4)
 ```
-
 
 ### Número total de especies
 
